@@ -11,9 +11,11 @@ class VeriTabani {
 		$this->hataTopluIslem	= false;
 
 		try {
-				//$this->vt = new PDO( "mysql:host=localhost; dbname=tds", "root", "" );
-				$this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_tds", "syntaxbi_tds_usr", "6vH@+S9C" );
-		} catch ( PDOException $e ) {
+            if( $_SERVER['SERVER_NAME'] == "localhost" )
+                $this->vt = new PDO( "mysql:host=localhost; dbname=tds", "root", "" );
+            else
+                $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_tds", "syntaxbi_tds_usr", "6vH@+S9C" );
+        } catch ( PDOException $e ) {
 			echo "Veritabanı bağlantısı sağlanamadı";
 			exit;
 		}
@@ -33,7 +35,7 @@ class VeriTabani {
 		$sonuc		= $sorguHazir->fetchAll( PDO::FETCH_ASSOC );
 		$hataDizi	= $sorguHazir->errorInfo();
 		$hataMesaj	= str_replace( "'", "\'", $hataDizi[ 2 ] );
-		if( strlen( $hataMesaj ) > 0 ) {
+		if( $hataDizi[ 0 ] != "00000" ) {
 			$this->hataLocal		= true;
 			$this->hataTopluIslem	= true;
 		}
@@ -48,7 +50,7 @@ class VeriTabani {
 		$sonuc		= $sorguHazir->fetch( PDO::FETCH_ASSOC );
 		$hataDizi	= $sorguHazir->errorInfo();
 		$hataMesaj	= str_replace( "'", "\'", $hataDizi[ 2 ] );
-		if( strlen( $hataMesaj ) > 0 ) {
+		if( $hataDizi[ 0 ] != "00000" ) {
 			$this->hataLocal		= true;
 			$this->hataTopluIslem	= true;
 		}
@@ -62,7 +64,7 @@ class VeriTabani {
 		$sorguHazir->execute( $param );
 		$hataDizi	= $sorguHazir->errorInfo();
 		$hataMesaj	= str_replace( "'", "\'", $hataDizi[ 2 ] );
-		if( strlen( $hataMesaj ) > 0 ) {
+		if( $hataDizi[ 0 ] != "00000" ) {
 			$this->hataLocal		= true;
 			$this->hataTopluIslem	= true;
 		}
@@ -76,7 +78,7 @@ class VeriTabani {
 		$sorguHazir->execute( $param );
 		$hataDizi	= $sorguHazir->errorInfo();
 		$hataMesaj	= str_replace( "'", "\'", $hataDizi[ 2 ] );
-		if( strlen( $hataMesaj ) > 0 ) {
+		if( $hataDizi[ 0 ] != "00000" ) {
 			$this->hataLocal		= true;
 			$this->hataTopluIslem	= true;
 		}
@@ -91,7 +93,7 @@ class VeriTabani {
 		$silinenKayitSayisi = $sorguHazir->rowCount();
 		$hataDizi			= $sorguHazir->errorInfo();
 		$hataMesaj			= str_replace( "'", "\'", $hataDizi[ 2 ] );
-		if( strlen( $hataMesaj ) > 0 ) {
+		if( $hataDizi[ 0 ] != "00000" ) {
 			$this->hataLocal		= true;
 			$this->hataTopluIslem	= true;
 		}
@@ -106,7 +108,7 @@ class VeriTabani {
 		$sonuc		= $sorguHazir->fetchColumn();
 		$hataDizi	= $sorguHazir->errorInfo();
 		$hataMesaj	= str_replace( "'", "\'", $hataDizi[ 2 ] );
-		if( strlen( $hataMesaj ) > 0 ) {
+		if( $hataDizi[ 0 ] != "00000" ) {
 			$this->hataLocal		= true;
 			$this->hataTopluIslem	= true;
 		}
