@@ -1,0 +1,15 @@
+.profile-user-img-personel-listesi {
+	border: 1px solid #adb5bd;
+	margin: 0 auto;
+	padding: 1px;
+	width: 40px;
+}
+
+.input-group .input-group-prepend.personel-ekle {
+    flex: 0 0 50%;
+}
+
+.input-group .input-group-text.personel-ekle {
+    width: 100%;
+}
+

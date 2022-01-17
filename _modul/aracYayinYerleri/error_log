@@ -1,0 +1,6 @@
+[16-Mar-2021 22:16:23 Europe/Istanbul] PHP Notice:  Undefined variable: encoding in /home/vqijczbluyf3/public_html/wowbis.otowow.com/_cekirdek/fonksiyonlar.php on line 414
+[16-Mar-2021 22:16:23 Europe/Istanbul] PHP Warning:  mb_substr(): Unknown encoding &quot;&quot; in /home/vqijczbluyf3/public_html/wowbis.otowow.com/_cekirdek/fonksiyonlar.php on line 414
+[16-Mar-2021 22:17:03 Europe/Istanbul] PHP Notice:  Undefined variable: encoding in /home/vqijczbluyf3/public_html/wowbis.otowow.com/_cekirdek/fonksiyonlar.php on line 414
+[16-Mar-2021 22:17:03 Europe/Istanbul] PHP Warning:  mb_substr(): Unknown encoding &quot;&quot; in /home/vqijczbluyf3/public_html/wowbis.otowow.com/_cekirdek/fonksiyonlar.php on line 414
+[14-Apr-2021 10:15:19 Europe/Istanbul] PHP Notice:  Undefined variable: encoding in /home/vqijczbluyf3/public_html/wowbis.otowow.com/_cekirdek/fonksiyonlar.php on line 414
+[14-Apr-2021 10:15:19 Europe/Istanbul] PHP Warning:  mb_substr(): Unknown encoding &quot;&quot; in /home/vqijczbluyf3/public_html/wowbis.otowow.com/_cekirdek/fonksiyonlar.php on line 414

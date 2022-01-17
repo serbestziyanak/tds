@@ -1,0 +1,56 @@
+.list-group-item {
+	position: relative;
+	display: block;
+	padding: 7px 10px;
+	margin-bottom: -1px;
+	background-color: #FFF;
+	border: 1px solid #DDD;
+}
+
+.just-padding {
+  padding: 15px;
+}
+
+.list-group.list-group-root {
+  padding: 0;
+  overflow: hidden;
+}
+
+.list-group.list-group-root .list-group {
+  margin-bottom: 0;
+}
+
+.list-group.list-group-root .list-group-item {
+  border-radius: 0;
+  border-width: 1px 0 0 0;
+}
+
+.list-group.list-group-root > .list-group-item:first-child {
+  border-top-width: 0;
+}
+
+.list-group.list-group-root > .list-group > .list-group-item {
+  padding-left: 30px;
+}
+
+.list-group.list-group-root > .list-group > .list-group > .list-group-item {
+  padding-left: 45px;
+}
+
+.firma-listesi{
+	margin-left : -45px !important
+}
+
+.firma-listesi ul {
+  list-style-type: none;
+}
+
+.firma-listesi ul a:hover {
+	background-color : #4285F4 !important;
+	color : #fff !important;
+}
+
+.secili_firma {
+	background-color : #42a5f5 !important;
+	color : #fff !important;
+}
