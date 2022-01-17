@@ -1,5 +1,5 @@
 <?php
-echo $_SERVER['SERVER_NAME'];
+echo $_SERVER['SERVER_NAME']." serbest";
 ?>
         <!-- Small boxes (Stat box) -->
         <div class="row">
