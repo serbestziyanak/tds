@@ -1,3 +1,6 @@
+<?php
+echo $_SERVER['SERVER_NAME'];
+?>
         <!-- Small boxes (Stat box) -->
         <div class="row">
           <div class="col-lg-3 col-6">

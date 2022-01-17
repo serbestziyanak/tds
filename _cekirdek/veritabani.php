@@ -11,6 +11,7 @@ class VeriTabani {
 		$this->hataTopluIslem	= false;
 
 		try {
+				//$this->vt = new PDO( "mysql:host=localhost; dbname=tds", "root", "" );
 				$this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_tds", "syntaxbi_tds_usr", "6vH@+S9C" );
 		} catch ( PDOException $e ) {
 			echo "Veritabanı bağlantısı sağlanamadı";
