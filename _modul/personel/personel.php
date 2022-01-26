@@ -84,6 +84,54 @@ $tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
 $personel_detaylar			= $vt->select( $SQL_personel_detaylar, array( $personel_id ) );
 
+// id
+// adi
+// soyadi
+// kayit_no
+// grup_id
+// sicil_no
+// ise_giris_tarihi
+// isten_cikis_tarihi
+// ucret
+// sube_id
+// bolum_id
+// servis
+// ozel_kod1_id
+// ozel_kod2_id
+// uyruk_id
+// cinsiyet
+// cuzdan_no
+// baba_adi
+// ana_adi
+// dogum_yeri_id
+// dogum_tarihi
+// kizlik_soyadi
+// medeni_hali
+// tc_no
+// egitim_id
+// il_id
+// ilce_id
+// mahalle
+// cilt
+// aile_sira
+// verilis_nedeni
+// verilis_tarihi
+// semt
+// sabit_telefon
+// mobil_telefon
+// sigorta_no
+// sigarta_basi
+// sigorta_sonu
+// ek_grup_id
+// diger_odeme
+// gunluk_odeme
+// aylik_ek_odeme
+// banka_sube
+// banka_hesap_no
+// kart_no
+// izin_baslama_tarihi
+// kalan_izi
+// odenen_izin
 
 
 $secilen_personel_bilgileri = array(
@@ -125,227 +173,430 @@ $secilen_personel_bilgileri = array(
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-3">
-				<div class="card card-primary card-outline">
-					<div class="card-body box-profile">
-						<div class="text-center">
-						<img class="profile-user-img img-fluid img-circle" src="<?php echo 'personel_resimler/' . $secilen_personel_bilgileri[ 'personel_resim' ]; ?>" alt="User profile picture">
-						</div>
-
-						<h3 class="profile-username text-center"><?php echo $secilen_personel_bilgileri[ 'adi' ] . " " . $secilen_personel_bilgileri[ 'soyadi' ]; ?></h3>
-
-						<p class="text-muted text-center"><?php echo $secilen_personel_bilgileri[ 'firma_adi' ]; ?></p>
-
-						<ul class="list-group list-group-unbordered mb-3">
-							<li class="list-group-item">
-								<b>TC No</b> <a class="float-right"><?php echo $secilen_personel_bilgileri[ 'tc_no' ]; ?></a>
-							</li>
-							<li class="list-group-item">
-								<b>SGK Kanun No</b> <a class="float-right"><?php echo $secilen_personel_bilgileri[ 'sgk_kanun_no_adi' ]; ?></a>
-							</li>
-							<li class="list-group-item">
-								<b>Çalışma Günü</b> <a class="float-right"><?php echo $secilen_personel_bilgileri[ 'calisma_gunu' ]; ?></a>
-							</li>
-							<li class="list-group-item">
-								<b>Ücret</b> <a class="float-right"><?php echo number_format( $secilen_personel_bilgileri[ 'ucret' ], 2, ',', '.'); ?></a>
-							</li>
-							<li class="list-group-item">
-								<b>Avans Toplamı</b> <a class="float-right"><?php echo number_format( $secilen_personel_bilgileri[ 'avans_toplami' ], 2, ',', '.'); ?></a>
-							</li>
-							<li class="list-group-item">
-								<b>Bankaya Ödenen</b> <a class="float-right"><?php echo number_format( $secilen_personel_bilgileri[ 'bankaya_odenen' ], 2, ',', '.'); ?></a>
-							</li>
-						</ul>
-
-						<a href="?modul=personelEkle&islem=guncelle&personel_id=<?php echo $personel_id; ?>" class="btn btn-primary btn-block"><b>Düzenle</b></a>
-					</div>
-					<!-- /.card-body -->
-				</div>
-				<div class="card card-primary card-outline">
+			<div class="col-md-8">
+					<div class="card card-secondary">
 					<div class="card-header">
-						<h3 class="card-title">Personel Seçin</h3>
-						<div class = "card-tools">
-							<a href="?modul=personelEkle&islem=ekle" class="btn btn-sm btn-default"><span class="fa fa-user-plus"></span></a>
-						</div>
+						<h3 class="card-title">Personeller</h3>
 					</div>
 					<div class="card-body">
-						<div class="form-group">
-							<select  class="form-control select2" name = "personel_id" id = "personel_id" data-placeholder = "Personel ara...">
-									<option value="">Seçiniz</option>
-								<?php foreach( $personeller[ 2 ] AS $personel ) { ?>
-									<option value = "<?php echo $personel[ 'id' ]; ?>" <?php if( $personel_id == $personel[ 'id' ] ) echo 'selected'?>><?php echo $personel[ 'adi' ] . " " . $personel[ 'soyadi' ]; ?></option>
-								<?php } ?>
-							</select>
-						</div>
-						<!-- table class="table table-bordered">
+						<table id="example2" class="table table-sm table-bordered table-hover">
 							<thead>
 								<tr>
-									<th  width = "25%"></th>
-									<th>Adı Soyadı</th>
+									<th style="width: 15px">#</th>
+									<th>TC No</th>
+									<th>Adı</th>
+									<th>Soyadı</th>
+									<th>SGK Nanun No</th>
+									<th data-priority="1" style="width: 20px">Düzenle</th>
+									<th data-priority="1" style="width: 20px">Sil</th>
 								</tr>
 							</thead>
 							<tbody>
-								<?php foreach( $personeller[ 2 ] as $personel ) { ?>
+								<?php $sayi = 1; foreach( $personeller[ 2 ] AS $personel ) { ?>
 								<tr>
+									<td><?php echo $sayi++; ?></td>
+									<td><?php echo $personel[ 'tc_no' ]; ?></td>
+									<td><?php echo $personel[ 'adi' ]; ?></td>
+									<td><?php echo $personel[ 'soyadi' ]; ?></td>
+									<td><?php echo $personel[ 'sgk_kanun_no_adi' ]; ?></td>
 									<td align = "center">
-										<img class="profile-user-img-personel-listesi img-fluid img-circle" src="<?php echo 'personel_resimler/' . $personel[ 'personel_resim' ]; ?>">
+										<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=personelEkle&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
+											Düzenle
+										</a>
 									</td>
-									<td><a href = "?modul=personel&personel_id=<?php echo $personel[ 'id' ]?>"><?php echo $personel[ 'adi' ] . " " . $personel[ 'soyadi' ]; ?></a></td>
+									<td align = "center">
+										<button modul = 'personel' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/personelEkle/personelEkleSEG.php?islem=sil&personel_id=<?php echo $personel[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil" >Sil</button>
+									</td>
 								</tr>
-							<?php } ?>
+								<?php } ?>
 							</tbody>
-						</table -->
+						</table>
 					</div>
 				</div>
 			</div>
 			<div class="col-md-4">
-				<div class="card card-secondary">
-					<div class="card-header">
-						<h3 class="card-title">Detaylar</h3>
-						<div class="card-tools">
-							<a href="?modul=personelEkle&islem=guncelle&personel_id=<?php echo $personel_id; ?>" data-toggle="tooltip" data-placement="left" title="Düzenle"><i class="fa fa-edit"></i></a>
-						</div>
+				<div class="card">
+					<div class="card-header p-2">
+						<ul class="nav nav-pills">
+						<li class="nav-item"><a class="nav-link" href="#_genel" data-toggle="tab">Genel</a></li>
+						<li class="nav-item"><a class="nav-link active" href="#_nufus" data-toggle="tab">Nüfus</a></li>
+						<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
+						<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
+						<!--li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Belgeler</a></li>
+						<li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Diğer</a></li-->
+						</ul>
 					</div>
 					<div class="card-body">
-						<table class="table table-striped table-valign-middle" >
-							<tbody>
-							<?php foreach( $personel_detaylar[ 2 ] AS $detay ) { ?>
-								<tr>
-									<td>TC No</td>
-									<td colspan = "3" align = "right"><?php echo $detay[ 'tc_no' ]; ?></td>
-								</tr>
-								<tr>
-									<td>Adı Soyadı</td>
-									<td colspan = "3" align = "right"><?php echo $detay[ 'adi' ] . " " . $detay[ 'soyadi' ]; ?></td>
-								</tr>
-								<tr>
-									<td>Firma</td>
-									<td colspan = "3" align = "right"><?php echo $detay[ 'firma_adi' ]; ?></td>
-								</tr>
-								<tr>
-									<td>Bölüm</td>
-									<td colspan = "3" align = "right"><?php echo $detay[ 'bolum_adi' ]; ?></td>
-								</tr>
-								<tr>
-									<td>SGK Kanun No</td>
-									<td colspan = "3" align = "right"><?php echo $detay[ 'sgk_kanun_no_adi' ]; ?></td>
-								</tr>
-								<tr>
-									<td>İşe Giriş Tarihi</td>
-									<td colspan = "3" align = "right"><?php echo $fn->tarihFormatiDuzelt( $detay[ 'ise_giris_tarihi' ] ); ?></td>
-								</tr>
-								<tr>
-									<td>İşeten Çıkış Tarihi</td>
-									<td colspan = "3" align = "right"><?php echo $fn->tarihFormatiDuzelt( $detay[ 'isten_cikis_tarihi' ] ); ?></td>
-								</tr>
-								<tr>
-									<td>Çalışma Günü</td>
-									<td colspan = "3" align = "right"><?php echo $detay[ 'calisma_gunu' ]; ?></td>
-								</tr>
-								<tr>
-									<td>Ücret</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'ucret' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Hakediş Saati</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'hakedis_saati' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Agi</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'agi' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Normal Çalışma Tutarı</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'normal_calisma_tutari' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Yüzde 50 Saati</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'yuzde_50_saati' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Yüzde 100 Saati</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'yuzde_100_saati' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>İkinci Fazla Mesai Ödemesi</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'ikinci_fazla_mesai_odemesi' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Mesai Kazancı</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'mesai_kazanci' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Toplam Kesinti Saati</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'toplam_kesinti_saati' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Toplama Gelmeme Saati</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'toplam_gelmeme_kesintisi' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Hesaplama Hatası</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'hesaplama_hatasi' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Bankaya Ödenen</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'bankaya_odenen' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Bes</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'bes' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Avans Toplamı</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'avans_toplami' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Borç Tutarı</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'borc_tutari' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>Ödeme Tutarı</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'odeme_tutari' ], 2, ',', '.') ?></td>
-								</tr>
-								<tr>
-									<td>İşkur Ödemesi</td>
-									<td colspan = "3" align = "right"><?php echo number_format( $detay[ 'iskur_odemesi' ], 2, ',', '.') ?></td>
-								</tr>
-							<?php } ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-5">
-				<div class="card card-secondary">
-					<div class="card-header">
-						<h3 class="card-title">Özlük Dosyaları</h3>
-						<div class="card-tools">
-							<a href="?modul=personelOzlukDosyalari&personel_id=<?php echo $personel_id; ?>" data-toggle="tooltip" data-placement="left" title="Düzenle"><i class="fa fa-edit"></i></a>
+						<div class="tab-content">
+							<div class="tab-pane" id="_genel">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type="file" id="gizli_input_file" name = "input_sistem_kullanici_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
+									<input type = "hidden" name = "id" value = "0" >
+									<input type = "hidden" name = "islem" value = "ekle" >
+									<input type = "hidden" name = "form_turu" value = "genel_bilgiler">
+									<input type = "hidden" name = "uye_id" value = "0">
+									<div class="text-center">
+										<img class="img-fluid img-circle img-thumbnail mw-100"
+										style="width:120px;"
+										src="resimler/resim_yok.jpg" id = "sistem_kullanici_resim" 
+										alt="User profile picture"
+										id = "sistem_kullanici_resim">
+										<h6>Fotoğraf değiştirmek için üzerine tıklayınız</h6>
+									</div>
+									<h3 class="profile-username text-center"><b> </b></h3>
+									<div class="form-group">
+										<label  class="control-label">Adı</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Soyadı</label>
+										<input required type="text" class="form-control" name ="adi" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Kayıt No</label>
+										<input required type="text" class="form-control" name ="soyadi" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Grubu</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+											<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Sicil No</label>
+										<input required type="text" class="form-control" name ="soyadi" value = "">
+									</div>
+									<div class="form-group">
+										<label class="control-label">İşe Girişi</label>
+										<div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker1" data-toggle="datetimepicker"/>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">İşten Çıkışı</label>
+										<div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker2" data-toggle="datetimepicker"/>
+										</div>
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Ücreti</label>
+										<input required type="text" class="form-control" name ="soyadi" value = "">
+									</div>
+
+
+									<div class="form-group">
+										<label  class="control-label">Şube</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Bölüm</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Servisi</label>
+										<input required type="text" class="form-control" name ="soyadi" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Özel Kod1</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Özel Kod2</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+									<div class="card-footer">
+										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+									</div>
+								</form>
+							</div>
+							
+							<!-- NÜFUS BİLGİLERİ -->
+							<div class="tab-pane active" id="_nufus">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+									<div class="form-group">
+										<label  class="control-label">TC No</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Uyruğu</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Cinsiyet</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >Kadın</option>
+											<option value = "2" >Erkek</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Cüzdan No</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Ana Adı</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Baba Adı</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Doğum Yeri</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >Kadın</option>
+											<option value = "2" >Erkek</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Doğum Tarihi</label>
+										<div class="input-group date" id="datetimepicker3" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
+										</div>
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Kızlık Soyadı</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Medeni Hali</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >Evli</option>
+											<option value = "2" >Bekar</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Dini</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+											<option value="">Seçiniz</option>
+											<option value = "1" >İslam</option>
+											<option value = "2" >Hristiyan</option>
+											<option value = "3" >Musevi</option>
+											<option value = "4" >Budist</option>
+											<option value = "5" >Ateist</option>
+											<option value = "6" >Deist</option>
+											<option value = "7" >Yok</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Kan Grubu</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >0 RH+</option>
+											<option value = "2" >0 RH-</option>
+											<option value = "3" >A RH-</option>
+											<option value = "4" >A RH+</option>
+											<option value = "5" >B RH-</option>
+											<option value = "6" >B RH+</option>
+											<option value = "7" >AB RH-</option>
+											<option value = "8" >AB RH+</option>
+										</select>
+									</div>
+
+
+									<div class="form-group">
+										<label  class="control-label">Eğitimi</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+											<option value="">Seçiniz</option>
+
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">İl</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >0 RH+</option>
+											<option value = "2" >0 RH-</option>
+											<option value = "3" >A RH-</option>
+											<option value = "4" >A RH+</option>
+											<option value = "5" >B RH-</option>
+											<option value = "6" >B RH+</option>
+											<option value = "7" >AB RH-</option>
+											<option value = "8" >AB RH+</option>
+										</select>
+									</div>
+
+
+									<div class="form-group">
+										<label  class="control-label">İlçe</label>
+										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >0 RH+</option>
+											<option value = "2" >0 RH-</option>
+											<option value = "3" >A RH-</option>
+											<option value = "4" >A RH+</option>
+											<option value = "5" >B RH-</option>
+											<option value = "6" >B RH+</option>
+											<option value = "7" >AB RH-</option>
+											<option value = "8" >AB RH+</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Mahalle</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Cilt</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+
+
+									<div class="form-group">
+										<label  class="control-label">Aile</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Sıra</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Verildiği Yer</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+
+									<div class="form-group">
+										<label  class="control-label">Nedeni</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Veriliş Tarihi</label>
+										<div class="input-group date" id="datetimepicker4" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker4" data-toggle="datetimepicker"/>
+										</div>
+									</div>
+
+
+
+									<div class="card-footer">
+										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+									</div>
+								</form>
+							</div>
+
+							<!-- ADRES BİLGİLERİ -->
+							<div class="tab-pane" id="_adres">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+									<div class="form-group">
+										<label  class="control-label">Adı</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Soyadı</label>
+										<input required type="text" class="form-control" name ="adi" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Kayıt No</label>
+										<input required type="text" class="form-control" name ="soyadi" value = "">
+									</div>
+
+									<div class="card-footer">
+										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+									</div>
+								</form>
+							</div>
+							
+							<!-- DİĞER BİLGİLER -->
+							<div class="tab-pane" id="_diger">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+									<div class="form-group">
+										<label  class="control-label">Adı</label>
+										<input required type="text" class="form-control" name ="tc_no" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Soyadı</label>
+										<input required type="text" class="form-control" name ="adi" value = "">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Kayıt No</label>
+										<input required type="text" class="form-control" name ="soyadi" value = "">
+									</div>
+
+									<div class="card-footer">
+										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+									</div>
+								</form>
+							</div>
 						</div>
-					</div>
-					<div class="card-body">
-						<table class="table table-striped table-valign-middle">
-							<tbody>
-							<?php 
-								if( count( $personel_ozluk_dosyalari[ 2 ] ) > 0 ) {
-								foreach( $personel_ozluk_dosyalari[ 2 ] AS $dosya ) { ?>
-								<tr>
-									<td>
-										<?php echo $dosya[ 'adi' ]; ?>
-									</td>
-									<td colspan = "3" align = "right">
-										<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>" data-toggle="tooltip" data-placement="left" title="Dosyayı İndir"><i class = "fa fa-download"></i></a>
-									</td>
-								</tr>
-							<?php 
-									}
-								} else {
-									echo "<a href='?modul=personelOzlukDosyalari&personel_id=$personel_id'>Özlük Dosyası Ekle</a>";
-								}
-							?>
-							</tbody>
-						</table>
 					</div>
 				</div>
 			</div>
@@ -353,8 +604,119 @@ $secilen_personel_bilgileri = array(
 	</div>
 </section>
 
-<script>
-	$( '#personel_id' ).on( 'select2:select', function ( e ) {
-		window.location = window.location.origin + '/index.php?modul=personel&personel_id=' + e.params.data.id;
+<script type="text/javascript">
+
+/* Kullanıcı resmine tıklayınca file nesnesini tetikle*/
+$( function() {
+	$( "#sistem_kullanici_resim" ).click( function() {
+		$( "#gizli_input_file" ).trigger( 'click' );
+	});
+});
+
+/* Seçilen resim önizle */
+function resimOnizle( input ) {
+	if ( input.files && input.files[ 0 ] ) {
+		var reader = new FileReader();
+		reader.onload = function ( e ) {
+			$( '#sistem_kullanici_resim' ).attr( 'src', e.target.result );
+		};
+		reader.readAsDataURL( input.files[ 0 ] );
+	}
+}
+
+var simdi = new Date(); 
+//var simdi="11/25/2015 15:58";
+$(function () {
+	$('#datetimepicker1').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
+	$('#datetimepicker2').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
+	$('#datetimepicker3').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
+	$('#datetimepicker4').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
+	$(":input").inputmask();
+
+	//Initialize Select2 Elements
+	$('.select2').select2()
+
+	//Initialize Select2 Elements
+	$('.select2bs4').select2({
+	  theme: 'bootstrap4'
+	})
+
+
+	$("input[data-bootstrap-switch]").each(function(){
+		$(this).bootstrapSwitch('state', $(this).prop('checked'));
+	});
+})
+
+
+	/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
+	$( window ).on( 'resize', function() {
+		$('.form-group').each(function() {
+			var formGroup = $( this ),
+				formgroupWidth = formGroup.outerWidth();
+			formGroup.find( '.select2-container' ).css( 'width', formgroupWidth );
+		});
 	} );
+	
+	/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
+	$( window ).on( 'resize', function() {
+		$('.description-block').each(function() {
+			var formGroup = $( this ),
+				formgroupWidth = formGroup.outerWidth();
+			formGroup.find( '.select2-container' ).css( 'width', formgroupWidth );
+		});
+	} );
+	
+	
+	$(function () {
+	  $('[data-toggle="tooltip"]').tooltip()
+	});
+
 </script>
