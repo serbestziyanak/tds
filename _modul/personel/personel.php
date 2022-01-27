@@ -2,8 +2,8 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
-$islem			= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
-
+$islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]		: 'ekle';
+$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]	: '_genel';
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
@@ -84,56 +84,65 @@ $tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
 $personel_detaylar			= $vt->select( $SQL_personel_detaylar, array( $personel_id ) );
 
-// id
-// adi
-// soyadi
-// kayit_no
-// grup_id
-// sicil_no
-// ise_giris_tarihi
-// isten_cikis_tarihi
-// ucret
-// sube_id
-// bolum_id
-// servis
-// ozel_kod1_id
-// ozel_kod2_id
-// uyruk_id
-// cinsiyet
-// cuzdan_no
-// baba_adi
-// ana_adi
-// dogum_yeri_id
-// dogum_tarihi
-// kizlik_soyadi
-// medeni_hali
-// tc_no
-// egitim_id
-// il_id
-// ilce_id
-// mahalle
-// cilt
-// aile_sira
-// verilis_nedeni
-// verilis_tarihi
-// semt
-// sabit_telefon
-// mobil_telefon
-// sigorta_no
-// sigarta_basi
-// sigorta_sonu
-// ek_grup_id
-// diger_odeme
-// gunluk_odeme
-// aylik_ek_odeme
-// banka_sube
-// banka_hesap_no
-// kart_no
-// izin_baslama_tarihi
-// kalan_izi
-// odenen_izin
+/*
+id
+adi
+soyadi
+kayit_no
+grup_id
+sicil_no
+ise_giris_tarihi
+isten_cikis_tarihi
+ucret
+sube_id
+bolum_id
+servis
+ozel_kod1_id
+ozel_kod2_id
 
 
+tc_no
+uyruk_id
+cinsiyet
+cuzdan_no
+baba_adi
+ana_adi
+dogum_yeri_id
+dogum_tarihi
+kizlik_soyadi
+medeni_hali
+dini
+egitim_id
+il_id
+ilce_id
+mahalle
+cilt
+aile
+sira
+verilis_nedeni
+verilis_tarihi
+verildigi_yer
+
+
+adres
+sabit_telefon
+mobil_telefon
+sigorta_no
+sigarta_basi
+sigorta_sonu
+ek_grup_id
+diger_odeme
+gunluk_odeme
+aylik_ek_odeme
+banka_sube
+banka_hesap_no
+kart_no
+izin_baslama_tarihi
+kalan_izin
+odenen_izin
+
+
+*/
 $secilen_personel_bilgileri = array(
 	 'id'							=> $personel_id > 0 ? $personel_id												: $personeller[ 2 ][ 0 ][ 'id' ]
 	,'firma_id'						=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'firma_id' ]						: $personeller[ 2 ][ 0 ][ 'firma_id' ]
@@ -218,17 +227,16 @@ $secilen_personel_bilgileri = array(
 				<div class="card">
 					<div class="card-header p-2">
 						<ul class="nav nav-pills">
-						<li class="nav-item"><a class="nav-link" href="#_genel" data-toggle="tab">Genel</a></li>
-						<li class="nav-item"><a class="nav-link active" href="#_nufus" data-toggle="tab">Nüfus</a></li>
-						<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
-						<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
-						<!--li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Belgeler</a></li>
-						<li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Diğer</a></li-->
+						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_genel' ) echo 'active'; ?>" href="#_genel" data-toggle="tab">Genel</a></li>
+						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_nufus' ) echo 'active'; ?>" href="#_nufus" data-toggle="tab">Nüfus</a></li>
+						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_adres' ) echo 'active'; ?>" href="#_adres" data-toggle="tab">Adres</a></li>
+						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_diger' ) echo 'active'; ?>" href="#_diger" data-toggle="tab">Diğer</a></li>
 						</ul>
 					</div>
 					<div class="card-body">
 						<div class="tab-content">
-							<div class="tab-pane" id="_genel">
+							<!-- GENEL BİLGİLER -->
+							<div class="tab-pane <?php if( $aktif_tab == '_genel' ) echo 'active'; ?>" id="_genel">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type="file" id="gizli_input_file" name = "input_sistem_kullanici_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
 									<input type = "hidden" name = "id" value = "0" >
@@ -245,20 +253,20 @@ $secilen_personel_bilgileri = array(
 									</div>
 									<h3 class="profile-username text-center"><b> </b></h3>
 									<div class="form-group">
-										<label  class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
-									</div>
-									<div class="form-group">
-										<label  class="control-label">Soyadı</label>
+										<label class="control-label">Adı</label>
 										<input required type="text" class="form-control" name ="adi" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Kayıt No</label>
+										<label class="control-label">Soyadı</label>
 										<input required type="text" class="form-control" name ="soyadi" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Grubu</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Kayıt No</label>
+										<input required type="text" class="form-control" name ="kayit_no" value = "">
+									</div>
+									<div class="form-group">
+										<label class="control-label">Grubu</label>
+										<select class="form-control" name = "grup_id" required>
 											<option value="">Seçiniz</option>
 											<option value = "1" >İlkokul</option>
 											<option value = "2" >Ortaokul</option>
@@ -270,8 +278,8 @@ $secilen_personel_bilgileri = array(
 										</select>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Sicil No</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "">
+										<label class="control-label">Sicil No</label>
+										<input required type="text" class="form-control" name ="sicil_no" value = "">
 									</div>
 									<div class="form-group">
 										<label class="control-label">İşe Girişi</label>
@@ -279,7 +287,7 @@ $secilen_personel_bilgileri = array(
 											<div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker1" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="ise_giris_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker1" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">
@@ -288,18 +296,18 @@ $secilen_personel_bilgileri = array(
 											<div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker2" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="isten_cikis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker2" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "">
+										<label class="control-label">Ücreti</label>
+										<input required type="text" class="form-control" name ="ucret" value = "">
 									</div>
 
 
 									<div class="form-group">
-										<label  class="control-label">Şube</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Şube</label>
+										<select class="form-control" name = "sube_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >İlkokul</option>
 											<option value = "2" >Ortaokul</option>
@@ -311,26 +319,8 @@ $secilen_personel_bilgileri = array(
 										</select>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Bölüm</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label  class="control-label">Servisi</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "">
-									</div>
-									<div class="form-group">
-										<label  class="control-label">Özel Kod1</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Bölüm</label>
+										<select class="form-control" name = "bolum_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >İlkokul</option>
 											<option value = "2" >Ortaokul</option>
@@ -343,8 +333,26 @@ $secilen_personel_bilgileri = array(
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Özel Kod2</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Servisi</label>
+										<input required type="text" class="form-control" name ="servis" value = "">
+									</div>
+									<div class="form-group">
+										<label class="control-label">Özel Kod1</label>
+										<select class="form-control" name = "ozel_kod1_id" required>
+										<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label class="control-label">Özel Kod2</label>
+										<select class="form-control" name = "ozel_kod2_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >İlkokul</option>
 											<option value = "2" >Ortaokul</option>
@@ -357,21 +365,21 @@ $secilen_personel_bilgileri = array(
 									</div>
 									<div class="card-footer">
 										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
 									</div>
 								</form>
 							</div>
-							
+
 							<!-- NÜFUS BİLGİLERİ -->
-							<div class="tab-pane active" id="_nufus">
+							<div class="tab-pane <?php if( $aktif_tab == '_nufus' ) echo 'active'; ?>" id="_nufus">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
 									<div class="form-group">
-										<label  class="control-label">TC No</label>
+										<label class="control-label">TC No</label>
 										<input required type="text" class="form-control" name ="tc_no" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Uyruğu</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Uyruğu</label>
+										<select class="form-control" name = "ogrenim_duzeyi_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >İlkokul</option>
 											<option value = "2" >Ortaokul</option>
@@ -383,28 +391,28 @@ $secilen_personel_bilgileri = array(
 										</select>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Cinsiyet</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Cinsiyet</label>
+										<select class="form-control" name = "cinsiyet" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >Kadın</option>
 											<option value = "2" >Erkek</option>
 										</select>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Cüzdan No</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Cüzdan No</label>
+										<input required type="text" class="form-control" name ="cuzdan_no" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Ana Adı</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Ana Adı</label>
+										<input required type="text" class="form-control" name ="ana_adi" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Baba Adı</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Baba Adı</label>
+										<input required type="text" class="form-control" name ="baba_adi" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Doğum Yeri</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Doğum Yeri</label>
+										<select class="form-control" name = "dogum_yeri_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >Kadın</option>
 											<option value = "2" >Erkek</option>
@@ -416,16 +424,16 @@ $secilen_personel_bilgileri = array(
 											<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="dogum_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Kızlık Soyadı</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Kızlık Soyadı</label>
+										<input required type="text" class="form-control" name ="kizlik_soyadi" value = "">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Medeni Hali</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Medeni Hali</label>
+										<select class="form-control" name = "medeni_hali" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >Evli</option>
 											<option value = "2" >Bekar</option>
@@ -433,8 +441,8 @@ $secilen_personel_bilgileri = array(
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Dini</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Dini</label>
+										<select class="form-control" name = "dini" required>
 											<option value="">Seçiniz</option>
 											<option value = "1" >İslam</option>
 											<option value = "2" >Hristiyan</option>
@@ -447,8 +455,8 @@ $secilen_personel_bilgileri = array(
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Kan Grubu</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Kan Grubu</label>
+										<select class="form-control" name = "ogrenim_duzeyi_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >0 RH+</option>
 											<option value = "2" >0 RH-</option>
@@ -463,16 +471,16 @@ $secilen_personel_bilgileri = array(
 
 
 									<div class="form-group">
-										<label  class="control-label">Eğitimi</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">Eğitimi</label>
+										<select class="form-control" name = "egitim_id" required>
 											<option value="">Seçiniz</option>
 
 										</select>
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">İl</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">İl</label>
+										<select class="form-control" name = "il_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >0 RH+</option>
 											<option value = "2" >0 RH-</option>
@@ -487,8 +495,8 @@ $secilen_personel_bilgileri = array(
 
 
 									<div class="form-group">
-										<label  class="control-label">İlçe</label>
-										<select  class="form-control" name = "ogrenim_duzeyi_id" required>
+										<label class="control-label">İlçe</label>
+										<select class="form-control" name = "ilce_id" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" >0 RH+</option>
 											<option value = "2" >0 RH-</option>
@@ -502,34 +510,34 @@ $secilen_personel_bilgileri = array(
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Mahalle</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Mahalle</label>
+										<input required type="text" class="form-control" name ="mahalle" value = "">
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Cilt</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Cilt</label>
+										<input required type="text" class="form-control" name ="cilt" value = "">
 									</div>
 
 
 									<div class="form-group">
-										<label  class="control-label">Aile</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Aile</label>
+										<input required type="text" class="form-control" name ="aile" value = "">
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Sıra</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Sıra</label>
+										<input required type="text" class="form-control" name ="sira" value = "">
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Verildiği Yer</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Verildiği Yer</label>
+										<input required type="text" class="form-control" name ="verildigi_yer" value = "">
 									</div>
 
 									<div class="form-group">
-										<label  class="control-label">Nedeni</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Nedeni</label>
+										<input required type="text" class="form-control" name ="verilis_nedeni" value = "">
 									</div>
 									
 									<div class="form-group">
@@ -538,61 +546,140 @@ $secilen_personel_bilgileri = array(
 											<div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input  type="text" name="pasaport_alis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker4" data-toggle="datetimepicker"/>
+											<input type="text" name="verilis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker4" data-toggle="datetimepicker"/>
 										</div>
 									</div>
-
-
-
 									<div class="card-footer">
 										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
 									</div>
 								</form>
 							</div>
 
 							<!-- ADRES BİLGİLERİ -->
-							<div class="tab-pane" id="_adres">
+							<div class="tab-pane <?php if( $aktif_tab == '_adres' ) echo 'active'; ?>" id="_adres">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
 									<div class="form-group">
-										<label  class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Adres</label>
+										<textarea class="form-control" name ="adres" value = ""></textarea>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Soyadı</label>
-										<input required type="text" class="form-control" name ="adi" value = "">
+										<label class="control-label">Sabit Telefon</label>
+										<input required="" type="text" name="sabit_telefon" value="" class="form-control" data-inputmask="&quot;mask&quot;: &quot;0(999) 999-9999&quot;" data-mask="" inputmode="text">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Kayıt No</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "">
+										<label class="control-label">Gsm</label>
+										<input required="" type="text" name="mobil_telefon" value="" class="form-control" data-inputmask="&quot;mask&quot;: &quot;0(999) 999-9999&quot;" data-mask="" inputmode="text">
 									</div>
 
 									<div class="card-footer">
 										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
 									</div>
 								</form>
 							</div>
-							
+
 							<!-- DİĞER BİLGİLER -->
-							<div class="tab-pane" id="_diger">
+							<div class="tab-pane <?php if( $aktif_tab == '_diger' ) echo 'active'; ?>" id="_diger">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+									
 									<div class="form-group">
-										<label  class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<label class="control-label">Sigorta No</label>
+										<input required type="text" class="form-control" name ="sigorta_no" value = "">
 									</div>
+
 									<div class="form-group">
-										<label  class="control-label">Soyadı</label>
-										<input required type="text" class="form-control" name ="adi" value = "">
+										<label class="control-label">Sigorta Başı</label>
+										<div class="input-group date" id="datetimepicker5" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker5" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input autocomplete="off" type="text" name="sigarta_basi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker5" data-toggle="datetimepicker"/>
+										</div>
 									</div>
+									
 									<div class="form-group">
-										<label  class="control-label">Kayıt No</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "">
+										<label class="control-label">Sigorta Sonu</label>
+										<div class="input-group date" id="datetimepicker6" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker6" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input autocomplete="off" type="text" name="sigorta_sonu" value="" class="form-control datetimepicker-input" data-target="#datetimepicker6" data-toggle="datetimepicker"/>
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Ek Grub</label>
+										<select class="form-control" name = "ek_grup_id" required>
+											<option value="">Seçiniz</option>
+											<option value = "1" >İlkokul</option>
+											<option value = "2" >Ortaokul</option>
+											<option value = "3" >Lise</option>
+											<option value = "4" >Ön Lisans</option>
+											<option value = "5" >Lisans</option>
+											<option value = "6" >Yüksek Lisans</option>
+											<option value = "7" >Doktora</option>
+										</select>
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Diğer Ödeme</label>
+										<input required type="number" class="form-control" name ="diger_odeme" value = "" placeholder = "000,00">
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Günlük Ödeme</label>
+										<input required type="number" class="form-control" name ="gunluk_odeme" value = "" placeholder = "000,00">
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Aylık Ek Ödeme</label>
+										<input required type="number" class="form-control" name ="aylik_ek_odeme" value = "" placeholder = "000,00">
+									</div>
+									<div class="row">
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Banka Şube No</label>
+												<input type="text" name = "banka_sube" class="form-control" >
+											</div>
+										</div>
+										<div class="col-sm-6">
+											<div class="form-group">
+												<label>Banka Hesap No</label>
+												<input type="text" name = "banka_hesap_no" class="form-control" >
+											</div>
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Kart No</label>
+										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;(9999) (9999) (9999) (9999)&quot;" required type="text" class="form-control" name ="kart_no" value = "" >
+									</div>
+									
+
+									<div class="form-group">
+										<label class="control-label">İzin Başlama Tarihi</label>
+										<div class="input-group date" id="datetimepicker7" data-target-input="nearest">
+											<div class="input-group-append" data-target="#datetimepicker7" data-toggle="datetimepicker">
+												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+											</div>
+											<input autocomplete="off" type="text" name="izin_baslama_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker7" data-toggle="datetimepicker"/>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<label class="control-label">Kalan İzin</label>
+										<input required type="number" class="form-control" name ="kalan_izin" value = "0">
+									</div>
+
+									<div class="form-group">
+										<label class="control-label">Ödenen İzin</label>
+										<input required type="number" class="form-control" name ="odenen_izin" value = "0">
 									</div>
 
 									<div class="card-footer">
 										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=uyeler&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
 									</div>
 								</form>
 							</div>
@@ -679,6 +766,45 @@ $(function () {
 });
 
 $(function () {
+	$('#datetimepicker5').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
+	$('#datetimepicker6').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
+	$('#datetimepicker7').datetimepicker({
+		//defaultDate: simdi,
+		format: 'DD.MM.yyyy',
+		icons: {
+		time: "far fa-clock",
+		date: "fa fa-calendar",
+		up: "fa fa-arrow-up",
+		down: "fa fa-arrow-down"
+		}
+	});
+});
+
+$(function () {
 	$(":input").inputmask();
 
 	//Initialize Select2 Elements
@@ -694,7 +820,6 @@ $(function () {
 		$(this).bootstrapSwitch('state', $(this).prop('checked'));
 	});
 })
-
 
 	/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
 	$( window ).on( 'resize', function() {
