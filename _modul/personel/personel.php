@@ -12,12 +12,14 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 }
 
 
-
-
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
 $aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: '_genel';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
-$satir_renk		= $personel_id > 0								 ? 'table-warning'				: '';
+
+
+$satir_renk				= $personel_id > 0	? 'table-warning'						: '';
+$kaydet_buton_yazi		= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 
 $SQL_tum_personel_oku = <<< SQL
@@ -230,6 +232,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 						<h3 class="card-title">Personeller</h3>
 						<div class = "card-tools">
 							<button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand"></i></button>
+							<a href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
@@ -361,15 +364,17 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 				</div>
 			</div>
 			<div class="col-md-4">
-				<div class="card out-line">
+				<div class="card <?php if( $personel_id == 0 ) echo 'card-secondary' ?>">
 					<div class="card-header p-2">
 						<ul class="nav nav-pills">
-							<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
 							<?php if( $personel_id > 0 ) { ?>
+								<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
 								<li class="nav-item"><a class="nav-link" href="#_nufus" data-toggle="tab" disabled>Nüfus</a></li>
 								<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
 								<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
-							<?php } ?>
+							<?php } else {
+								echo "<h5>Personel Ekle/Düzenle</h5>";
+							} ?>
 						</ul>
 					</div>
 					<div class="card-body">
@@ -482,8 +487,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 										</select>
 									</div>
 									<div class="card-footer">
-										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>
@@ -655,8 +659,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 										</div>
 									</div>
 									<div class="card-footer">
-										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>
@@ -680,8 +683,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 
 									<div class="card-footer">
-										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>
@@ -782,8 +784,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 
 									<div class="card-footer">
-										<button modul= 'uyeler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-										<a href = "?modul=personel&islem=ekle" class="btn btn-default btn-sm pull-right"><span class="fa fa-refresh"></span> Temizle/Yeni Kayıt</a>
+										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>
