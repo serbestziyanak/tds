@@ -170,15 +170,15 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 
 
 /* Sabit tablolar içerik oku */
-$iller					= $vt->select( $SQL_iller, array() )[ 2 ];
-$dinler					= $vt->select( $SQL_dinler, array() )[ 2 ];
-$ilceler				= $vt->select( $SQL_ilceler, array() )[ 2 ];
-$gruplar				= $vt->select( $SQL_gruplar, array() )[ 2 ];
-$subeler				= $vt->select( $SQL_subeler, array() )[ 2 ];
-$ulkeler				= $vt->select( $SQL_ulkeler, array() )[ 2 ];
-$bolumler				= $vt->select( $SQL_bolumler, array() )[ 2 ];
-$ozel_kod				= $vt->select( $SQL_ozel_kod, array() )[ 2 ];
-$ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri, array() )[ 2 ];
+$iller					= $vt->select( $SQL_iller				,array() )[ 2 ];
+$dinler					= $vt->select( $SQL_dinler				,array() )[ 2 ];
+$ilceler				= $vt->select( $SQL_ilceler				,array() )[ 2 ];
+$gruplar				= $vt->select( $SQL_gruplar				,array() )[ 2 ];
+$subeler				= $vt->select( $SQL_subeler				,array() )[ 2 ];
+$ulkeler				= $vt->select( $SQL_ulkeler				,array() )[ 2 ];
+$bolumler				= $vt->select( $SQL_bolumler			,array() )[ 2 ];
+$ozel_kod				= $vt->select( $SQL_ozel_kod			,array() )[ 2 ];
+$ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 
 ?>
 
