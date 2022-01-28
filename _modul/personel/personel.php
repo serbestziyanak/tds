@@ -231,8 +231,8 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 					<div class="card-header">
 						<h3 class="card-title">Personeller</h3>
 						<div class = "card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand"></i></button>
-							<a href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus"></i></a>
+							<button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
+							<a href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
