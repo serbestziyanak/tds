@@ -88,6 +88,7 @@ WHERE
 SQL;
 
 
+
 /* Sabit tablolar */
 $SQL_gruplar = <<< SQL
 SELECT
@@ -151,7 +152,6 @@ SELECT
 FROM
 	tb_dinler
 SQL;
-
 
 
 $SQL_ogrenim_duzeyleri = <<< SQL
