@@ -273,12 +273,6 @@ $(function () {
 	  $('[data-toggle="tooltip"]').tooltip()
 	});
 
-	// Bunu sil
-	$("#user_label").html( window.innerWidth );
-	$( window ).on( 'resize', function() {
-		$("#user_label").html( window.innerWidth );
-	});
-	///
 </script>
 
 </html>

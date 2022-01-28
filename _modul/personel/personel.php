@@ -2,25 +2,39 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
-$islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]		: 'ekle';
-$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]	: '_genel';
+$islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
+$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: '_genel';
+$personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
 	 p.*
-	,s.adi AS firma_adi
+	,g.adi AS grup_adi
+	,s.adi AS sube_adi
 	,b.adi AS bolum_adi
-	,b.id AS bolum_id
-	,sgk.id AS sgk_kanun_no_id
-	,sgk.adi AS sgk_kanun_no_adi
+	,ok1.adi AS ozel_kod1
+	,ok2.adi AS ozel_kod2
+	,ek_g.adi AS ek_grup_adi
+	,d.adi AS din_adi
+	,u.adi AS uyruk_adi
+	,dy.adi AS dogum_yeri_adi
+	,od.adi AS ogrenim_duzeyi_adi
+	,il.adi AS il_adi
+	,ilc.adi AS ilce_adi
 FROM
 	tb_personel AS p
-LEFT JOIN
-	tb_firmalar AS s ON p.firma_id = s.id
-LEFT JOIN
-	tb_bolumler AS b ON p.bolum_id = b.id
-LEFT JOIN
-	tb_sgk_kanun_no AS sgk ON p.sgk_kanun_no_id = sgk.id
+LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
+LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
+LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
+LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
+LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
+LEFT JOIN tb_gruplar AS ek_g ON p.ek_grup_id = ek_g.id
+LEFT JOIN tb_dinler AS d ON p.din_id = d.id
+LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
+LEFT JOIN tb_ilceler AS dy ON p.dogum_yeri_id = dy.id
+LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
+LEFT JOIN tb_iller AS il ON p.il_id = il.id
+LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
 WHERE
 	p.aktif = 1
 SQL;
@@ -28,19 +42,32 @@ SQL;
 $SQL_tek_personel_oku = <<< SQL
 SELECT
 	 p.*
-	,s.adi AS firma_adi
+	,g.adi AS grup_adi
+	,s.adi AS sube_adi
 	,b.adi AS bolum_adi
-	,b.id AS bolum_id
-	,sgk.id AS sgk_kanun_no_id
-	,sgk.adi AS sgk_kanun_no_adi
+	,ok1.adi AS ozel_kod1
+	,ok2.adi AS ozel_kod2
+	,ek_g.adi AS ek_grup_adi
+	,d.adi AS din_adi
+	,u.adi AS uyruk_adi
+	,dy.adi AS dogum_yeri_adi
+	,od.adi AS ogrenim_duzeyi_adi
+	,il.adi AS il_adi
+	,ilc.adi AS ilce_adi
 FROM
 	tb_personel AS p
-LEFT JOIN
-	tb_firmalar AS s ON p.firma_id = s.id
-LEFT JOIN
-	tb_bolumler AS b ON p.bolum_id = b.id
-LEFT JOIN
-	tb_sgk_kanun_no AS sgk ON p.sgk_kanun_no_id = sgk.id
+LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
+LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
+LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
+LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
+LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
+LEFT JOIN tb_gruplar AS ek_g ON p.ek_grup_id = ek_g.id
+LEFT JOIN tb_dinler AS d ON p.din_id = d.id
+LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
+LEFT JOIN tb_ilceler AS dy ON p.dogum_yeri_id = dy.id
+LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
+LEFT JOIN tb_iller AS il ON p.il_id = il.id
+LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
 WHERE
 	p.id = ? AND p.aktif = 1
 SQL;
@@ -79,103 +106,8 @@ WHERE
 SQL;
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array() );
-$personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
-$personel_detaylar			= $vt->select( $SQL_personel_detaylar, array( $personel_id ) );
-
-/*
-id
-adi
-soyadi
-kayit_no
-grup_id
-sicil_no
-ise_giris_tarihi
-isten_cikis_tarihi
-ucret
-sube_id
-bolum_id
-servis
-ozel_kod1_id
-ozel_kod2_id
-
-
-tc_no
-uyruk_id
-cinsiyet
-cuzdan_no
-baba_adi
-ana_adi
-dogum_yeri_id
-dogum_tarihi
-kizlik_soyadi
-medeni_hali
-dini
-egitim_id
-il_id
-ilce_id
-mahalle
-cilt
-aile
-sira
-verilis_nedeni
-verilis_tarihi
-verildigi_yer
-
-
-adres
-sabit_telefon
-mobil_telefon
-sigorta_no
-sigarta_basi
-sigorta_sonu
-ek_grup_id
-diger_odeme
-gunluk_odeme
-aylik_ek_odeme
-banka_sube
-banka_hesap_no
-kart_no
-izin_baslama_tarihi
-kalan_izin
-odenen_izin
-
-
-*/
-$secilen_personel_bilgileri = array(
-	 'id'							=> $personel_id > 0 ? $personel_id												: $personeller[ 2 ][ 0 ][ 'id' ]
-	,'firma_id'						=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'firma_id' ]						: $personeller[ 2 ][ 0 ][ 'firma_id' ]
-	,'firma_adi'					=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'firma_adi' ]					: $personeller[ 2 ][ 0 ][ 'firma_adi' ]
-	,'bolum_id'						=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'bolum_id' ]						: $personeller[ 2 ][ 0 ][ 'bolum_id' ]
-	,'bolum_adi'					=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'bolum_adi' ]					: $personeller[ 2 ][ 0 ][ 'bolum_adi' ]
-	,'tc_no'						=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'tc_no' ]						: $personeller[ 2 ][ 0 ][ 'tc_no' ]
-	,'adi'							=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'adi' ]							: $personeller[ 2 ][ 0 ][ 'adi' ]
-	,'soyadi'						=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'soyadi' ]						: $personeller[ 2 ][ 0 ][ 'soyadi' ]
-	,'ise_giris_tarihi'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'ise_giris_tarihi' ]				: $personeller[ 2 ][ 0 ][ 'ise_giris_tarihi' ]
-	,'isten_cikis_tarihi'			=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'isten_cikis_tarihi' ]			: $personeller[ 2 ][ 0 ][ 'isten_cikis_tarihi' ]
-	,'sgk_kanun_no_id'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'sgk_kanun_no_id' ]				: $personeller[ 2 ][ 0 ][ 'sgk_kanun_no_id' ]
-	,'sgk_kanun_no_adi'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'sgk_kanun_no_adi' ]				: $personeller[ 2 ][ 0 ][ 'sgk_kanun_no_adi' ]
-	,'ucret'						=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'ucret' ]						: $personeller[ 2 ][ 0 ][ 'ucret' ]
-	,'calisma_gunu'					=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'calisma_gunu' ]					: $personeller[ 2 ][ 0 ][ 'calisma_gunu' ]
-	,'hakedis_saati'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'hakedis_saati' ]				: $personeller[ 2 ][ 0 ][ 'hakedis_saati' ]
-	,'agi'							=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'agi' ]							: $personeller[ 2 ][ 0 ][ 'agi' ]
-	,'normal_calisma_tutari'		=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'normal_calisma_tutari' ]		: $personeller[ 2 ][ 0 ][ 'normal_calisma_tutari' ]
-	,'yuzde_50_saati'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'yuzde_50_saati' ]				: $personeller[ 2 ][ 0 ][ 'yuzde_50_saati' ]
-	,'yuzde_100_saati'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'yuzde_100_saati' ]				: $personeller[ 2 ][ 0 ][ 'yuzde_100_saati' ]
-	,'ikinci_fazla_mesai_odemesi'	=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'ikinci_fazla_mesai_odemesi' ]	: $personeller[ 2 ][ 0 ][ 'ikinci_fazla_mesai_odemesi' ]
-	,'mesai_kazanci'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'mesai_kazanci' ]				: $personeller[ 2 ][ 0 ][ 'mesai_kazanci' ]
-	,'toplam_kesinti_saati'			=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'toplam_kesinti_saati' ]			: $personeller[ 2 ][ 0 ][ 'toplam_kesinti_saati' ]
-	,'toplam_gelmeme_kesintisi'		=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'toplam_gelmeme_kesintisi' ]		: $personeller[ 2 ][ 0 ][ 'toplam_gelmeme_kesintisi' ]
-	,'hesaplama_hatasi'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'hesaplama_hatasi' ]				: $personeller[ 2 ][ 0 ][ 'hesaplama_hatasi' ]
-	,'bankaya_odenen'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'bankaya_odenen' ]				: $personeller[ 2 ][ 0 ][ 'bankaya_odenen' ]
-	,'bes'							=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'bes' ]							: $personeller[ 2 ][ 0 ][ 'bes' ]
-	,'avans_toplami'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'avans_toplami' ]				: $personeller[ 2 ][ 0 ][ 'avans_toplami' ]
-	,'borc_tutari'					=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'borc_tutari' ]					: $personeller[ 2 ][ 0 ][ 'borc_tutari' ]
-	,'odeme_tutari'					=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'odeme_tutari' ]					: $personeller[ 2 ][ 0 ][ 'odeme_tutari' ]
-	,'iskur_odemesi'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'iskur_odemesi' ]				: $personeller[ 2 ][ 0 ][ 'iskur_odemesi' ]
-	,'personel_resim'				=> $personel_id > 0 ? $tek_personel[ 2 ][ 0 ][ 'personel_resim' ]				: $personeller[ 2 ][ 0 ][ 'personel_resim' ]
-);
 
 ?>
 
@@ -183,19 +115,67 @@ $secilen_personel_bilgileri = array(
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-8">
-					<div class="card card-secondary">
+				<div class="card card-secondary" id = "my-card-12">
 					<div class="card-header">
 						<h3 class="card-title">Personeller</h3>
+						<div class = "card-tools">
+							<button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand"></i></button>
+						</div>
 					</div>
 					<div class="card-body">
-						<table id="example2" class="table table-sm table-bordered table-hover">
+						<table id="tbl_personeller" class="table table-bordered table-striped" width = "100%" data-export-title = "Deneme">
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>
 									<th>TC No</th>
 									<th>Adı</th>
 									<th>Soyadı</th>
-									<th>SGK Nanun No</th>
+									<th>Grubu</th>
+									<th>Sicil No</th>
+									<th>İşe Giriş Trh</th>
+									<th>İşten Çıkış Trh</th>
+									<th>Ücret</th>
+									<th>Şubesi</th>
+									<th>Bölümü</th>
+									<th>Servis</th>
+									<th>Özel Kod1</th>
+									<th>Özel Kod2</th>
+									<th>Uyruğu</th>
+									<th>Cinsiyeti</th>
+									<th>Cüzdan No</th>
+									<th>Baba Adı</th>
+									<th>Ana Adı</th>
+									<th>Doğum Yeri</th>
+									<th>Doğum Tarihi</th>
+									<th>Kızlık Soyadı</th>
+									<th>Medeni Durumu</th>
+									<th>Dini</th>
+									<th>Öğrenim Düzeyi</th>
+									<th>İl</th>
+									<th>İlçe</th>
+									<th>Mahalle</th>
+									<th>Cilt</th>
+									<th>Aile</th>
+									<th>Sıra</th>
+									<th>Veriliş Nedeni</th>
+									<th>Veriliş Tarihi</th>
+									<th>Verildiği Yer</th>
+									<th>Adres</th>
+									<th>Telefon</th>
+									<th>Gsm</th>
+									<th>Sigorta No</th>
+									<th>Sigorta Başı</th>
+									<th>Sigorta Sonu</th>
+									<th>Ek Grubu</th>
+									<th>Diğer Ödeme</th>
+									<th>Günlük Ödeme</th>
+									<th>Aylık Ek Ödeme</th>
+									<th>Banka Şube</th>
+									<th>Banka Hesap</th>
+									<th>Kart No</th>
+									<th>İzin Başlama Tarihi</th>
+									<th>Kalan İzin</th>
+									<th>Ödenen İzin</th>
 									<th data-priority="1" style="width: 20px">Düzenle</th>
 									<th data-priority="1" style="width: 20px">Sil</th>
 								</tr>
@@ -207,14 +187,59 @@ $secilen_personel_bilgileri = array(
 									<td><?php echo $personel[ 'tc_no' ]; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
 									<td><?php echo $personel[ 'soyadi' ]; ?></td>
-									<td><?php echo $personel[ 'sgk_kanun_no_adi' ]; ?></td>
+									<td><?php echo $personel[ 'grup_adi' ]; ?></td>
+									<td><?php echo $personel[ 'sicil_no' ]; ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'ise_giris_tarihi' ] ); ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'isten_cikis_tarihi' ] ); ?></td>
+									<td><?php echo $personel[ 'ucret' ]; ?></td>
+									<td><?php echo $personel[ 'sube_adi' ]; ?></td>
+									<td><?php echo $personel[ 'bolum_adi' ]; ?></td>
+									<td><?php echo $personel[ 'servis' ]; ?></td>
+									<td><?php echo $personel[ 'ozel_kod1' ]; ?></td>
+									<td><?php echo $personel[ 'ozel_kod2' ]; ?></td>
+									<td><?php echo $personel[ 'uyruk_adi' ]; ?></td>
+									<td><?php echo $personel[ 'cinsiyet' ]; ?></td>
+									<td><?php echo $personel[ 'cuzdan_no' ]; ?></td>
+									<td><?php echo $personel[ 'baba_adi' ]; ?></td>
+									<td><?php echo $personel[ 'ana_adi' ]; ?></td>
+									<td><?php echo $personel[ 'dogum_yeri_adi' ]; ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'dogum_tarihi' ] ); ?></td>
+									<td><?php echo $personel[ 'kizlik_soyadi' ]; ?></td>
+									<td><?php echo $personel[ 'medeni_hali' ]; ?></td>
+									<td><?php echo $personel[ 'din_adi' ]; ?></td>
+									<td><?php echo $personel[ 'ogrenim_duzeyi_adi' ]; ?></td>
+									<td><?php echo $personel[ 'il_adi' ]; ?></td>
+									<td><?php echo $personel[ 'ilce_adi' ]; ?></td>
+									<td><?php echo $personel[ 'mahalle' ]; ?></td>
+									<td><?php echo $personel[ 'cilt' ]; ?></td>
+									<td><?php echo $personel[ 'aile' ]; ?></td>
+									<td><?php echo $personel[ 'sira' ]; ?></td>
+									<td><?php echo $personel[ 'verilis_nedeni' ]; ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'verilis_tarihi' ] ); ?></td>
+									<td><?php echo $personel[ 'verildigi_yer' ]; ?></td>
+									<td><?php echo $personel[ 'adres' ]; ?></td>
+									<td><?php echo $personel[ 'sabit_telefon' ]; ?></td>
+									<td><?php echo $personel[ 'mobil_telefon' ]; ?></td>
+									<td><?php echo $personel[ 'sigorta_no' ]; ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'sigarta_basi' ] ); ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'sigorta_sonu' ] ); ?></td>
+									<td><?php echo $personel[ 'ek_grup_adi' ]; ?></td>
+									<td><?php echo $personel[ 'diger_odeme' ]; ?></td>
+									<td><?php echo $personel[ 'gunluk_odeme' ]; ?></td>
+									<td><?php echo $personel[ 'aylik_ek_odeme' ]; ?></td>
+									<td><?php echo $personel[ 'banka_sube' ]; ?></td>
+									<td><?php echo $personel[ 'banka_hesap_no' ]; ?></td>
+									<td><?php echo $personel[ 'kart_no' ]; ?></td>
+									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'izin_baslama_tarihi' ] ); ?></td>
+									<td><?php echo $personel[ 'kalan_izin' ]; ?></td>
+									<td><?php echo $personel[ 'odenen_izin' ]; ?></td>
 									<td align = "center">
-										<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=personelEkle&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
+										<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=personel&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
 											Düzenle
 										</a>
 									</td>
 									<td align = "center">
-										<button modul = 'personel' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/personelEkle/personelEkleSEG.php?islem=sil&personel_id=<?php echo $personel[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil" >Sil</button>
+										<button modul = 'personel' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/personel/personelSEG.php?islem=sil&personel_id=<?php echo $personel[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil" >Sil</button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -235,14 +260,13 @@ $secilen_personel_bilgileri = array(
 					</div>
 					<div class="card-body">
 						<div class="tab-content">
+
 							<!-- GENEL BİLGİLER -->
 							<div class="tab-pane <?php if( $aktif_tab == '_genel' ) echo 'active'; ?>" id="_genel">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type="file" id="gizli_input_file" name = "input_sistem_kullanici_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
-									<input type = "hidden" name = "id" value = "0" >
-									<input type = "hidden" name = "islem" value = "ekle" >
-									<input type = "hidden" name = "form_turu" value = "genel_bilgiler">
-									<input type = "hidden" name = "uye_id" value = "0">
+									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="text-center">
 										<img class="img-fluid img-circle img-thumbnail mw-100"
 										style="width:120px;"
@@ -301,7 +325,7 @@ $secilen_personel_bilgileri = array(
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="ucret" value = "">
+										<input required type="text" class="form-control" name ="ucret" value = "" data-inputmask="'alias': '9999,99'"  placeholder = "₺0000,00" >
 									</div>
 
 
@@ -372,7 +396,9 @@ $secilen_personel_bilgileri = array(
 
 							<!-- NÜFUS BİLGİLERİ -->
 							<div class="tab-pane <?php if( $aktif_tab == '_nufus' ) echo 'active'; ?>" id="_nufus">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
 										<label class="control-label">TC No</label>
 										<input required type="text" class="form-control" name ="tc_no" value = "">
@@ -558,7 +584,9 @@ $secilen_personel_bilgileri = array(
 
 							<!-- ADRES BİLGİLERİ -->
 							<div class="tab-pane <?php if( $aktif_tab == '_adres' ) echo 'active'; ?>" id="_adres">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
 										<label class="control-label">Adres</label>
 										<textarea class="form-control" name ="adres" value = ""></textarea>
@@ -581,8 +609,9 @@ $secilen_personel_bilgileri = array(
 
 							<!-- DİĞER BİLGİLER -->
 							<div class="tab-pane <?php if( $aktif_tab == '_diger' ) echo 'active'; ?>" id="_diger">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/uyeler/uyelerSEG.php" method = "POST" enctype="multipart/form-data">
-									
+								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
 										<label class="control-label">Sigorta No</label>
 										<input required type="text" class="form-control" name ="sigorta_no" value = "">
@@ -683,6 +712,7 @@ $secilen_personel_bilgileri = array(
 									</div>
 								</form>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -726,6 +756,7 @@ $(function () {
 	});
 });
 
+
 $(function () {
 	$('#datetimepicker2').datetimepicker({
 		//defaultDate: simdi,
@@ -738,6 +769,7 @@ $(function () {
 		}
 	});
 });
+
 
 $(function () {
 	$('#datetimepicker3').datetimepicker({
@@ -752,6 +784,7 @@ $(function () {
 	});
 });
 
+
 $(function () {
 	$('#datetimepicker4').datetimepicker({
 		//defaultDate: simdi,
@@ -764,6 +797,7 @@ $(function () {
 		}
 	});
 });
+
 
 $(function () {
 	$('#datetimepicker5').datetimepicker({
@@ -778,6 +812,7 @@ $(function () {
 	});
 });
 
+
 $(function () {
 	$('#datetimepicker6').datetimepicker({
 		//defaultDate: simdi,
@@ -791,6 +826,7 @@ $(function () {
 	});
 });
 
+
 $(function () {
 	$('#datetimepicker7').datetimepicker({
 		//defaultDate: simdi,
@@ -803,6 +839,7 @@ $(function () {
 		}
 	});
 });
+
 
 $(function () {
 	$(":input").inputmask();
@@ -821,27 +858,89 @@ $(function () {
 	});
 })
 
-	/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
-	$( window ).on( 'resize', function() {
-		$('.form-group').each(function() {
-			var formGroup = $( this ),
-				formgroupWidth = formGroup.outerWidth();
-			formGroup.find( '.select2-container' ).css( 'width', formgroupWidth );
-		});
-	} );
-	
-	/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
-	$( window ).on( 'resize', function() {
-		$('.description-block').each(function() {
-			var formGroup = $( this ),
-				formgroupWidth = formGroup.outerWidth();
-			formGroup.find( '.select2-container' ).css( 'width', formgroupWidth );
-		});
-	} );
-	
-	
-	$(function () {
-	  $('[data-toggle="tooltip"]').tooltip()
+
+/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
+$( window ).on( 'resize', function() {
+	$('.form-group').each(function() {
+		var formGroup = $( this ),
+			formgroupWidth = formGroup.outerWidth();
+		formGroup.find( '.select2-container' ).css( 'width', formgroupWidth );
 	});
+} );
+
+
+/* Slect2 nesnesinin sayfanın genişliğine göre otomatik uzayıp kısalmasını sağlar*/
+$( window ).on( 'resize', function() {
+	$('.description-block').each(function() {
+		var formGroup = $( this ),
+			formgroupWidth = formGroup.outerWidth();
+		formGroup.find( '.select2-container' ).css( 'width', formgroupWidth );
+	});
+} );
+
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+});
+
+
+$( "#tbl_personeller" ).DataTable( {
+	"responsive": true, "lengthChange": false, "autoWidth": false,
+	//"buttons": ["excel", "pdf", "print","colvis"],
+
+	buttons : [
+		{
+			extend	: 'colvis',
+			text	: "Seçiniz"
+			
+		},
+		{
+			extend	: 'excel',
+			text 	: 'Excel',
+			exportOptions: {
+				columns: ':visible'
+			},
+			title: function(){
+				return "Personel Listesi";
+			}
+		},
+		{
+			extend	: 'print',
+			text	: 'Yazdır',
+			exportOptions : {
+				columns : ':visible'
+			},
+			title: function(){
+				return "Personel Listesi";
+			}
+		}
+	],
+	"columnDefs": [
+		{
+			"targets" : [ 1,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49 ],
+			"visible" : false
+		}
+	],
+	"language": {
+		"decimal"			: "",
+		"emptyTable"		: "Gösterilecek kayıt yok!",
+		"info"				: "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
+		"infoEmpty"			: "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
+		"infoFiltered"		: "",
+		"infoPostFix"		: "",
+		"thousands"			: ",",
+		"lengthMenu"		: "Show _MENU_ entries",
+		"loadingRecords"	: "Yükleniyor...",
+		"processing"		: "İşleniyor...",
+		"search"			: "Ara:",
+		"zeroRecords"		: "Eşleşen kayıt bulunamadı!",
+		"paginate"			: {
+			"first"		: "İlk",
+			"last"		: "Son",
+			"next"		: "Sonraki",
+			"previous"	: "Önceki"
+		}
+	}
+} ).buttons().container().appendTo('#tbl_personeller_wrapper .col-md-6:eq(0)');
 
 </script>
