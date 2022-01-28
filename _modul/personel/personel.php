@@ -6,6 +6,7 @@ $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: '
 $aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: '_genel';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 
+
 $SQL_tum_personel_oku = <<< SQL
 SELECT
 	 p.*
@@ -38,6 +39,7 @@ LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
 WHERE
 	p.aktif = 1
 SQL;
+
 
 $SQL_tek_personel_oku = <<< SQL
 SELECT
@@ -72,6 +74,7 @@ WHERE
 	p.id = ? AND p.aktif = 1
 SQL;
 
+
 $SQL_personel_ozluk_dosyalari = <<< SQL
 SELECT
 	 ot.adi
@@ -85,29 +88,97 @@ WHERE
 SQL;
 
 
-$SQL_personel_detaylar = <<< SQL
+/* Sabit tablolar */
+$SQL_gruplar = <<< SQL
 SELECT
-	 p.*
-	,s.adi AS firma_adi
-	,b.adi AS bolum_adi
-	,b.id AS bolum_id
-	,sgk.id AS sgk_kanun_no_id
-	,sgk.adi AS sgk_kanun_no_adi
+	*
 FROM
-	tb_personel AS p
-LEFT JOIN
-	tb_firmalar AS s ON p.firma_id = s.id
-LEFT JOIN
-	tb_bolumler AS b ON p.bolum_id = b.id
-LEFT JOIN
-	tb_sgk_kanun_no AS sgk ON p.sgk_kanun_no_id = sgk.id
-WHERE
-	p.id = ?
+	tb_gruplar
 SQL;
 
+
+$SQL_subeler = <<< SQL
+SELECT
+	*
+FROM
+	tb_subeler
+SQL;
+
+
+$SQL_bolumler = <<< SQL
+SELECT
+	*
+FROM
+	tb_bolumler
+SQL;
+
+
+$SQL_ozel_kod = <<< SQL
+SELECT
+	*
+FROM
+	tb_ozel_kod
+SQL;
+
+
+$SQL_ulkeler = <<< SQL
+SELECT
+	*
+FROM
+	tb_ulkeler
+SQL;
+
+
+$SQL_iller = <<< SQL
+SELECT
+	*
+FROM
+	tb_iller
+SQL;
+
+
+$SQL_ilceler = <<< SQL
+SELECT
+	*
+FROM
+	tb_ilceler
+SQL;
+
+
+$SQL_dinler = <<< SQL
+SELECT
+	*
+FROM
+	tb_dinler
+SQL;
+
+
+
+$SQL_ogrenim_duzeyleri = <<< SQL
+SELECT
+	*
+FROM
+	tb_ogrenim_duzeyleri
+SQL;
+
+
+
 $personeller				= $vt->select( $SQL_tum_personel_oku, array() );
-$tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
+$tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) )[ 2 ][ 0 ];
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
+
+
+
+/* Sabit tablolar içerik oku */
+$iller					= $vt->select( $SQL_iller, array() )[ 2 ];
+$dinler					= $vt->select( $SQL_dinler, array() )[ 2 ];
+$ilceler				= $vt->select( $SQL_ilceler, array() )[ 2 ];
+$gruplar				= $vt->select( $SQL_gruplar, array() )[ 2 ];
+$subeler				= $vt->select( $SQL_subeler, array() )[ 2 ];
+$ulkeler				= $vt->select( $SQL_ulkeler, array() )[ 2 ];
+$bolumler				= $vt->select( $SQL_bolumler, array() )[ 2 ];
+$ozel_kod				= $vt->select( $SQL_ozel_kod, array() )[ 2 ];
+$ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri, array() )[ 2 ];
 
 ?>
 
@@ -252,17 +323,17 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 				<div class="card">
 					<div class="card-header p-2">
 						<ul class="nav nav-pills">
-						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_genel' ) echo 'active'; ?>" href="#_genel" data-toggle="tab">Genel</a></li>
-						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_nufus' ) echo 'active'; ?>" href="#_nufus" data-toggle="tab">Nüfus</a></li>
-						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_adres' ) echo 'active'; ?>" href="#_adres" data-toggle="tab">Adres</a></li>
-						<li class="nav-item"><a class="nav-link <?php if( $aktif_tab == '_diger' ) echo 'active'; ?>" href="#_diger" data-toggle="tab">Diğer</a></li>
+						<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
+						<li class="nav-item"><a class="nav-link" href="#_nufus" data-toggle="tab">Nüfus</a></li>
+						<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
+						<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
 						</ul>
 					</div>
 					<div class="card-body">
 						<div class="tab-content">
 
 							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane <?php if( $aktif_tab == '_genel' ) echo 'active'; ?>" id="_genel">
+							<div class="tab-pane active" id="_genel">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type="file" id="gizli_input_file" name = "input_sistem_kullanici_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
@@ -278,32 +349,28 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 									<h3 class="profile-username text-center"><b> </b></h3>
 									<div class="form-group">
 										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "">
+										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_personel[ "adi" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Soyadı</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "">
+										<input required type="text" class="form-control" name ="soyadi" value = "<?php echo $tek_personel[ "soyadi" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Kayıt No</label>
-										<input required type="text" class="form-control" name ="kayit_no" value = "">
+										<input required type="text" class="form-control" name ="kayit_no" value = "<?php echo $tek_personel[ "kayit_no" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Grubu</label>
 										<select class="form-control" name = "grup_id" required>
 											<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+											<?php foreach( $gruplar as $grup ) { ?>
+												<option value="<?php $tek_personel[ 'grup_id' ]; ?>" <?php if( $tek_personel[ 'grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Sicil No</label>
-										<input required type="text" class="form-control" name ="sicil_no" value = "">
+										<input required type="text" class="form-control" name ="sicil_no" value = "<?php echo $tek_personel[ "sicil_no" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">İşe Girişi</label>
@@ -311,7 +378,7 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="ise_giris_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker1" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="ise_giris_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_personel[ "ise_giris_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker1" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">
@@ -320,71 +387,55 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="isten_cikis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker2" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="isten_cikis_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "isten_cikis_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker2" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="ucret" value = "" data-inputmask="'alias': '9999,99'"  placeholder = "₺0000,00" >
+										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '9999,99'"  placeholder = "₺0000,00" >
 									</div>
 
 
 									<div class="form-group">
 										<label class="control-label">Şube</label>
 										<select class="form-control" name = "sube_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+											<option value="">Seçiniz</option>
+											<?php foreach( $subeler as $sube ) { ?>
+												<option value="<?php $tek_personel[ 'sube_id' ]; ?>" <?php if( $tek_personel[ 'sube_id' ] == $sube[ 'id' ] ) echo 'selected'; ?>><?php echo $sube['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Bölüm</label>
 										<select class="form-control" name = "bolum_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+											<option value="">Seçiniz</option>
+											<?php foreach( $bolumler as $bolum ) { ?>
+												<option value="<?php $tek_personel[ 'bolum_id' ]; ?>" <?php if( $tek_personel[ 'bolum_id' ] == $bolum[ 'id' ] ) echo 'selected'; ?>><?php echo $bolum['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Servisi</label>
-										<input required type="text" class="form-control" name ="servis" value = "">
+										<input required type="text" class="form-control" name ="servis" value = "<?php echo $tek_personel[ "servis" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Özel Kod1</label>
 										<select class="form-control" name = "ozel_kod1_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+											<option value="">Seçiniz</option>
+											<?php foreach( $ozel_kod as $ok1 ) { ?>
+												<option value="<?php $tek_personel[ 'ozel_kod1_id' ]; ?>" <?php if( $tek_personel[ 'ozel_kod1_id' ] == $ok1[ 'id' ] ) echo 'selected'; ?>><?php echo $ok1['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Özel Kod2</label>
 										<select class="form-control" name = "ozel_kod2_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+											<option value="">Seçiniz</option>
+											<?php foreach( $ozel_kod as $ok2 ) { ?>
+												<option value="<?php $tek_personel[ 'ozel_kod2_id' ]; ?>" <?php if( $tek_personel[ 'ozel_kod2_id' ] == $ok2[ 'id' ] ) echo 'selected'; ?>><?php echo $ok2['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 									<div class="card-footer">
@@ -395,53 +446,50 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 							</div>
 
 							<!-- NÜFUS BİLGİLERİ -->
-							<div class="tab-pane <?php if( $aktif_tab == '_nufus' ) echo 'active'; ?>" id="_nufus">
+							<div class="tab-pane" id="_nufus">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
 										<label class="control-label">TC No</label>
-										<input required type="text" class="form-control" name ="tc_no" value = "">
+										<input required type="text" class="form-control" name ="tc_no" value = "<?php echo $tek_personel[ "tc_no" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Uyruğu</label>
-										<select class="form-control" name = "ogrenim_duzeyi_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+										<select class="form-control select2" name = "ogrenim_duzeyi_id" required>
+											<option value="">Seçiniz</option>
+											<?php foreach( $ulkeler as $ulke ) { ?>
+												<option value="<?php $tek_personel[ 'uyruk_id' ]; ?>" <?php if( $tek_personel[ 'uyruk_id' ] == $ulke[ 'id' ] ) echo 'selected'; ?>><?php echo $ulke['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Cinsiyet</label>
 										<select class="form-control" name = "cinsiyet" required>
 										<option value="">Seçiniz</option>
-											<option value = "1" >Kadın</option>
-											<option value = "2" >Erkek</option>
+											<option value = "1" <?php if( $tek_personel[ 'cinsiyet' ] == 1 ) echo 'selected'; ?> >Kadın</option>
+											<option value = "2" <?php if( $tek_personel[ 'cinsiyet' ] == 2 ) echo 'selected'; ?> >Erkek</option>
 										</select>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Cüzdan No</label>
-										<input required type="text" class="form-control" name ="cuzdan_no" value = "">
+										<input required type="text" class="form-control" name ="cuzdan_no" value = "<?php echo $tek_personel[ "cuzdan_no" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ana Adı</label>
-										<input required type="text" class="form-control" name ="ana_adi" value = "">
+										<input required type="text" class="form-control" name ="ana_adi" value = "<?php echo $tek_personel[ "ana_adi" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Baba Adı</label>
-										<input required type="text" class="form-control" name ="baba_adi" value = "">
+										<input required type="text" class="form-control" name ="baba_adi" value = "<?php echo $tek_personel[ "baba_adi" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Doğum Yeri</label>
-										<select class="form-control" name = "dogum_yeri_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >Kadın</option>
-											<option value = "2" >Erkek</option>
+										<select class="form-control select2" name = "dogum_yeri_id" required>
+											<option value="">Seçiniz</option>
+											<?php foreach( $ilceler as $ilce ) { ?>
+												<option value="<?php $tek_personel[ 'dogum_yeri_id' ]; ?>" <?php if( $tek_personel[ 'dogum_yeri_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 									<div class="form-group">
@@ -450,19 +498,19 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="dogum_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="dogum_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "dogum_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Kızlık Soyadı</label>
-										<input required type="text" class="form-control" name ="kizlik_soyadi" value = "">
+										<input required type="text" class="form-control" name ="kizlik_soyadi" value = "<?php echo $tek_personel[ "kizlik_soyadi" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Medeni Hali</label>
 										<select class="form-control" name = "medeni_hali" required>
 										<option value="">Seçiniz</option>
-											<option value = "1" >Evli</option>
-											<option value = "2" >Bekar</option>
+											<option value = "1" <?php if( $tek_personel[ 'medeni_hali' ] == 1 ) echo 'selected'; ?>>Evli</option>
+											<option value = "2" <?php if( $tek_personel[ 'medeni_hali' ] == 1 ) echo 'selected'; ?>>Bekar</option>
 										</select>
 									</div>
 
@@ -470,13 +518,9 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 										<label class="control-label">Dini</label>
 										<select class="form-control" name = "dini" required>
 											<option value="">Seçiniz</option>
-											<option value = "1" >İslam</option>
-											<option value = "2" >Hristiyan</option>
-											<option value = "3" >Musevi</option>
-											<option value = "4" >Budist</option>
-											<option value = "5" >Ateist</option>
-											<option value = "6" >Deist</option>
-											<option value = "7" >Yok</option>
+											<?php foreach( $dinler as $din ) { ?>
+												<option value="<?php $tek_personel[ 'din_id' ]; ?>" <?php if( $tek_personel[ 'din_id' ] == $din[ 'id' ] ) echo 'selected'; ?>><?php echo $din['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 
@@ -484,14 +528,14 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 										<label class="control-label">Kan Grubu</label>
 										<select class="form-control" name = "ogrenim_duzeyi_id" required>
 										<option value="">Seçiniz</option>
-											<option value = "1" >0 RH+</option>
-											<option value = "2" >0 RH-</option>
-											<option value = "3" >A RH-</option>
-											<option value = "4" >A RH+</option>
-											<option value = "5" >B RH-</option>
-											<option value = "6" >B RH+</option>
-											<option value = "7" >AB RH-</option>
-											<option value = "8" >AB RH+</option>
+											<option value = "1" <?php if( $tek_personel[ 'kan_grubu' ] == 1 ) echo 'selected'; ?>>0 RH+</option>
+											<option value = "2" <?php if( $tek_personel[ 'kan_grubu' ] == 2 ) echo 'selected'; ?>>0 RH-</option>
+											<option value = "3" <?php if( $tek_personel[ 'kan_grubu' ] == 3 ) echo 'selected'; ?>>A RH-</option>
+											<option value = "4" <?php if( $tek_personel[ 'kan_grubu' ] == 4 ) echo 'selected'; ?>>A RH+</option>
+											<option value = "5" <?php if( $tek_personel[ 'kan_grubu' ] == 5 ) echo 'selected'; ?>>B RH-</option>
+											<option value = "6" <?php if( $tek_personel[ 'kan_grubu' ] == 6 ) echo 'selected'; ?>>B RH+</option>
+											<option value = "7" <?php if( $tek_personel[ 'kan_grubu' ] == 7 ) echo 'selected'; ?>>AB RH-</option>
+											<option value = "8" <?php if( $tek_personel[ 'kan_grubu' ] == 8 ) echo 'selected'; ?>>AB RH+</option>
 										</select>
 									</div>
 
@@ -500,22 +544,19 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 										<label class="control-label">Eğitimi</label>
 										<select class="form-control" name = "egitim_id" required>
 											<option value="">Seçiniz</option>
-
+											<?php foreach( $ogrenim_duzeyleri as $ogrenim_duzeyi ) { ?>
+												<option value="<?php $tek_personel[ 'ogrenim_duzeyi_id' ]; ?>" <?php if( $tek_personel[ 'ogrenim_duzeyi_id' ] == $ogrenim_duzeyi[ 'id' ] ) echo 'selected'; ?>><?php echo $ogrenim_duzeyi['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">İl</label>
 										<select class="form-control" name = "il_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >0 RH+</option>
-											<option value = "2" >0 RH-</option>
-											<option value = "3" >A RH-</option>
-											<option value = "4" >A RH+</option>
-											<option value = "5" >B RH-</option>
-											<option value = "6" >B RH+</option>
-											<option value = "7" >AB RH-</option>
-											<option value = "8" >AB RH+</option>
+											<option value="">Seçiniz</option>
+											<?php foreach( $iller as $il ) { ?>
+												<option value="<?php $tek_personel[ 'il_id' ]; ?>" <?php if( $tek_personel[ 'il_id' ] == $il[ 'id' ] ) echo 'selected'; ?>><?php echo $il['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 
@@ -523,47 +564,42 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 									<div class="form-group">
 										<label class="control-label">İlçe</label>
 										<select class="form-control" name = "ilce_id" required>
-										<option value="">Seçiniz</option>
-											<option value = "1" >0 RH+</option>
-											<option value = "2" >0 RH-</option>
-											<option value = "3" >A RH-</option>
-											<option value = "4" >A RH+</option>
-											<option value = "5" >B RH-</option>
-											<option value = "6" >B RH+</option>
-											<option value = "7" >AB RH-</option>
-											<option value = "8" >AB RH+</option>
+											<option value="">Seçiniz</option>
+											<?php foreach( $ilceler as $ilce ) { ?>
+												<option value="<?php $tek_personel[ 'ilce_id' ]; ?>" <?php if( $tek_personel[ 'ilce_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Mahalle</label>
-										<input required type="text" class="form-control" name ="mahalle" value = "">
+										<input required type="text" class="form-control" name ="mahalle" value = "<?php echo $tek_personel[ "mahalle" ]; ?>">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Cilt</label>
-										<input required type="text" class="form-control" name ="cilt" value = "">
+										<input required type="text" class="form-control" name ="cilt" value = "<?php echo $tek_personel[ "cilt" ]; ?>">
 									</div>
 
 
 									<div class="form-group">
 										<label class="control-label">Aile</label>
-										<input required type="text" class="form-control" name ="aile" value = "">
+										<input required type="text" class="form-control" name ="aile" value = "<?php echo $tek_personel[ "aile" ]; ?>">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Sıra</label>
-										<input required type="text" class="form-control" name ="sira" value = "">
+										<input required type="text" class="form-control" name ="sira" value = "<?php echo $tek_personel[ "sira" ]; ?>">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Verildiği Yer</label>
-										<input required type="text" class="form-control" name ="verildigi_yer" value = "">
+										<input required type="text" class="form-control" name ="verildigi_yer" value = "<?php echo $tek_personel[ "verildigi_yer" ]; ?>">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Nedeni</label>
-										<input required type="text" class="form-control" name ="verilis_nedeni" value = "">
+										<input required type="text" class="form-control" name ="verilis_nedeni" value = "<?php echo $tek_personel[ "verilis_nedeni" ]; ?>">
 									</div>
 									
 									<div class="form-group">
@@ -572,7 +608,7 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input type="text" name="verilis_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker4" data-toggle="datetimepicker"/>
+											<input type="text" name="verilis_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "verilis_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker4" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="card-footer">
@@ -583,21 +619,21 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 							</div>
 
 							<!-- ADRES BİLGİLERİ -->
-							<div class="tab-pane <?php if( $aktif_tab == '_adres' ) echo 'active'; ?>" id="_adres">
+							<div class="tab-pane" id="_adres">
 								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
 										<label class="control-label">Adres</label>
-										<textarea class="form-control" name ="adres" value = ""></textarea>
+										<textarea class="form-control" name ="adres" ><?php echo $tek_personel[ "adres" ]; ?></textarea>
 									</div>
 									<div class="form-group">
 										<label class="control-label">Sabit Telefon</label>
-										<input required="" type="text" name="sabit_telefon" value="" class="form-control" data-inputmask="&quot;mask&quot;: &quot;0(999) 999-9999&quot;" data-mask="" inputmode="text">
+										<input required="" type="text" name="sabit_telefon" value="<?php echo $tek_personel[ "sabit_telefon" ]; ?>" class="form-control" data-inputmask="&quot;mask&quot;: &quot;0(999) 999-9999&quot;" data-mask="" inputmode="text">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Gsm</label>
-										<input required="" type="text" name="mobil_telefon" value="" class="form-control" data-inputmask="&quot;mask&quot;: &quot;0(999) 999-9999&quot;" data-mask="" inputmode="text">
+										<input required="" type="text" name="mobil_telefon" value="<?php echo $tek_personel[ "mobil_telefon" ]; ?>" class="form-control" data-inputmask="&quot;mask&quot;: &quot;0(999) 999-9999&quot;" data-mask="" inputmode="text">
 									</div>
 
 									<div class="card-footer">
@@ -614,7 +650,7 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
 										<label class="control-label">Sigorta No</label>
-										<input required type="text" class="form-control" name ="sigorta_no" value = "">
+										<input required type="text" class="form-control" name ="sigorta_no" value = "<?php echo $tek_personel[ "sigorta_no" ]; ?>">
 									</div>
 
 									<div class="form-group">
@@ -623,7 +659,7 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker5" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="sigarta_basi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker5" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="sigarta_basi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "sigarta_basi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker5" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									
@@ -633,7 +669,7 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker6" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="sigorta_sonu" value="" class="form-control datetimepicker-input" data-target="#datetimepicker6" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="sigorta_sonu" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "sigorta_sonu" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker6" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									
@@ -641,48 +677,44 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 										<label class="control-label">Ek Grub</label>
 										<select class="form-control" name = "ek_grup_id" required>
 											<option value="">Seçiniz</option>
-											<option value = "1" >İlkokul</option>
-											<option value = "2" >Ortaokul</option>
-											<option value = "3" >Lise</option>
-											<option value = "4" >Ön Lisans</option>
-											<option value = "5" >Lisans</option>
-											<option value = "6" >Yüksek Lisans</option>
-											<option value = "7" >Doktora</option>
+											<?php foreach( $gruplar as $grup ) { ?>
+												<option value="<?php $tek_personel[ 'ek_grup_id' ]; ?>" <?php if( $tek_personel[ 'ek_grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Diğer Ödeme</label>
-										<input required type="number" class="form-control" name ="diger_odeme" value = "" placeholder = "000,00">
+										<input required type="number" class="form-control" name ="diger_odeme" data-inputmask="'alias': '9999,99'"  value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "000,00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Günlük Ödeme</label>
-										<input required type="number" class="form-control" name ="gunluk_odeme" value = "" placeholder = "000,00">
+										<input required type="number" class="form-control" name ="gunluk_odeme" data-inputmask="'alias': '9999,99'"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "000,00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Aylık Ek Ödeme</label>
-										<input required type="number" class="form-control" name ="aylik_ek_odeme" value = "" placeholder = "000,00">
+										<input required type="number" class="form-control" name ="aylik_ek_odeme" data-inputmask="'alias': '9999,99'"  value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "000,00">
 									</div>
 									<div class="row">
 										<div class="col-sm-6">
 											<div class="form-group">
 												<label>Banka Şube No</label>
-												<input type="text" name = "banka_sube" class="form-control" >
+												<input type="text" name = "banka_sube" class="form-control" value = "<?php echo $tek_personel[ "banka_sube" ]; ?>" >
 											</div>
 										</div>
 										<div class="col-sm-6">
 											<div class="form-group">
 												<label>Banka Hesap No</label>
-												<input type="text" name = "banka_hesap_no" class="form-control" >
+												<input type="text" name = "banka_hesap_no" class="form-control" value = "<?php echo $tek_personel[ "banka_hesap_no" ]; ?>" >
 											</div>
 										</div>
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Kart No</label>
-										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;(9999) (9999) (9999) (9999)&quot;" required type="text" class="form-control" name ="kart_no" value = "" >
+										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;(9999) (9999) (9999) (9999)&quot;" required type="text" class="form-control" name ="kart_no" value = "<?php echo $tek_personel[ "kart_no" ]; ?>" >
 									</div>
 									
 
@@ -692,18 +724,18 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 											<div class="input-group-append" data-target="#datetimepicker7" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="izin_baslama_tarihi" value="" class="form-control datetimepicker-input" data-target="#datetimepicker7" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="izin_baslama_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "izin_baslama_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker7" data-toggle="datetimepicker"/>
 										</div>
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Kalan İzin</label>
-										<input required type="number" class="form-control" name ="kalan_izin" value = "0">
+										<input required type="number" class="form-control" name ="kalan_izin" value = "<?php echo $tek_personel[ "kalan_izin" ]; ?>">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Ödenen İzin</label>
-										<input required type="number" class="form-control" name ="odenen_izin" value = "0">
+										<input required type="number" class="form-control" name ="odenen_izin" value = "<?php echo $tek_personel[ "odenen_izin" ]; ?>">
 									</div>
 
 									<div class="card-footer">

@@ -5,6 +5,18 @@ print_r( $_REQUEST );
 exit;
 
 
+/*
+<?php
+$a = "0(542) 220-5037";
+$ara = array( ')', '(', ' ', '-');
+$degistir = array('');
+
+str_replace( $ara, $degistir, $a);
+
+?>
+
+*/
+
 include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
