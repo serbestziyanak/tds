@@ -2,6 +2,18 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
+
+/* SEG dosyalarından gelen mesaj */
+if( array_key_exists( 'sonuclar', $_SESSION ) ) {
+	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
+	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
+	unset( $_SESSION[ 'sonuclar' ] );
+	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
+}
+
+
+
+
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
 $aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: '_genel';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
@@ -201,6 +213,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 									<th>TC No</th>
 									<th>Adı</th>
 									<th>Soyadı</th>
+									<th>Kayıt No</th>
 									<th>Grubu</th>
 									<th>Sicil No</th>
 									<th>İşe Giriş Trh</th>
@@ -258,6 +271,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 									<td><?php echo $personel[ 'tc_no' ]; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
 									<td><?php echo $personel[ 'soyadi' ]; ?></td>
+									<td><?php echo $personel[ 'kayit_no' ]; ?></td>
 									<td><?php echo $personel[ 'grup_adi' ]; ?></td>
 									<td><?php echo $personel[ 'sicil_no' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'ise_giris_tarihi' ] ); ?></td>
@@ -320,30 +334,31 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 				</div>
 			</div>
 			<div class="col-md-4">
-				<div class="card">
+				<div class="card out-line">
 					<div class="card-header p-2">
 						<ul class="nav nav-pills">
-						<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
-						<li class="nav-item"><a class="nav-link" href="#_nufus" data-toggle="tab">Nüfus</a></li>
-						<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
-						<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
+							<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
+							<?php if( $personel_id > 0 ) { ?>
+								<li class="nav-item"><a class="nav-link" href="#_nufus" data-toggle="tab" disabled>Nüfus</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
+							<?php } ?>
 						</ul>
 					</div>
 					<div class="card-body">
 						<div class="tab-content">
-
 							<!-- GENEL BİLGİLER -->
 							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
-									<input type="file" id="gizli_input_file" name = "input_sistem_kullanici_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type="file" id="gizli_input_file" name = "input_personel_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="text-center">
 										<img class="img-fluid img-circle img-thumbnail mw-100"
 										style="width:120px;"
-										src="resimler/resim_yok.jpg" id = "sistem_kullanici_resim" 
+										src="resimler/resim_yok.jpg" id = "personel_resim" 
 										alt="User profile picture"
-										id = "sistem_kullanici_resim">
+										id = "personel_resim">
 										<h6>Fotoğraf değiştirmek için üzerine tıklayınız</h6>
 									</div>
 									<h3 class="profile-username text-center"><b> </b></h3>
@@ -359,15 +374,17 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<label class="control-label">Kayıt No</label>
 										<input required type="text" class="form-control" name ="kayit_no" value = "<?php echo $tek_personel[ "kayit_no" ]; ?>">
 									</div>
+
 									<div class="form-group">
 										<label class="control-label">Grubu</label>
 										<select class="form-control" name = "grup_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $gruplar as $grup ) { ?>
-												<option value="<?php $tek_personel[ 'grup_id' ]; ?>" <?php if( $tek_personel[ 'grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'grup_id' ]; ?>" <?php if( $tek_personel[ 'grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
+
 									<div class="form-group">
 										<label class="control-label">Sicil No</label>
 										<input required type="text" class="form-control" name ="sicil_no" value = "<?php echo $tek_personel[ "sicil_no" ]; ?>">
@@ -401,7 +418,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "sube_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $subeler as $sube ) { ?>
-												<option value="<?php $tek_personel[ 'sube_id' ]; ?>" <?php if( $tek_personel[ 'sube_id' ] == $sube[ 'id' ] ) echo 'selected'; ?>><?php echo $sube['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'sube_id' ]; ?>" <?php if( $tek_personel[ 'sube_id' ] == $sube[ 'id' ] ) echo 'selected'; ?>><?php echo $sube['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -410,7 +427,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "bolum_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $bolumler as $bolum ) { ?>
-												<option value="<?php $tek_personel[ 'bolum_id' ]; ?>" <?php if( $tek_personel[ 'bolum_id' ] == $bolum[ 'id' ] ) echo 'selected'; ?>><?php echo $bolum['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'bolum_id' ]; ?>" <?php if( $tek_personel[ 'bolum_id' ] == $bolum[ 'id' ] ) echo 'selected'; ?>><?php echo $bolum['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -424,7 +441,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "ozel_kod1_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ozel_kod as $ok1 ) { ?>
-												<option value="<?php $tek_personel[ 'ozel_kod1_id' ]; ?>" <?php if( $tek_personel[ 'ozel_kod1_id' ] == $ok1[ 'id' ] ) echo 'selected'; ?>><?php echo $ok1['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'ozel_kod1_id' ]; ?>" <?php if( $tek_personel[ 'ozel_kod1_id' ] == $ok1[ 'id' ] ) echo 'selected'; ?>><?php echo $ok1['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -434,7 +451,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "ozel_kod2_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ozel_kod as $ok2 ) { ?>
-												<option value="<?php $tek_personel[ 'ozel_kod2_id' ]; ?>" <?php if( $tek_personel[ 'ozel_kod2_id' ] == $ok2[ 'id' ] ) echo 'selected'; ?>><?php echo $ok2['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'ozel_kod2_id' ]; ?>" <?php if( $tek_personel[ 'ozel_kod2_id' ] == $ok2[ 'id' ] ) echo 'selected'; ?>><?php echo $ok2['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -447,7 +464,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 
 							<!-- NÜFUS BİLGİLERİ -->
 							<div class="tab-pane" id="_nufus">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
@@ -456,10 +473,10 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 									</div>
 									<div class="form-group">
 										<label class="control-label">Uyruğu</label>
-										<select class="form-control select2" name = "ogrenim_duzeyi_id" required>
+										<select class="form-control select2" name = "uyruk_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ulkeler as $ulke ) { ?>
-												<option value="<?php $tek_personel[ 'uyruk_id' ]; ?>" <?php if( $tek_personel[ 'uyruk_id' ] == $ulke[ 'id' ] ) echo 'selected'; ?>><?php echo $ulke['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'uyruk_id' ]; ?>" <?php if( $tek_personel[ 'uyruk_id' ] == $ulke[ 'id' ] ) echo 'selected'; ?>><?php echo $ulke['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -488,7 +505,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control select2" name = "dogum_yeri_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ilceler as $ilce ) { ?>
-												<option value="<?php $tek_personel[ 'dogum_yeri_id' ]; ?>" <?php if( $tek_personel[ 'dogum_yeri_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'dogum_yeri_id' ]; ?>" <?php if( $tek_personel[ 'dogum_yeri_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -519,14 +536,14 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "dini" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $dinler as $din ) { ?>
-												<option value="<?php $tek_personel[ 'din_id' ]; ?>" <?php if( $tek_personel[ 'din_id' ] == $din[ 'id' ] ) echo 'selected'; ?>><?php echo $din['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'din_id' ]; ?>" <?php if( $tek_personel[ 'din_id' ] == $din[ 'id' ] ) echo 'selected'; ?>><?php echo $din['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Kan Grubu</label>
-										<select class="form-control" name = "ogrenim_duzeyi_id" required>
+										<select class="form-control" name = "kan_grubu" required>
 										<option value="">Seçiniz</option>
 											<option value = "1" <?php if( $tek_personel[ 'kan_grubu' ] == 1 ) echo 'selected'; ?>>0 RH+</option>
 											<option value = "2" <?php if( $tek_personel[ 'kan_grubu' ] == 2 ) echo 'selected'; ?>>0 RH-</option>
@@ -545,7 +562,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "egitim_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ogrenim_duzeyleri as $ogrenim_duzeyi ) { ?>
-												<option value="<?php $tek_personel[ 'ogrenim_duzeyi_id' ]; ?>" <?php if( $tek_personel[ 'ogrenim_duzeyi_id' ] == $ogrenim_duzeyi[ 'id' ] ) echo 'selected'; ?>><?php echo $ogrenim_duzeyi['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'ogrenim_duzeyi_id' ]; ?>" <?php if( $tek_personel[ 'ogrenim_duzeyi_id' ] == $ogrenim_duzeyi[ 'id' ] ) echo 'selected'; ?>><?php echo $ogrenim_duzeyi['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -555,7 +572,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "il_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $iller as $il ) { ?>
-												<option value="<?php $tek_personel[ 'il_id' ]; ?>" <?php if( $tek_personel[ 'il_id' ] == $il[ 'id' ] ) echo 'selected'; ?>><?php echo $il['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'il_id' ]; ?>" <?php if( $tek_personel[ 'il_id' ] == $il[ 'id' ] ) echo 'selected'; ?>><?php echo $il['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -566,7 +583,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "ilce_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ilceler as $ilce ) { ?>
-												<option value="<?php $tek_personel[ 'ilce_id' ]; ?>" <?php if( $tek_personel[ 'ilce_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'ilce_id' ]; ?>" <?php if( $tek_personel[ 'ilce_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -620,7 +637,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 
 							<!-- ADRES BİLGİLERİ -->
 							<div class="tab-pane" id="_adres">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
@@ -644,8 +661,8 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 							</div>
 
 							<!-- DİĞER BİLGİLER -->
-							<div class="tab-pane <?php if( $aktif_tab == '_diger' ) echo 'active'; ?>" id="_diger">
-								<form class="form-horizontal" id = "kayit_formu" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+							<div class="tab-pane" id="_diger">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
@@ -678,7 +695,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 										<select class="form-control" name = "ek_grup_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $gruplar as $grup ) { ?>
-												<option value="<?php $tek_personel[ 'ek_grup_id' ]; ?>" <?php if( $tek_personel[ 'ek_grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
+												<option value="<?php echo $tek_personel[ 'ek_grup_id' ]; ?>" <?php if( $tek_personel[ 'ek_grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -744,7 +761,6 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 									</div>
 								</form>
 							</div>
-
 						</div>
 					</div>
 				</div>
@@ -757,7 +773,7 @@ $ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 
 /* Kullanıcı resmine tıklayınca file nesnesini tetikle*/
 $( function() {
-	$( "#sistem_kullanici_resim" ).click( function() {
+	$( "#personel_resim" ).click( function() {
 		$( "#gizli_input_file" ).trigger( 'click' );
 	});
 });
@@ -767,7 +783,7 @@ function resimOnizle( input ) {
 	if ( input.files && input.files[ 0 ] ) {
 		var reader = new FileReader();
 		reader.onload = function ( e ) {
-			$( '#sistem_kullanici_resim' ).attr( 'src', e.target.result );
+			$( '#personel_resim' ).attr( 'src', e.target.result );
 		};
 		reader.readAsDataURL( input.files[ 0 ] );
 	}
@@ -949,7 +965,7 @@ $( "#tbl_personeller" ).DataTable( {
 	],
 	"columnDefs": [
 		{
-			"targets" : [ 1,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49 ],
+			"targets" : [ 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 ],
 			"visible" : false
 		}
 	],
