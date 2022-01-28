@@ -4,20 +4,6 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
-echo "<pre>";
-print_r( $_REQUEST );
-exit;
-
-/*
-<?php
-$a = "0(542) 220-5037";
-$ara = array( ')', '(', ' ', '-');
-$degistir = array('');
-
-str_replace( $ara, $degistir, $a);
-?>
-*/
-
 $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
 $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'personel_id' ]	: 0;
 $alanlar		= array();
@@ -31,13 +17,32 @@ $SQL_guncelle 	= "UPDATE tb_personel SET ";
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
 foreach( $_REQUEST as $alan => $deger ) {
 	if( $alan == 'islem' or $alan == 'personel_id' ) continue;
+
+	$tarih_alani = explode( '-', $alan );
+	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
+		$alan 	= $tarih_alani[ 1 ];
+		$deger	= date( 'Y-m-d', strtotime( $deger ) );
+		echo $alan . ' : ' . $deger . '<br>';
+	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
 }
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
+
 $SQL_guncelle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
 $SQL_guncelle	.= " WHERE id = ?";
+
+if( $islem == 'guncelle' ) $degerler[] = $personel_id;
+
+echo "<pre>";
+print_r( $alanlar );
+print_r( $degerler );
+echo "<br>";
+echo $SQL_guncelle;
+
+//exit;
+
 
 
 $SQL_sil = <<< SQL
@@ -68,7 +73,7 @@ switch( $islem ) {
 		}
 	break;
 	case 'guncelle':
-		$sonuc = $vt->update( $SQL_guncelle, array() );
+		$sonuc = $vt->update( $SQL_guncelle, $degerler );
 		$resim_adi = "resim_yok.jpg";
 		if( isset( $_FILES[ 'input_personel_resim' ] ) and $_FILES[ 'input_personel_resim' ][ 'size' ] > 0 ) {
 			$resim_adi	= $personel_id . "." . pathinfo( $_FILES[ 'input_personel_resim' ][ 'name' ], PATHINFO_EXTENSION );
