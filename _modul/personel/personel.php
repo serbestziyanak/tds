@@ -177,23 +177,21 @@ FROM
 SQL;
 
 
-
 $personeller				= $vt->select( $SQL_tum_personel_oku, array() );
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) )[ 2 ][ 0 ];
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
 
 
-
 /* Sabit tablolar içerik oku */
-$iller					= $vt->select( $SQL_iller				,array() )[ 2 ];
-$dinler					= $vt->select( $SQL_dinler				,array() )[ 2 ];
-$ilceler				= $vt->select( $SQL_ilceler				,array() )[ 2 ];
-$gruplar				= $vt->select( $SQL_gruplar				,array() )[ 2 ];
-$subeler				= $vt->select( $SQL_subeler				,array() )[ 2 ];
-$ulkeler				= $vt->select( $SQL_ulkeler				,array() )[ 2 ];
-$bolumler				= $vt->select( $SQL_bolumler			,array() )[ 2 ];
-$ozel_kod				= $vt->select( $SQL_ozel_kod			,array() )[ 2 ];
-$ogrenim_duzeyleri		= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
+$iller				= $vt->select( $SQL_iller				,array() )[ 2 ];
+$dinler				= $vt->select( $SQL_dinler				,array() )[ 2 ];
+$ilceler			= $vt->select( $SQL_ilceler				,array() )[ 2 ];
+$gruplar			= $vt->select( $SQL_gruplar				,array() )[ 2 ];
+$subeler			= $vt->select( $SQL_subeler				,array() )[ 2 ];
+$ulkeler			= $vt->select( $SQL_ulkeler				,array() )[ 2 ];
+$bolumler			= $vt->select( $SQL_bolumler			,array() )[ 2 ];
+$ozel_kod			= $vt->select( $SQL_ozel_kod			,array() )[ 2 ];
+$ogrenim_duzeyleri	= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 
 if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
@@ -216,12 +214,14 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 	</div>
 </div>
 
+
 <script>
 	/* Kayıt silme onay modal açar. */
 	$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 	} );
 </script>
+
 
 <section class="content">
 	<div class="container-fluid">
@@ -441,7 +441,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '9999.99'"  placeholder = "₺0000,00" >
+										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '9999.99'"  placeholder = "0000,00" >
 									</div>
 
 
@@ -730,17 +730,17 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									
 									<div class="form-group">
 										<label class="control-label">Diğer Ödeme</label>
-										<input required type="text" class="form-control" name ="diger_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "000,00">
+										<input required type="text" class="form-control" name ="diger_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "0000.00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Günlük Ödeme</label>
-										<input required type="text" class="form-control" name ="gunluk_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "000,00">
+										<input required type="text" class="form-control" name ="gunluk_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "0000.00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Aylık Ek Ödeme</label>
-										<input required type="text" class="form-control" name ="aylik_ek_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "000,00">
+										<input required type="text" class="form-control" name ="aylik_ek_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "0000.00">
 									</div>
 									<div class="row">
 										<div class="col-sm-6">
