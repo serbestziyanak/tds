@@ -83,9 +83,11 @@ switch( $islem ) {
 				$vt->update( 'UPDATE tb_personel SET resim = ? WHERE id = ?', array( $resim_adi, $personel_id ) );
 			}
 		}
+		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 	case 'sil':
 		$sonuc = $vt->delete( $SQL_sil, array( $personel_id ) );
+		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt silinrken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 }
 

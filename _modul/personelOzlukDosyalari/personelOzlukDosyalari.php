@@ -6,14 +6,12 @@ $islem = array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
-	 p.*
-	,s.adi AS firma_adi
+	 id
+	,CONCAT( adi, " ", soyadi ) as adi
 FROM
-	tb_personel AS p
-LEFT JOIN
-	tb_firmalar AS s ON p.firma_id = s.id
+	tb_personel
 WHERE
-	p.aktif = 1
+	aktif = 1
 SQL;
 
 $SQL_tek_personel_oku = <<< SQL
@@ -88,7 +86,7 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 						<div class="form-group">
 							<select  class="form-control select2" name = "personel_id" id = "personel_id" data-placeholder = "Personel ara...">
 								<?php foreach( $personeller[ 2 ] AS $personel ) { ?>
-									<option value = "<?php echo $personel[ 'id' ]; ?>" <?php if( $personel_id == $personel[ 'id' ] ) echo 'selected'?>><?php echo $personel[ 'adi' ] . " " . $personel[ 'soyadi' ]; ?></option>
+									<option value = "<?php echo $personel[ 'id' ]; ?>" <?php if( $personel_id == $personel[ 'id' ] ) echo 'selected'?>><?php echo $personel[ 'adi' ]; ?></option>
 								<?php } ?>
 							</select>
 						</div>
