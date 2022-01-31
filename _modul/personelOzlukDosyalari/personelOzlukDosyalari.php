@@ -46,7 +46,7 @@ SQL;
 $personeller					= $vt->select( $SQL_tum_personel_oku, array() );
 $personel_id					= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
-$personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
+$personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[ 2 ];
 $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, array() );
 
 ?>
@@ -84,7 +84,7 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 					</div>
 					<div class="card-body">
 						<div class="form-group">
-							<select  class="form-control select2" name = "personel_id" id = "personel_id" data-placeholder = "Personel ara...">
+							<select  class="form-control select2" name = "personel_id" id = "_personel_id" data-placeholder = "Personel ara...">
 								<?php foreach( $personeller[ 2 ] AS $personel ) { ?>
 									<option value = "<?php echo $personel[ 'id' ]; ?>" <?php if( $personel_id == $personel[ 'id' ] ) echo 'selected'?>><?php echo $personel[ 'adi' ]; ?></option>
 								<?php } ?>
@@ -121,7 +121,7 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 							</div>
 						</div>
 						<div class="card-footer">
-							<button type="submit" class="btn btn-success btn-sm" style = "float:right;">Kaydet</button>
+							<button data-toggle="tooltip" title = "Dosyayı kaydet" type="submit" class="btn btn-success btn-sm" style = "float:right;">Kaydet</button>
 						</div>
 					</form>
 				</div>
@@ -135,34 +135,41 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 								<div id="actions" class="row">
 									<table class="table table-striped table-valign-middle">
 										<tbody>
-											<?php 
-												foreach( $personel_ozluk_dosyalari[ 2 ] AS $dosya ) { ?>
-												<tr>
-													<td>
-														<?php echo $dosya[ 'adi' ]; ?>
-													</td>
-													<td align = "right" width = "5%">
-														<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>"
-															data-toggle="tooltip"
-															data-placement="left"
-															title="Dosyayı İndir" target="_blank">
-															<i class = "fa fa-download"></i>
-															
-														</a>
-													</td>
-													<td align = "right" width = "5%">
-														<a href = "" 
-															modul = 'personelOzlukDosyalari' yetki_islem="sil"
-															data-href="_modul/personelOzlukDosyalari/personelOzlukDosyalariSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&dosya_id=<?php echo $dosya[ 'id' ]; ?>"
-															data-target="#kayit_sil"
-															data-toggle="modal"
-															data-toggle="tooltip" 
-															data-placement="left" 
-															title="Dosyayı Sil"><i class = "fa fa-trash color:red"></i>
-														</a>
-													</td>
-												</tr>
-											<?php } ?>
+											<?php
+												if( count( $personel_ozluk_dosyalari ) > 0 ) {
+													foreach( $personel_ozluk_dosyalari AS $dosya ) { ?>
+														<tr>
+															<td>
+																<?php echo $dosya[ 'adi' ]; ?>
+															</td>
+															<td align = "right" width = "5%">
+																<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>"
+																	data-toggle="tooltip"
+																	data-placement="left"
+																	title="Dosyayı İndir" target="_blank">
+																	<i class = "fa fa-download"></i>
+																	
+																</a>
+															</td>
+															<td align = "right" width = "5%">
+																<a href = "" 
+																	modul = 'personelOzlukDosyalari' yetki_islem="sil"
+																	data-href="_modul/personelOzlukDosyalari/personelOzlukDosyalariSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&dosya_id=<?php echo $dosya[ 'id' ]; ?>"
+																	data-target="#kayit_sil"
+																	data-toggle="modal"
+																	data-toggle="tooltip" 
+																	data-placement="left" 
+																	title="Dosyayı Sil">
+																	<i class = "fa fa-trash color:red"></i>
+																</a>
+															</td>
+														</tr>
+												<?php
+													}
+												} else { ?>
+												<h6>Listelenecek kayıt bulunamadı!</h6>
+												
+												<?php } ?>
 										</tbody>
 									</table>
 								</div>
@@ -176,12 +183,13 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 </section>
 
 <script>
-	$( '#personel_id' ).on( 'select2:select', function ( e ) {
-		window.location = window.location.origin + '/index.php?modul=personelOzlukDosyalari&personel_id=' + e.params.data.id;
+	$( '#_personel_id' ).on( 'select2:select', function ( e ) {
+		window.location = window.location.origin + '/tds/index.php?modul=personelOzlukDosyalari&personel_id=' + e.params.data.id;
 	} );
 </script>
+
 <script>
-	$( '#ozluk_dosyasi' ).on('change',function(){
+	$( '#ozluk_dosyasi' ).on('change',function() {
 		//get the file name
 		var fileName = $(this).val();
 		//replace the "Choose a file" label

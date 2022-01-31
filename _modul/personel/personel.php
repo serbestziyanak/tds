@@ -110,6 +110,8 @@ SELECT
 	*
 FROM
 	tb_gruplar
+WHERE
+	aktif = 1
 SQL;
 
 
@@ -126,6 +128,8 @@ SELECT
 	*
 FROM
 	tb_bolumler
+WHERE
+	aktif = 1
 SQL;
 
 
@@ -134,6 +138,8 @@ SELECT
 	*
 FROM
 	tb_ozel_kod
+WHERE
+	aktif = 1
 SQL;
 
 
@@ -231,12 +237,12 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 					<div class="card-header">
 						<h3 class="card-title">Personeller</h3>
 						<div class = "card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
-							<a href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
+							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
+							<a data-toggle = "tooltip" title = "Yeni bir personel ekle" href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
-						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%" data-export-title = "Deneme">
+						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%">
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>
@@ -953,15 +959,14 @@ $( window ).on( 'resize', function() {
 } );
 
 
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-});
+$( function () {
+	$( '[ data-toggle="tooltip" ]' ).tooltip()
+} );
 
 
 $( "#tbl_personeller" ).DataTable( {
 	"responsive": true, "lengthChange": false, "autoWidth": false,
 	//"buttons": ["excel", "pdf", "print","colvis"],
-
 	buttons : [
 		{
 			extend	: 'colvis',
