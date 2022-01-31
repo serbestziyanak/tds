@@ -81,6 +81,12 @@ $kullaniciBilgileri = array(
 	,'resim'		=> 'resimler/' . $sistem_kullanici[ 2 ][ 'resim' ]
 	,'ad_soyad'		=> $sistem_kullanici[ 2 ][ 'adi' ] . " " . $sistem_kullanici[ 2 ][ 'soyadi' ]
 );
+
+
+
+$satir_renk				= $sistem_kullanici_id > 0	? 'table-warning'						: '';
+$kaydet_buton_yazi		= $sistem_kullanici_id > 0	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $sistem_kullanici_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 ?>
 
 <!-- UYARI MESAJI VE BUTONU-->
@@ -133,7 +139,7 @@ $kullaniciBilgileri = array(
 					</thead>
 					<tbody>
 						<?php $sayi = 1; foreach( $sistem_kullanicilari[ 2 ] AS $kul ) { ?>
-						<tr>
+						<tr <?php if( $kul[ 'id' ] == $sistem_kullanici_id ) echo "class = '$satir_renk'"; ?>>
 							<td><?php echo $sayi++; ?></td>
 							<td><?php echo $kul[ 'adi' ]; ?></td>
 							<td><?php echo $kul[ 'soyadi' ]; ?></td>
@@ -178,7 +184,7 @@ $kullaniciBilgileri = array(
 					<div class="card-body">
 					<div class="text-center">
 					  <img class="img-fluid img-circle img-thumbnail mw-100"
-						   style="width:200px;"
+						   style="width:120px;"
 						   src="<?php echo $kullaniciBilgileri[ 'resim' ]; ?>" id = "sistem_kullanici_resim" 
 						   alt="User profile picture"
 						   id = "sistem_kullanici_resim">
@@ -266,7 +272,7 @@ $kullaniciBilgileri = array(
 					</div>
 				</div>
 				<div class="card-footer">
-						<button modul= 'sistemKullanicilari' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+						<button modul= 'sistemKullanicilari' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 						<a modul= 'sistemKullanicilari' yetki_islem="ekle" type="reset" class="btn btn-primary btn-sm pull-right" href = "?modul=sistemKullanicilari&islem=ekle" ><span class="fa fa-plus"></span> Temizle / Yeni Kullanıcı</a>
 				</div>
 				</form>
