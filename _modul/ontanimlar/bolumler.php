@@ -90,7 +90,7 @@ $kaydet_buton_cls		= $bolum_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn 
 							</a>
 							</td>
 							<td align = "center">
-							<button modul = 'firmalar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/bolumler/bolumlerSEG.php?islem=sil&bolum_id=<?php echo $bolum[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
+							<button modul = 'firmalar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/ontanimlar/bolumlerSEG.php?islem=sil&bolum_id=<?php echo $bolum[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
 							</td>
 						</tr>
 						<?php } ?>

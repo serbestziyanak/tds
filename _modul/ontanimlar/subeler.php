@@ -114,31 +114,30 @@ if( $islem == 'guncelle' )
 
 
 ?>
-<!-- UYARI MESAJI VE BUTONU-->
-<div class="modal fade" id="subeler_sil_onay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="sil_onay">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="myModalLabel">Lütfen Dikkat!</h4>
+				<h4 class="modal-title">Lütfen Dikkat</h4>
 			</div>
 			<div class="modal-body">
-				Bu kaydı <b>Silmek</b> istediğinize emin misiniz?
+				<p>Bu kaydı silmek istediğinize emin misiniz?</p>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+			<div class="modal-footer justify-content-between">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
 				<a class="btn btn-danger btn-evet">Evet</a>
 			</div>
 		</div>
 	</div>
 </div>
 
+
 <script>
-	$( '#subeler_sil_onay' ).on( 'show.bs.modal', function( e ) {
+	/* Kayıt silme onay modal açar. */
+	$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 	} );
 </script>
-
 
 <script>  
   $(document).ready(function() {
@@ -183,7 +182,7 @@ if( $islem == 'guncelle' )
                       </a>
                     </td>
                     <td align = "center">
-                      <button modul = 'subeler' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/subeler/subelerSEG.php?islem=sil&id=<?php echo $sube[ 'id' ]; ?>" data-toggle="modal" data-target="#subeler_sil_onay" >Sil</button>
+                      <button modul = 'subeler' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/subeler/subelerSEG.php?islem=sil&id=<?php echo $sube[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
                     </td>
                   </tr>
                   <?php } ?>

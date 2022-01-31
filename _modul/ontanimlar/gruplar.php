@@ -27,7 +27,7 @@ SELECT
 FROM
 	tb_gruplar
 WHERE
-	aktif = 1
+	id = ?
 SQL;
 
 
@@ -120,7 +120,7 @@ $kaydet_buton_cls		= $grup_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn b
 		</div>
 		<form id = "kayit_formu" action = "_modul/ontanimlar/gruplarSEG.php" method = "POST">
 			<div class="card-body">
-			<input type = "hidden" name = "grup_id" value = "<?php echo $grup_bilgileri[ 'id' ]; ?>">
+			<input type = "hidden" name = "grup_id" value = "<?php echo $grup_id; ?>">
 			<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 			<div class="form-group">
 				<label  class="control-label">Bölüm Adı</label>
