@@ -236,7 +236,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 						</div>
 					</div>
 					<div class="card-body">
-						<table id="tbl_personeller" class="table table-bordered table-hover" width = "100%" data-export-title = "Deneme">
+						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%" data-export-title = "Deneme">
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>

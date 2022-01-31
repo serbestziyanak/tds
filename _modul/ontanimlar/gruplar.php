@@ -40,35 +40,41 @@ $tek_grup	= $vt->select( $SQL_tek_grup_oku, array( $grup_id ) );
 $grup_bilgileri = array(
 	 'id'		=> $grup_id > 0 ? $grup_id : 0
 	,'adi'		=> $grup_id > 0 ? $tek_grup[ 2 ][ 0 ][ 'adi' ] : ''
-
 );
 
 
+
+$satir_renk				= $grup_id > 0	? 'table-warning'						: '';
+$kaydet_buton_yazi		= $grup_id > 0	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $grup_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
+
 ?>
-<!-- UYARI MESAJI VE BUTONU-->
-<div class="modal fade" id="sil_onay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+<div class="modal fade" id="sil_onay">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="myModalLabel">Lütfen Dikkat!</h4>
+				<h4 class="modal-title">Lütfen Dikkat</h4>
 			</div>
 			<div class="modal-body">
-				Bu kaydı <b>Silmek</b> istediğinize emin misiniz?
+				<p>Bu kaydı silmek istediğinize emin misiniz?</p>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+			<div class="modal-footer justify-content-between">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
 				<a class="btn btn-danger btn-evet">Evet</a>
 			</div>
 		</div>
 	</div>
 </div>
 
+
 <script>
+	/* Kayıt silme onay modal açar. */
 	$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 	} );
 </script>
+
 <div class="row">
 	<div class="col-md-6">
 		<div class="card card-success">
@@ -77,26 +83,26 @@ $grup_bilgileri = array(
 			</div>
 			<div class="card-body">
 				<table id="example2" class="table table-sm table-bordered table-hover">
-				<thead>
-					<tr>
-					<th style="width: 15px">#</th>
-					<th>Adı</th>
-					<th data-priority="1" style="width: 20px">Düzenle</th>
-					<th data-priority="1" style="width: 20px">Sil</th>
-					</tr>
-				</thead>
+					<thead>
+						<tr>
+						<th style="width: 15px">#</th>
+						<th>Adı</th>
+						<th data-priority="1" style="width: 20px">Düzenle</th>
+						<th data-priority="1" style="width: 20px">Sil</th>
+						</tr>
+					</thead>
 				<tbody>
-				<?php $sayi = ($sayfa-1)*$limit+1;  foreach( $gruplar[ 2 ] AS $bolum ) { ?>
-				<tr>
+				<?php $sayi = ($sayfa-1)*$limit+1;  foreach( $gruplar[ 2 ] AS $grup ) { ?>
+				<tr <?php if( $grup[ 'id' ] == $grup_id ) echo "class = '$satir_renk'"; ?>>
 					<td><?php echo $sayi++; ?></td>
-					<td><?php echo $bolum[ 'adi' ]; ?></td>
+					<td><?php echo $grup[ 'adi' ]; ?></td>
 					<td align = "center">
-					<a modul = 'gruplar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=gruplar&islem=guncelle&grup_id=<?php echo $bolum[ 'id' ]; ?>" >
-						Düzenle
-					</a>
+						<a modul = 'gruplar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=gruplar&islem=guncelle&grup_id=<?php echo $grup[ 'id' ]; ?>" >
+							Düzenle
+						</a>
 					</td>
 					<td align = "center">
-					<button modul = 'gruplar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/ontanimlar/gruplarSEG.php?islem=sil&grup_id=<?php echo $bolum[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
+						<button modul = 'gruplar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/ontanimlar/gruplarSEG.php?islem=sil&grup_id=<?php echo $grup[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
 					</td>
 				</tr>
 				<?php } ?>
@@ -122,7 +128,7 @@ $grup_bilgileri = array(
 			</div>
 			</div>
 			<div class="card-footer">
-			<button modul= 'gruplar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+			<button modul= 'gruplar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 				<button onclick="window.location.href = '?modul=gruplar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 			</div>
 		</form>

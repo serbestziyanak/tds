@@ -5,37 +5,37 @@ $SQL_oku = <<< SQL
 SELECT
 	*
 FROM
-	tb_bolumler
+	tb_ozel_kod
 WHERE
 	aktif = 1
 SQL;
 
-$SQL_tek_bolum_oku = <<< SQL
+$SQL_tek_ozel_kod_oku = <<< SQL
 SELECT
 	*
 FROM
-	tb_bolumler
+	tb_ozel_kod
 WHERE
 	id = ?
 SQL;
 
 
-$bolum_id	= array_key_exists( 'bolum_id', $_REQUEST ) ? $_REQUEST[ 'bolum_id' ] : 0;
+$ozel_kod_id	= array_key_exists( 'ozel_kod_id', $_REQUEST ) ? $_REQUEST[ 'ozel_kod_id' ] : 0;
 $islem		= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
-$bolumler	= $vt->select( $SQL_oku, array() );
-$tek_bolum	= $vt->select( $SQL_tek_bolum_oku, array( $bolum_id ) );
+$ozel_kodlar	= $vt->select( $SQL_oku, array() );
+$tek_ozel_kod	= $vt->select( $SQL_tek_ozel_kod_oku, array( $ozel_kod_id ) );
 
-$bolum_bilgileri = array(
-	 'id'		=> $bolum_id > 0 ? $bolum_id : 0
-	,'adi'		=> $bolum_id > 0 ? $tek_bolum[ 2 ][ 0 ][ 'adi' ] : ''
+$ozel_kod_bilgileri = array(
+	 'id'		=> $ozel_kod_id > 0 ? $ozel_kod_id : 0
+	,'adi'		=> $ozel_kod_id > 0 ? $tek_ozel_kod[ 2 ][ 0 ][ 'adi' ] : ''
 
 );
 
 
-$satir_renk				= $bolum_id > 0	? 'table-warning'						: '';
-$kaydet_buton_yazi		= $bolum_id > 0	? 'Güncelle'							: 'Kaydet';
-$kaydet_buton_cls		= $bolum_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
+$satir_renk				= $ozel_kod_id > 0	? 'table-warning'						: '';
+$kaydet_buton_yazi		= $ozel_kod_id > 0	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $ozel_kod_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 ?>
 <div class="modal fade" id="sil_onay">
@@ -80,17 +80,17 @@ $kaydet_buton_cls		= $bolum_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn 
 						</tr>
 					</thead>
 					<tbody>
-						<?php $sayi = ($sayfa-1)*$limit+1;  foreach( $bolumler[ 2 ] AS $bolum ) { ?>
-						<tr <?php if( $bolum[ 'id' ] == $bolum_id ) echo "class = '$satir_renk'"; ?>>
+						<?php $sayi = ($sayfa-1)*$limit+1;  foreach( $ozel_kodlar[ 2 ] AS $ozel_kod ) { ?>
+						<tr <?php if( $ozel_kod[ 'id' ] == $ozel_kod_id ) echo "class = '$satir_renk'"; ?>>
 							<td><?php echo $sayi++; ?></td>
-							<td><?php echo $bolum[ 'adi' ]; ?></td>
+							<td><?php echo $ozel_kod[ 'adi' ]; ?></td>
 							<td align = "center">
-							<a modul = 'firmalar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=bolumler&islem=guncelle&bolum_id=<?php echo $bolum[ 'id' ]; ?>" >
+							<a modul = 'ozelKod' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=ozelKod&islem=guncelle&ozel_kod_id=<?php echo $ozel_kod[ 'id' ]; ?>" >
 								Düzenle
 							</a>
 							</td>
 							<td align = "center">
-							<button modul = 'firmalar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/bolumler/bolumlerSEG.php?islem=sil&bolum_id=<?php echo $bolum[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
+							<button modul = 'ozelKod' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/ontanimlar/ozelKodSEG.php?islem=sil&ozel_kod_id=<?php echo $ozel_kod[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
 							</td>
 						</tr>
 						<?php } ?>
@@ -106,18 +106,18 @@ $kaydet_buton_cls		= $bolum_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn 
 		<div class="card-header">
 			<h3 class="card-title">Bölüm Ekle / Güncelle</h3>
 		</div>
-		<form id = "kayit_formu" action = "_modul/ontanimlar/bolumlerSEG.php" method = "POST">
+		<form id = "kayit_formu" action = "_modul/ontanimlar/ozelKodSEG.php" method = "POST">
 			<div class="card-body">
-			<input type = "hidden" name = "bolum_id" value = "<?php echo $bolum_bilgileri[ 'id' ]; ?>">
+			<input type = "hidden" name = "ozel_kod_id" value = "<?php echo $ozel_kod_bilgileri[ 'id' ]; ?>">
 			<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 			<div class="form-group">
 				<label  class="control-label">Bölüm Adı</label>
-				<input type="text" class="form-control" name ="bolum_adi" value = "<?php echo $bolum_bilgileri[ 'adi' ]; ?>" required placeholder="">
+				<input type="text" class="form-control" name ="ozel_kod_adi" value = "<?php echo $ozel_kod_bilgileri[ 'adi' ]; ?>" required placeholder="">
 			</div>
 			</div>
 			<div class="card-footer">
-			<button modul= 'bolumler' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi?></button>
-				<button onclick="window.location.href = '?modul=bolumler&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+			<button modul= 'ozel_kodlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi?></button>
+				<button onclick="window.location.href = '?modul=ozelKod&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 			</div>
 		</form>
 		</div>

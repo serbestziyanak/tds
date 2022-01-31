@@ -112,8 +112,7 @@ $islem          = array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] 
 if( $islem == 'guncelle' )
 	$sube_bilgileri = $sube[ 2 ];
 
-//echo "limit:".$limit;
-//echo "sayfa:".$sayfa;
+
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
 <div class="modal fade" id="subeler_sil_onay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -174,7 +173,7 @@ if( $islem == 'guncelle' )
                   <?php $sayi = ($sayfa-1)*$limit+1;  foreach( $subeler[ 2 ] AS $sube ) { ?>
                   <tr>
                     <td><?php echo $sayi++; ?></td>
-                    <td><b><?php echo $sube[ 'adi' ]; ?></b></td>
+                    <td><?php echo $sube[ 'adi' ]; ?></td>
                     <td><?php echo $sube[ 'firma' ]; ?></td>
                     <td><?php echo $sube[ 'unvan' ]; ?></td>
                     <td><?php echo $sube[ 'tel' ]; ?></td>

@@ -31,7 +31,9 @@ $sgk_bilgileri = array(
 	,'adi'		=> $id > 0 ? $tek_sgk[ 2 ][ 0 ][ 'adi' ] : ''
 );
 
-
+$satir_renk				= $id > 0	? 'table-warning'						: '';
+$kaydet_buton_yazi		= $id > 0	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
 <div class="modal fade" id="sil_onay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -67,15 +69,15 @@ $sgk_bilgileri = array(
 				<table id="example2" class="table table-sm table-bordered table-hover">
 					<thead>
 						<tr>
-						<th style="width: 15px">#</th>
-						<th>Adı</th>
-						<th data-priority="1" style="width: 20px">Düzenle</th>
-						<th data-priority="1" style="width: 20px">Sil</th>
+							<th style="width: 15px">#</th>
+							<th>Adı</th>
+							<th data-priority="1" style="width: 20px">Düzenle</th>
+							<th data-priority="1" style="width: 20px">Sil</th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php $sayi = ( $sayfa-1 ) * $limit + 1;  foreach( $sgk_nolar[ 2 ] AS $sgk_no ) { ?>
-						<tr>
+						<tr <?php if( $sgk_no[ 'id' ] == $id ) echo "class = '$satir_renk'"; ?>>
 							<td><?php echo $sayi++; ?></td>
 							<td><?php echo $sgk_no[ 'adi' ]; ?></td>
 							<td align = "center">
@@ -110,7 +112,7 @@ $sgk_bilgileri = array(
 			</div>
 			</div>
 			<div class="card-footer">
-			<button modul= 'bolumler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+			<button modul= 'bolumler' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls;?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi;?></button>
 				<button onclick="window.location.href = '?modul=sgkKanunNo&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 			</div>
 		</form>
