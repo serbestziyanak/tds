@@ -233,7 +233,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-8">
-				<div class="card card-secondary" id = "my-card-12">
+				<div class="card card-secondary" id = "card_personeller">
 					<div class="card-header">
 						<h3 class="card-title">Personeller</h3>
 						<div class = "card-tools">
@@ -804,6 +804,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 <script type="text/javascript">
 
+
 /* Kullanıcı resmine tıklayınca file nesnesini tetikle*/
 $( function() {
 	$( "#personel_resim" ).click( function() {
@@ -964,9 +965,10 @@ $( function () {
 } );
 
 
-$( "#tbl_personeller" ).DataTable( {
-	"responsive": true, "lengthChange": false, "autoWidth": false,
+var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
+	"responsive": true, "lengthChange": true, "autoWidth": true,
 	//"buttons": ["excel", "pdf", "print","colvis"],
+
 	buttons : [
 		{
 			extend	: 'colvis',
@@ -1021,5 +1023,24 @@ $( "#tbl_personeller" ).DataTable( {
 		}
 	}
 } ).buttons().container().appendTo('#tbl_personeller_wrapper .col-md-6:eq(0)');
+
+
+
+$('#card_personeller').on('maximized.lte.cardwidget', function() {
+	var tbl_personeller = $( "#tbl_personeller" ).DataTable();
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 1 );
+	column.visible( ! column.visible() );
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 2 );
+	column.visible( ! column.visible() );
+});
+
+$('#card_personeller').on('minimized.lte.cardwidget', function() {
+	var tbl_personeller = $( "#tbl_personeller" ).DataTable();
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 1 );
+	column.visible( ! column.visible() );
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 2 );
+	column.visible( ! column.visible() );
+} );
+
 
 </script>
