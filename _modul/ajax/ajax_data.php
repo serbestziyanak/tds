@@ -125,9 +125,30 @@ ORDER BY bil.ekleme_tarihi DESC
 SQL;
 
 
+$SQL_ilceler_getir = <<< SQL
+SELECT
+	*
+FROM
+	tb_ilceler
+WHERE 
+	il_id = ?
+SQL;
+
+
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
+	case 'ilce_ver':
+
+		$ilceler	= $vt->select( $SQL_ilceler_getir, array( $_REQUEST[ 'il_id' ] ) );
+		$sonuc = "<option value=''>Seçiniz</option>";
+		foreach( $ilceler[ 2 ] AS $ilce ) {
+			$sonuc.="
+				<option value='$ilce[id]'>$ilce[adi]</option>
+			";
+		}
+		echo $sonuc;
+	break;
 	case 'cevap_turune_gore_secenek_ver':
 		$sonuc = "";
 		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 ){ $deger1 = "Evet"; $deger2 = "Hayır"; }

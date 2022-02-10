@@ -63,6 +63,28 @@ $( document ).ready( function() {
 		} );
 	} );
 	
+	/* il idye göre ilce okuma */
+	$( '#il_id' ).on( 'change', function() {
+		var il_id = $( this ).val();
+		$.ajax( {
+			 url	: "_modul/ajax/ajax_data.php"
+			,type	: "post"
+			,data	: {
+				 il_id	: il_id
+				,islem	: 'ilce_ver'
+			}
+			,success	: function( sonuc ) {
+				$( "#ilce_id" ).html( sonuc );
+			}
+			,error		: function() {
+				alert( "İlçeler yüklenemedi" ); 
+			}
+		} );
+	} );
+	
+	
+	
+	
 	/* Bildirim deneme*/
 	function bildrim_getir() {
 		$.ajax( {

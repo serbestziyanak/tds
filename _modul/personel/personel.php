@@ -31,9 +31,7 @@ SELECT
 	,ok1.adi AS ozel_kod1
 	,ok2.adi AS ozel_kod2
 	,ek_g.adi AS ek_grup_adi
-	,d.adi AS din_adi
 	,u.adi AS uyruk_adi
-	,dy.adi AS dogum_yeri_adi
 	,od.adi AS ogrenim_duzeyi_adi
 	,il.adi AS il_adi
 	,ilc.adi AS ilce_adi
@@ -45,9 +43,7 @@ LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
 LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
 LEFT JOIN tb_gruplar AS ek_g ON p.ek_grup_id = ek_g.id
-LEFT JOIN tb_dinler AS d ON p.din_id = d.id
 LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
-LEFT JOIN tb_ilceler AS dy ON p.dogum_yeri_id = dy.id
 LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
 LEFT JOIN tb_iller AS il ON p.il_id = il.id
 LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
@@ -65,11 +61,11 @@ SELECT
 	,ok1.adi AS ozel_kod1
 	,ok2.adi AS ozel_kod2
 	,ek_g.adi AS ek_grup_adi
-	,d.adi AS din_adi
 	,u.adi AS uyruk_adi
-	,dy.adi AS dogum_yeri_adi
 	,od.adi AS ogrenim_duzeyi_adi
 	,il.adi AS il_adi
+	,il.id AS il_id
+	,ilc.id AS ilce_id
 	,ilc.adi AS ilce_adi
 FROM
 	tb_personel AS p
@@ -79,9 +75,7 @@ LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
 LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
 LEFT JOIN tb_gruplar AS ek_g ON p.ek_grup_id = ek_g.id
-LEFT JOIN tb_dinler AS d ON p.din_id = d.id
 LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
-LEFT JOIN tb_ilceler AS dy ON p.dogum_yeri_id = dy.id
 LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
 LEFT JOIN tb_iller AS il ON p.il_id = il.id
 LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
@@ -164,6 +158,8 @@ SELECT
 	*
 FROM
 	tb_ilceler
+WHERE
+	il_id = ?
 SQL;
 
 
@@ -191,7 +187,13 @@ $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $
 /* Sabit tablolar içerik oku */
 $iller				= $vt->select( $SQL_iller				,array() )[ 2 ];
 $dinler				= $vt->select( $SQL_dinler				,array() )[ 2 ];
-$ilceler			= $vt->select( $SQL_ilceler				,array() )[ 2 ];
+
+
+
+//$ilceler			= $vt->select( $SQL_ilceler				,array() )[ 2 ];
+$ilceler			= $vt->select( $SQL_ilceler, array( $tek_personel[ 'il_id' ] ) )[ 2 ];
+
+
 $gruplar			= $vt->select( $SQL_gruplar				,array() )[ 2 ];
 $subeler			= $vt->select( $SQL_subeler				,array() )[ 2 ];
 $ulkeler			= $vt->select( $SQL_ulkeler				,array() )[ 2 ];
@@ -233,7 +235,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-8">
-				<div class="card card-secondary" id = "my-card-12">
+				<div class="card card-secondary" id = "card_personeller">
 					<div class="card-header">
 						<h3 class="card-title">Personeller</h3>
 						<div class = "card-tools">
@@ -323,11 +325,11 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<td><?php echo $personel[ 'cuzdan_no' ]; ?></td>
 									<td><?php echo $personel[ 'baba_adi' ]; ?></td>
 									<td><?php echo $personel[ 'ana_adi' ]; ?></td>
-									<td><?php echo $personel[ 'dogum_yeri_adi' ]; ?></td>
+									<td><?php echo $personel[ 'dogum_yeri' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'dogum_tarihi' ] ); ?></td>
 									<td><?php echo $personel[ 'kizlik_soyadi' ]; ?></td>
 									<td><?php echo $personel[ 'medeni_hali' ]; ?></td>
-									<td><?php echo $personel[ 'din_adi' ]; ?></td>
+									<td><?php echo $personel[ 'din' ]; ?></td>
 									<td><?php echo $personel[ 'ogrenim_duzeyi_adi' ]; ?></td>
 									<td><?php echo $personel[ 'il_adi' ]; ?></td>
 									<td><?php echo $personel[ 'ilce_adi' ]; ?></td>
@@ -538,12 +540,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									<div class="form-group">
 										<label class="control-label">Doğum Yeri</label>
-										<select class="form-control select2" name = "dogum_yeri_id" required>
-											<option value="">Seçiniz</option>
-											<?php foreach( $ilceler as $ilce ) { ?>
-												<option value="<?php echo $ilce[ 'id' ]; ?>" <?php if( $tek_personel[ 'dogum_yeri_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
-											<?php } ?>
-										</select>
+										<input required type="text" class="form-control" name ="dogum_yeri" value = "<?php echo $tek_personel[ "dogum_yeri" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Doğum Tarihi</label>
@@ -569,12 +566,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 									<div class="form-group">
 										<label class="control-label">Dini</label>
-										<select class="form-control" name = "din_id" required>
-											<option value="">Seçiniz</option>
-											<?php foreach( $dinler as $din ) { ?>
-												<option value="<?php echo $din[ 'id' ]; ?>" <?php if( $tek_personel[ 'din_id' ] == $din[ 'id' ] ) echo 'selected'; ?>><?php echo $din['adi']; ?></option>
-											<?php } ?>
-										</select>
+										<input required type="text" class="form-control" name ="din" value = "<?php echo $tek_personel[ "din" ]; ?>">
 									</div>
 
 									<div class="form-group">
@@ -605,18 +597,16 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 									<div class="form-group">
 										<label class="control-label">İl</label>
-										<select class="form-control" name = "il_id" required>
+										<select class="form-control select2" name = "il_id" id="il_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $iller as $il ) { ?>
 												<option value="<?php echo $il[ 'id' ]; ?>" <?php if( $tek_personel[ 'il_id' ] == $il[ 'id' ] ) echo 'selected'; ?>><?php echo $il['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
-
-
 									<div class="form-group">
 										<label class="control-label">İlçe</label>
-										<select class="form-control" name = "ilce_id" required>
+										<select class="form-control select2" name = "ilce_id" id = "ilce_id" required>
 											<option value="">Seçiniz</option>
 											<?php foreach( $ilceler as $ilce ) { ?>
 												<option value="<?php echo $ilce[ 'id' ]; ?>" <?php if( $tek_personel[ 'ilce_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
@@ -804,6 +794,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 <script type="text/javascript">
 
+
 /* Kullanıcı resmine tıklayınca file nesnesini tetikle*/
 $( function() {
 	$( "#personel_resim" ).click( function() {
@@ -964,9 +955,10 @@ $( function () {
 } );
 
 
-$( "#tbl_personeller" ).DataTable( {
-	"responsive": true, "lengthChange": false, "autoWidth": false,
+var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
+	"responsive": true, "lengthChange": true, "autoWidth": true,
 	//"buttons": ["excel", "pdf", "print","colvis"],
+
 	buttons : [
 		{
 			extend	: 'colvis',
@@ -1021,5 +1013,24 @@ $( "#tbl_personeller" ).DataTable( {
 		}
 	}
 } ).buttons().container().appendTo('#tbl_personeller_wrapper .col-md-6:eq(0)');
+
+
+
+$('#card_personeller').on('maximized.lte.cardwidget', function() {
+	var tbl_personeller = $( "#tbl_personeller" ).DataTable();
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 1 );
+	column.visible( ! column.visible() );
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 2 );
+	column.visible( ! column.visible() );
+});
+
+$('#card_personeller').on('minimized.lte.cardwidget', function() {
+	var tbl_personeller = $( "#tbl_personeller" ).DataTable();
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 1 );
+	column.visible( ! column.visible() );
+	var column = tbl_personeller.column(  tbl_personeller.column.length - 2 );
+	column.visible( ! column.visible() );
+} );
+
 
 </script>
