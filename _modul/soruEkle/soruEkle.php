@@ -392,7 +392,7 @@ if( $islem == 'guncelle' ){
               <div class="card-header">
 				<h3 class="card-title float-sm-left">Sorular</b></h3>
                 <h3 class="card-title float-sm-right">
-					<a href="#" data-toggle="modal" data-target="#kategori_sec_modal"><h3 class="card-title">Kategori : <b><?php if( $kategori_adi !="" ){ ?><?php echo $kategori_adi; ?><?php }elseif($kategori_id == 0){ echo "Tümü"; }else{?>Kategori Seç<?php } ?></b></h3></a>
+					<a href="#" data-toggle="modal" data-target="#kategori_sec_modal"><h3 class="card-title">Kategori Seç : <b><?php if( $kategori_adi !="" ){ ?><?php echo $kategori_adi; ?><?php }elseif($kategori_id == 0){ echo "Tümü"; }else{?>Kategori Seç<?php } ?></b></h3></a>
 				</h3>
               </div>
               <!-- /.card-header -->
@@ -442,6 +442,19 @@ if( $islem == 'guncelle' ){
 								  </div>
 								  <input type='text' class='form-control' placeholder='Cevap bu şekilde text alanına girilecektir.'>			  
 								</div>								
+							";
+						}
+						if( $soru['soru_cevap_turu_id'] == 7 ){
+							$html .="
+								<br>
+								<div class='form-group'>
+								<div class='input-group'>
+								  <div class='custom-file'>
+									<input type='file' class='custom-file-input' id='exampleInputFile'>
+									<label class='custom-file-label' for='exampleInputFile'>Dosya Seçiniz...</label>
+								  </div>
+								</div>
+							  </div>
 							";
 						}
 						if( $soru['soru_cevap_turu_id'] == 1 or $soru['soru_cevap_turu_id'] == 2 or $soru['soru_cevap_turu_id'] == 3 or $soru['soru_cevap_turu_id'] == 4 or $soru['soru_cevap_turu_id'] == 5 ){
