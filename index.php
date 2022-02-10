@@ -141,7 +141,7 @@ WHERE
 SQL;
 
 	if( array_key_exists( 'giris_var', $_SESSION ) && $_SESSION[ 'giris_var' ] == 'evet' ) { ?>
-		<body class="hold-transition sidebar-mini layout-fixed">
+		<body class="hold-transition sidebar-mini layout-fixed text-sm">
 			<div class="wrapper">
 				<?php include "_modul/ustBar.php"; ?>
 				<?php include "_modul/solMenu.php"; ?>
