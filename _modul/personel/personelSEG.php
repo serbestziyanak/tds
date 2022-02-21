@@ -16,7 +16,7 @@ $SQL_guncelle 	= "UPDATE tb_personel SET ";
 
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
 foreach( $_REQUEST as $alan => $deger ) {
-	if( $alan == 'islem' or $alan == 'personel_id' ) continue;
+	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' ) continue;
 
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
@@ -35,14 +35,6 @@ $SQL_guncelle	.= " WHERE id = ?";
 
 if( $islem == 'guncelle' ) $degerler[] = $personel_id;
 
-echo "<pre>";
-print_r( $alanlar );
-print_r( $degerler );
-echo "<br>";
-echo $SQL_guncelle;
-
-//exit;
-
 
 
 $SQL_sil = <<< SQL
@@ -54,12 +46,13 @@ WHERE
 	id = ?
 SQL;
 
-$___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti' );
+$___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
 switch( $islem ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
+		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
 
 		$resim_adi		= "resim_yok.jpg";
 		$son_eklenen_id	= $sonuc[ 2 ]; 
