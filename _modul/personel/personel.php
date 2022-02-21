@@ -382,7 +382,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 								<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
 								<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
 							<?php } else {
-								echo "<h5>Yeni personel ekle</h5>";
+								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Yeni personel ekle</h6>";
 							} ?>
 						</ul>
 					</div>

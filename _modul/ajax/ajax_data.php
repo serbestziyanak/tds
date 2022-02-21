@@ -150,32 +150,35 @@ switch( $_POST[ 'islem' ] ) {
 		echo $sonuc;
 	break;
 	case 'cevap_turune_gore_secenek_ver':
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 ){ $deger1 = "Evet"; $deger2 = "Hayır";}
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 2 ){ $deger1 = "Doğru"; $deger2 = "Yanlış";}
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 3 ){ $deger1 = "Var"; $deger2 = "Yok";}
-		$sonuc = "
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
-			  </div>
-			  <input type='text' class='form-control' name='' value='$deger1' disabled>
-			  <input type='hidden' class='form-control' name='secenekler[]' value='$deger1'>
-			  <div class='input-group-append'>
-				<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-			  </div>			  
-			</div>						
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
-			  </div> 
-			  <input type='text' class='form-control' name='' value='$deger2' disabled>
-			  <input type='hidden' class='form-control' name='secenekler[]' value='$deger2' >
-			  <div class='input-group-append'>
-				<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-			  </div>
-			</div>
-			<input type='hidden' id='secenek_sayisi' value='2'>
-		";
+		$sonuc = "";
+		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 ){ $deger1 = "Evet"; $deger2 = "Hayır"; }
+		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 2 ){ $deger1 = "Doğru"; $deger2 = "Yanlış"; }
+		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 3 ){ $deger1 = "Var"; $deger2 = "Yok"; }
+		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 OR $_REQUEST[ 'soru_cevap_turu_id' ] == 2 OR $_REQUEST[ 'soru_cevap_turu_id' ] == 3 ){ 
+			$sonuc = "
+				<div class='input-group mb-3'>
+				<div class='input-group-prepend'>
+					<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
+				</div>
+				<input type='text' class='form-control' name='' value='$deger1' disabled>
+				<input type='hidden' class='form-control' name='secenekler[]' value='$deger1'>
+				<div class='input-group-append'>
+					<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
+				</div>			  
+				</div>						
+				<div class='input-group mb-3'>
+				<div class='input-group-prepend'>
+					<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
+				</div> 
+				<input type='text' class='form-control' name='' value='$deger2' disabled>
+				<input type='hidden' class='form-control' name='secenekler[]' value='$deger2' >
+				<div class='input-group-append'>
+					<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
+				</div>
+				</div>
+				<input type='hidden' id='secenek_sayisi' value='2'>
+			";
+		}
 		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 4 ){
 			$sonuc = "
 			<div class='form-group'>
@@ -237,6 +240,19 @@ switch( $_POST[ 'islem' ] ) {
 			  <input type='text' class='form-control' placeholder='Cevap bu şekilde text alanına girilecektir.'>			  
 			</div>						
 			";
+		}
+		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 7 ){
+			$sonuc = "
+			<div class='form-group'>
+			<div class='input-group'>
+			  <div class='custom-file'>
+				<input type='file' class='custom-file-input' id='exampleInputFile'>
+				<label class='custom-file-label' for='exampleInputFile'>Dosya Seçiniz...</label>
+			  </div>
+			</div>
+			<small  class='form-text text-muted'>Kullanıcılar dosya yükleme alanını bu şekilde göreceklerdir.</small>
+		  </div>
+		  ";
 		}
 		
 		
