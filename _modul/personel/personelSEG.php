@@ -9,7 +9,7 @@ $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'perso
 $alanlar		= array();
 $degerler		= array();
 
-
+ 
 $SQL_ekle		= "INSERT INTO tb_personel SET ";
 $SQL_guncelle 	= "UPDATE tb_personel SET ";
 
