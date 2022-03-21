@@ -405,7 +405,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="ucret form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" style = "text-align:left;">
+										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '99999.99'"   placeholder = "0000,00" >
 									</div>
 
 
@@ -666,7 +666,7 @@ $(function() {
     });
 });
 
-$(".ucret").inputmask({'alias': 'currency', allowMinus: false, digits: 2, max: 99999.99});
+
 
 
 // ESC tuşuna basınca formu temizle
