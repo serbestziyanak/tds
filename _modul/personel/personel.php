@@ -405,7 +405,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '99999.99'"   placeholder = "0000,00" >
+										<input required type="number" step = "0.01" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" placeholder = "0000,00" >
 									</div>
 
 
@@ -656,14 +656,15 @@ String.prototype.turkishToUpper = function(){
 }
 
 $(function() {
-    $('#txt_adi').keyup(function() {
-        this.value = this.value.turkishToUpper();
-    });
+	$('#txt_adi').keyup(function() {
+		this.value = this.value.turkishToUpper();
+	});
 });
+
 $(function() {
-    $('#txt_soyadi').keyup(function() {
-        this.value = this.value.turkishToUpper();
-    });
+	$('#txt_soyadi').keyup(function() {
+		this.value = this.value.turkishToUpper();
+	});
 });
 
 
