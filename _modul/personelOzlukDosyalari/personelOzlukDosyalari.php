@@ -184,7 +184,7 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 
 <script>
 	$( '#_personel_id' ).on( 'select2:select', function ( e ) {
-		window.location = window.location.origin + '/tds/index.php?modul=personelOzlukDosyalari&personel_id=' + e.params.data.id;
+		window.location = window.location.origin + '/index.php?modul=personelOzlukDosyalari&personel_id=' + e.params.data.id;
 	} );
 </script>
 
