@@ -1,5 +1,4 @@
 <?php
-
 include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
@@ -15,14 +14,16 @@ $SQL_guncelle 	= "UPDATE tb_personel SET ";
 
 
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
+
+
 foreach( $_REQUEST as $alan => $deger ) {
 	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' ) continue;
 
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
-		$alan 	= $tarih_alani[ 1 ];
-		$deger	= date( 'Y-m-d', strtotime( $deger ) );
-		echo $alan . ' : ' . $deger . '<br>';
+		$alan = $tarih_alani[ 1 ];
+		if( $deger == '' ) $deger = NULL;
+		else $deger	= date( 'Y-m-d', strtotime( $deger ) );
 	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
@@ -83,7 +84,7 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt silinrken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 }
-
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
+$_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
 header( "Location:../../index.php?modul=personel" );
 ?>

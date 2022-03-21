@@ -2,6 +2,7 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
+print_r( $_SESSION[ 'sonuclar' ] );
 
 /* SEG dosyalarından gelen mesaj */
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
@@ -359,11 +360,11 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<h3 class="profile-username text-center"><b> </b></h3>
 									<div class="form-group">
 										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_personel[ "adi" ]; ?>">
+										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_personel[ "adi" ]; ?>" id = "txt_adi">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Soyadı</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "<?php echo $tek_personel[ "soyadi" ]; ?>">
+										<input required type="text" class="form-control" name ="soyadi" value = "<?php echo $tek_personel[ "soyadi" ]; ?>" id = "txt_soyadi">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Kayıt No</label>
@@ -381,8 +382,8 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 
 									<div class="form-group">
-										<label class="control-label">Sicil No</label>
-										<input required type="text" class="form-control" name ="sicil_no" value = "<?php echo $tek_personel[ "sicil_no" ]; ?>">
+										<label class="control-label">TC No</label>
+										<input type="text" class="form-control" name ="tc_no" value = "<?php echo $tek_personel[ "tc_no" ]; ?>" required maxlength = "11" minlength = "11">
 									</div>
 									<div class="form-group">
 										<label class="control-label">İşe Girişi</label>
@@ -404,7 +405,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '99999.99'"  placeholder = "0000,00" >
+										<input required type="text" class="ucret form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" style = "text-align:left;">
 									</div>
 
 
@@ -460,10 +461,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
-									<div class="form-group">
-										<label class="control-label">TC No</label>
-										<input type="text" class="form-control" name ="tc_no" value = "<?php echo $tek_personel[ "tc_no" ]; ?>" required>
-									</div>
+
 									<div class="form-group">
 										<label class="control-label">Uyruğu</label>
 										<select class="form-control select2" name = "uyruk_id" required>
@@ -623,7 +621,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									
 									<div class="form-group">
 										<label class="control-label">IBAN</label>
-										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;TR 9999 9999 9999 9999 9999 9999&quot;" required type="text" class="form-control" name ="iban" value = "<?php echo $tek_personel[ "iban" ]; ?>" >
+										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;TR 99 9999 9999 9999 9999 9999 99&quot;" required type="text" class="form-control" name ="iban" value = "<?php echo $tek_personel[ "iban" ]; ?>" >
 									</div>
 									<div class="form-group">
 										<label class="control-label">Kalan İzin</label>
@@ -649,6 +647,28 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 </section>
 
 <script type="text/javascript">
+//Adı sıyadını büyük harf yap
+String.prototype.turkishToUpper = function(){
+	var string = this;
+	var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
+	string = string.replace(/(([iışğüçö]))/g, function(letter){ return letters[letter]; })
+	return string.toUpperCase();
+}
+
+$(function() {
+    $('#txt_adi').keyup(function() {
+        this.value = this.value.turkishToUpper();
+    });
+});
+$(function() {
+    $('#txt_soyadi').keyup(function() {
+        this.value = this.value.turkishToUpper();
+    });
+});
+
+$(".ucret").inputmask({'alias': 'currency', allowMinus: false, digits: 2, max: 99999.99});
+
+
 // ESC tuşuna basınca formu temizle
 document.addEventListener( 'keydown', function( event ) {
 	if( event.key === "Escape" ) {
@@ -818,6 +838,8 @@ $( function () {
 
 var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 	"responsive": true, "lengthChange": true, "autoWidth": true,
+	stateSave: true,
+	pageLength : 15,
 	//"buttons": ["excel", "pdf", "print","colvis"],
 
 	buttons : [
