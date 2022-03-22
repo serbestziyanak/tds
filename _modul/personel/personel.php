@@ -2,7 +2,6 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
-print_r( $_SESSION[ 'sonuclar' ] );
 
 /* SEG dosyalarından gelen mesaj */
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
@@ -241,7 +240,6 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<th>Soyadı</th>
 									<th>Kayıt No</th>
 									<th>Grubu</th>
-									<th>Sicil No</th>
 									<th>İşe Giriş Trh</th>
 									<th>İşten Çıkış Trh</th>
 									<th>Ücret</th>
@@ -283,7 +281,6 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<td><?php echo $personel[ 'soyadi' ]; ?></td>
 									<td><?php echo $personel[ 'kayit_no' ]; ?></td>
 									<td><?php echo $personel[ 'grup_adi' ]; ?></td>
-									<td><?php echo $personel[ 'sicil_no' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'ise_giris_tarihi' ] ); ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'isten_cikis_tarihi' ] ); ?></td>
 									<td><?php echo $personel[ 'ucret' ]; ?></td>
@@ -592,17 +589,17 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									
 									<div class="form-group">
 										<label class="control-label">Diğer Ödeme( AGİ )</label>
-										<input required type="text" class="form-control" name ="diger_odeme" value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "00000.00">
+										<input required type="number" step = "0.01" class="form-control" name ="diger_odeme" value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "00000.00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Günlük Ödeme</label>
-										<input required type="text" class="form-control" name ="gunluk_odeme"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "00000.00">
+										<input required type="number" step = "0.01" class="form-control" name ="gunluk_odeme"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "00000.00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Aylık Ek Ödeme</label>
-										<input required type="text" class="form-control" name ="aylik_ek_odeme" value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "00000.00">
+										<input required type="number" step = "0.01" class="form-control" name ="aylik_ek_odeme" value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "00000.00">
 									</div>
 									<div class="row">
 										<div class="col-sm-6">
@@ -839,8 +836,8 @@ $( function () {
 
 var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 	"responsive": true, "lengthChange": true, "autoWidth": true,
-	stateSave: true,
-	pageLength : 15,
+	"stateSave": true,
+	"pageLength" : 25,
 	//"buttons": ["excel", "pdf", "print","colvis"],
 
 	buttons : [
@@ -872,7 +869,7 @@ var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 	],
 	"columnDefs": [
 		{
-			"targets" : [ 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34],
+			"targets" : [ 7,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],
 			"visible" : false
 		}
 	],
