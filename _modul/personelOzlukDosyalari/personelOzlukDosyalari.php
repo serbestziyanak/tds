@@ -49,6 +49,9 @@ $tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
 $personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[ 2 ];
 $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, array() );
 
+
+$satir_renk				= $personel_id > 0	? 'table-warning' : '';
+
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
 <div class="modal fade" id="kayit_sil" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -77,53 +80,60 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class = "col-md-5">
+			<div class = "col-md-4">
 				<div class="card card-secondary">
 					<div class="card-header">
 						<h3 class="card-title">Personel Seçin</h3>
 					</div>
 					<div class="card-body">
-						<div class="form-group">
-							<select  class="form-control select2" name = "personel_id" id = "_personel_id" data-placeholder = "Personel ara...">
-								<?php foreach( $personeller[ 2 ] AS $personel ) { ?>
-									<option value = "<?php echo $personel[ 'id' ]; ?>" <?php if( $personel_id == $personel[ 'id' ] ) echo 'selected'?>><?php echo $personel[ 'adi' ]; ?></option>
+						<table id="tbl_personelOzlukDosyalari" class="table table-sm table-bordered table-hover">
+							<thead>
+								<tr>
+									<th style="width: 15px">#</th>
+									<th>Adı</th>
+									<th data-priority="1" style="width: 20px">Düzenle</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php $sayi = 1;  foreach( $personeller[ 2 ] AS $personel ) { ?>
+								<tr <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'"; ?>>
+									<td><?php echo $sayi++; ?></td>
+									<td><?php echo $personel[ 'adi' ]; ?></td>
+									<td align = "center">
+									<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-success btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
+										Evraklar
+									</a>
+									</td>
+								</tr>
 								<?php } ?>
-							</select>
-						</div>
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
-			<div class = "col-md-7">
-
+			<div class = "col-md-8">
 				<div class="card card-primary">
 					<div class="card-header">
 						<h3 class="card-title"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Özlük Dosyası Ekle</h3>
 					</div>
-					<form action = "_modul/personelOzlukDosyalari/personelOzlukDosyalariSEG.php" method = "POST" enctype="multipart/form-data">
-						<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
-						<input type = "hidden" name = "islem" value = "ekle">
-						<div class="card-body">
-							<div class="form-group">
-								<label for="exampleInputEmail1">Özlük Dosya Türü</label>
-								<select  class="form-control select2" name = "dosya_turu_id" id = "dosya_turu_id" data-placeholder = "Personel ara...">
-									<?php foreach( $personel_ozluk_dosya_turleri[ 2 ] AS $dosya_turu ) { ?>
-										<option value = "<?php echo $dosya_turu[ 'id' ]; ?>"><?php echo $dosya_turu[ 'adi' ]; ?></option>
-									<?php } ?>
-								</select>
-							</div>
-
-							<div class="form-group">
-								<label for="customFile">Özlük Dosyası</label>
-								<div class="custom-file">
-									<input type="file" class="custom-file-input" id="ozluk_dosyasi" name = "ozluk_dosyasi" accept="application/pdf, image/jpg, image/JPG, image/jpeg, image/png, image/PNG," required>
-									<label class="custom-file-label" for="ozluk_dosyasi">Dosya seçiniz...</label>
+					<div class="card-body">
+						<?php foreach( $personel_ozluk_dosya_turleri[ 2 ] AS $dosya_turu ) { ?>
+							<form action = "_modul/personelOzlukDosyalari/personelOzlukDosyalariSEG.php" method = "POST" enctype="multipart/form-data">
+								<div class="form-group">
+									<label for="exampleInputFile"><?php echo $dosya_turu[ 'adi' ]; ?></label>
+									<div class="input-group">
+										<div class="custom-file">
+											<input type="file" class="custom-file-input" id="<?php echo $dosya_turu[ 'id' ]; ?>" name = "<?php echo $dosya_turu[ 'id' ]; ?>">
+											<label class="custom-file-label" for="exampleInputFile">Choose file</label>
+										</div>
+										<div class="input-group-append">
+											<span class="input-group-text">Kaydet</span>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
-						<div class="card-footer">
-							<button data-toggle="tooltip" title = "Dosyayı kaydet" type="submit" class="btn btn-success btn-sm" style = "float:right;">Kaydet</button>
-						</div>
-					</form>
+							</form>
+						<?php } ?>
+					</div>
 				</div>
 				<div class="card card-secondary">
 					<div class="card-header">
@@ -165,7 +175,7 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 															</td>
 														</tr>
 												<?php
-													}
+													
 												} else { ?>
 												<h6>Listelenecek kayıt bulunamadı!</h6>
 												
@@ -183,16 +193,19 @@ $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, 
 </section>
 
 <script>
-	$( '#_personel_id' ).on( 'select2:select', function ( e ) {
-		window.location = window.location.origin + '/index.php?modul=personelOzlukDosyalari&personel_id=' + e.params.data.id;
-	} );
-</script>
+	$('#tbl_personelOzlukDosyalari').DataTable({
+	  "paging": true,
+	  "lengthChange": true,
+	  "searching": true,
+	  "ordering": true,
+	  "info": true,
+	  "autoWidth": false,
+	  "responsive": true,
+	  'pageLength'	: 25,
+	  'stateSave'	: true,
+	  'language'		: {
+		'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json'
+	}
+	});
 
-<script>
-	$( '#ozluk_dosyasi' ).on('change',function() {
-		//get the file name
-		var fileName = $(this).val();
-		//replace the "Choose a file" label
-		$(this).next('.custom-file-label').html(fileName);
-	})
 </script>

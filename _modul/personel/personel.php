@@ -23,6 +23,7 @@ $kaydet_buton_yazi		= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 
+
 $SQL_tum_personel_oku = <<< SQL
 SELECT
 	 p.*
