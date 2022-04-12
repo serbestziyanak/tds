@@ -179,8 +179,6 @@ $satir_renk				= $personel_id > 0	? 'table-warning' : '';
 												} else { ?>
 												<h6>Listelenecek kayıt bulunamadı!</h6>
 												
-												<?php } ?>
-										</tbody>
 									</table>
 								</div>
 							</div>
