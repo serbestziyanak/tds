@@ -1,4 +1,5 @@
 <?php
+echo $_SERVER['SERVER_NAME'];
 class VeriTabani {
 	private $vt;
 	private $hataLocal;
@@ -10,9 +11,11 @@ class VeriTabani {
 		$this->hata				= false;
 		$this->hataTopluIslem	= false;
 
-		try {
+		try { 
             if( $_SERVER['SERVER_NAME'] == "localhost" )
-                $this->vt = new PDO( "mysql:host=localhost; dbname=tds", "root", "" );
+				
+                $this->vt = new PDO( "mysql:host=192.168.1.34; dbname=tds", "resul", "" );
+
             else
                 $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_tds", "syntaxbi_tds_usr", "6vH@+S9C" );
         } catch ( PDOException $e ) {

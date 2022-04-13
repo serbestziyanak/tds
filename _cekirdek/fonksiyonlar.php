@@ -487,4 +487,42 @@ SQL;
 		);
 		return $aylar[ $kacinci_ay ][ $ad_uzunlugu ];
 	}
+
+	public function gunVer($gelenTarih,$locale='tr'){
+	    $gelentarih=explode ("-",$gelenTarih);
+	    $gun = date("l",mktime(0,0,0,$gelentarih[1],$gelentarih[2],$gelentarih[0])); 
+	    if ($locale == 'tr') {
+	        switch ($gun) {
+	            case 'Monday':
+	                    return 'Pazartesi';
+	                break;
+
+	            case 'Tuesday':
+	                    return 'Salı';
+	                break;
+
+	            case 'Wednesday':
+	                    return 'Çarşamba';
+	                break;
+
+	            case 'Thursday':
+	                    return 'Perşembe';
+	                break;
+
+	            case 'Friday':
+	                    return 'Cuma';
+	                break;
+
+	            case 'Saturday':
+	                    return 'Cumartesi';
+	                break;
+	            
+	            default:
+	                    return 'Pazar';
+	                break;
+	        }
+	    }else{
+	        return $gun;
+	    }
+	}
 }

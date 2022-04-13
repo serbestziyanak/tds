@@ -6,8 +6,12 @@ $islem = array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
-	 id
+	 tb_personel.id
 	,CONCAT( adi, " ", soyadi ) as adi
+	,(select COUNT(tb_personel_ozluk_dosyalari.id) 
+		FROM tb_personel_ozluk_dosyalari 
+		WHERE tb_personel_ozluk_dosyalari.personel_id = tb_personel.id 
+		GROUP BY personel_id) AS dosyaSayisi
 FROM
 	tb_personel
 WHERE
@@ -16,7 +20,13 @@ SQL;
 
 $SQL_tek_personel_oku = <<< SQL
 SELECT
-	id,adi,soyadi
+	id
+	,adi,
+	soyadi
+	,(select COUNT(tb_personel_ozluk_dosyalari.id) 
+		FROM tb_personel_ozluk_dosyalari 
+		WHERE tb_personel_ozluk_dosyalari.personel_id = tb_personel.id  
+		GROUP BY personel_id) AS dosyaSayisi
 FROM
 	tb_personel
 WHERE
@@ -26,7 +36,8 @@ SQL;
 $SQL_personel_ozluk_dosyalari = <<< SQL
 SELECT
 	 od.id
-	,ot.adi
+	,od.dosya_turu_id
+	,ot.adi 
 	,od.dosya
 FROM
 	tb_personel_ozluk_dosyalari AS od
@@ -46,11 +57,15 @@ SQL;
 $personeller					= $vt->select( $SQL_tum_personel_oku, array() );
 $personel_id					= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
-$personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[ 2 ];
+$personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[2];
 $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, array() );
 
-
+//Özlük Dosyası İçin İstanilen Evrak Sayısı 
+$personel_ozluk_dosya_turleri_sayisi = $personel_ozluk_dosya_turleri[3];
 $satir_renk				= $personel_id > 0	? 'table-warning' : '';
+
+$personel_ozluk_dosyalari_idleri = array();
+foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[] = $dosya[ 'dosya_turu_id' ];
 
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
@@ -91,14 +106,16 @@ $satir_renk				= $personel_id > 0	? 'table-warning' : '';
 								<tr>
 									<th style="width: 15px">#</th>
 									<th>Adı</th>
-									<th data-priority="1" style="width: 20px">Düzenle</th>
+									<th style="width: 60px"> Eksik D.S.</th>
+									<th data-priority=" 1" style="width: 20px">Düzenle</th>
 								</tr>
 							</thead>
 							<tbody>
 								<?php $sayi = 1;  foreach( $personeller[ 2 ] AS $personel ) { ?>
-								<tr <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'"; ?>>
+								<tr  <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'";?>>
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
+									<td><?php echo $personel_ozluk_dosya_turleri_sayisi - $personel[ "dosyaSayisi" ]; ?></td>
 									<td align = "center">
 									<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-success btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
 										Evraklar
@@ -122,12 +139,23 @@ $satir_renk				= $personel_id > 0	? 'table-warning' : '';
 								<div class="form-group">
 									<label for="exampleInputFile"><?php echo $dosya_turu[ 'adi' ]; ?></label>
 									<div class="input-group">
+										<?php 
+											if(in_array($dosya_turu["id"], $personel_ozluk_dosyalari_idleri)){
+												$buttonRenk  = 'warning';
+												$buttonYazi = "Güncelle";
+											}else{
+												$buttonRenk  = 'danger';
+												$buttonYazi = "Kaydet";
+											}
+										?>	
 										<div class="custom-file">
-											<input type="file" class="custom-file-input" id="<?php echo $dosya_turu[ 'id' ]; ?>" name = "<?php echo $dosya_turu[ 'id' ]; ?>">
-											<label class="custom-file-label" for="exampleInputFile">Choose file</label>
+											<input type="hidden" value="<?php echo $dosya_turu[ 'id' ]; ?>" name="dosya_turu_id">
+											<input type="hidden" value="<?php echo $personel_id?>" name="personel_id">
+											<input type="file" class="custom-file-input " id="<?php echo $dosya_turu[ 'id' ]; ?>" name = "OzlukDosya" <?php echo $dosya_turu[ 'filtre' ]; ?>>
+											<label class="custom-file-label" for="exampleInputFile">Dosya Seç</label>
 										</div>
 										<div class="input-group-append">
-											<span class="input-group-text">Kaydet</span>
+											<button class="btn  btn-<?php echo  $buttonRenk; ?>" type = "submit"><?php echo $buttonYazi; ?></button>
 										</div>
 									</div>
 								</div>
@@ -145,7 +173,7 @@ $satir_renk				= $personel_id > 0	? 'table-warning' : '';
 								<div id="actions" class="row">
 									<table class="table table-striped table-valign-middle">
 										<tbody>
-											<?php
+										<?php
 												if( count( $personel_ozluk_dosyalari ) > 0 ) {
 													foreach( $personel_ozluk_dosyalari AS $dosya ) { ?>
 														<tr>
@@ -175,10 +203,11 @@ $satir_renk				= $personel_id > 0	? 'table-warning' : '';
 															</td>
 														</tr>
 												<?php
-													
+													}
 												} else { ?>
 												<h6>Listelenecek kayıt bulunamadı!</h6>
-												
+											<?php } ?>
+										</tbody>	
 									</table>
 								</div>
 							</div>
