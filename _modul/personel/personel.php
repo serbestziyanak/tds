@@ -14,7 +14,7 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 
 
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
-$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: '_genel';
+$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: 'tab_genel';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 
 
@@ -330,10 +330,10 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 					<div class="card-header p-2">
 						<ul class="nav nav-pills">
 							<?php if( $personel_id > 0 ) { ?>
-								<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
-								<li class="nav-item"><a class="nav-link" href="#_nufus" data-toggle="tab" disabled>Nüfus</a></li>
-								<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
-								<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_genel" id="tab_genel" data-toggle="tab">Genel</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_nufus" id="tab_nufus" data-toggle="tab" disabled>Nüfus</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_adres" id="tab_adres" data-toggle="tab">Adres</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_diger" id="tab_diger" data-toggle="tab">Diğer</a></li>
 							<?php } else {
 								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Yeni personel ekle</h6>";
 							} ?>
@@ -343,7 +343,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 						<div class="tab-content">
 							<!-- GENEL BİLGİLER -->
 							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_genel" method = "POST" enctype="multipart/form-data">
 									<input type="file" id="gizli_input_file" name = "input_personel_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
@@ -456,7 +456,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 							<!-- NÜFUS BİLGİLERİ -->
 							<div class="tab-pane" id="_nufus">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_nufus" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 
@@ -540,7 +540,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 							<!-- ADRES BİLGİLERİ -->
 							<div class="tab-pane" id="_adres">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_adres" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
@@ -564,7 +564,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 							<!-- DİĞER BİLGİLER -->
 							<div class="tab-pane" id="_diger">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_diger" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 
@@ -652,6 +652,11 @@ String.prototype.turkishToUpper = function(){
 	string = string.replace(/(([iışğüçö]))/g, function(letter){ return letters[letter]; })
 	return string.toUpperCase();
 }
+
+window.onload = function(){
+    var tab = document.getElementById("<?php echo $aktif_tab; ?>");
+        tab.click();
+};
 
 $(function() {
 	$('#txt_adi').keyup(function() {
@@ -844,7 +849,7 @@ var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 	buttons : [
 		{
 			extend	: 'colvis',
-			text	: "Seçiniz"
+			text	: "Alan Seçiniz"
 			
 		},
 		{

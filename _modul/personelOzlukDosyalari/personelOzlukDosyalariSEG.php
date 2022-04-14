@@ -80,21 +80,11 @@ switch( $islem ) {
 
 
 		if( isset( $_FILES[ "OzlukDosya"] ) and $_FILES[ "OzlukDosya"][ 'size' ] > 0 ) {
-			$dosya_adi	= $tc_no . "_" . $dosya_turu_adi . "." . pathinfo( $_FILES[ "OzlukDosya"][ 'name' ], PATHINFO_EXTENSION );
+			$dosya_adi	= $tc_no . "_". rand() ."_".  $dosya_turu_adi . "." . pathinfo( $_FILES[ "OzlukDosya"][ 'name' ], PATHINFO_EXTENSION );
 			$dizin		= "../../personel_ozluk_dosyalari/";
 			$hedef_yol	= $dizin.$dosya_adi;
 			if( move_uploaded_file( $_FILES[ "OzlukDosya"][ 'tmp_name' ], $hedef_yol ) ) {
 				$vt->insert( $SQL_dosya_kaydet, array( $personel_id, $dosya_turu_id, $dosya_adi ) );
-
-				//Onceden Bir dosya kayıtlı ıse bunu veri tabanından siliyoruz
-				if (count($onceki_personel_ozluk_dosyasi)>0) {
-					$vt->delete( $SQL_dosya_sil, array( $onceki_personel_ozluk_dosyasi["id"] ) );
-				}
-
-				//Onceki Dosya adı ıle yuklenen dosya adı aynı degıılse oncekı dosyayı siliyoruz
-				if($onceki_personel_ozluk_dosyasi["dosya"] != $dosya_adi){
-					unlink($dizin.$onceki_personel_ozluk_dosyasi["dosya"]);
-				}
 			}
 		}
 	break;

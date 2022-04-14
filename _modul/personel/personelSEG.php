@@ -14,10 +14,11 @@ $SQL_guncelle 	= "UPDATE tb_personel SET ";
 
 
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
+$aktif_tab = $_REQUEST["aktif_tab"];
 
 
 foreach( $_REQUEST as $alan => $deger ) {
-	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' ) continue;
+	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' or $alan == 'aktif_tab' ) continue;
 
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
@@ -65,6 +66,7 @@ switch( $islem ) {
 				$vt->update( 'UPDATE tb_personel SET resim = ? WHERE id = ?', array( $resim_adi, $son_eklenen_id ) );
 			}
 		}
+		$personel_id = $son_eklenen_id;
 	break;
 	case 'guncelle':
 		$sonuc = $vt->update( $SQL_guncelle, $degerler );
@@ -86,5 +88,5 @@ switch( $islem ) {
 }
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
-header( "Location:../../index.php?modul=personel" );
+header( "Location:../../index.php?modul=personel&islem=guncelle&personel_id=".$personel_id."&aktif_tab=".$aktif_tab );
 ?>

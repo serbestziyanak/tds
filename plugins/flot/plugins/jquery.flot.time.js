@@ -146,7 +146,7 @@ API.txt for details.
                     case 'y': c = leftPad(d.getFullYear() % 100); break;
                     case 'Y': c = "" + d.getFullYear(); break;
                     case 'p': c = (isAM) ? ("" + "am") : ("" + "pm"); break;
-                    case 'P': c = (isAM) ? ("" + "AM") : ("" + "PM"); break;
+                    case 'P': c = (isAM) ? ("" + "ÖÖ") : ("" + "ÖS"); break;
                     case 'w': c = "" + d.getDay(); break;
                 }
                 r.push(c);

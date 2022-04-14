@@ -10,25 +10,43 @@ $alanlar		= array();
 $degerler		= array();
 
  
-$SQL_ekle		= "INSERT INTO tb_personel SET ";
-$SQL_guncelle 	= "UPDATE tb_personel SET ";
+$SQL_ekle		= "INSERT INTO tb_giris_cikis SET ";
+$SQL_guncelle 	= "UPDATE tb_giris_cikis SET ";
 
+//Baslangıc ve Bitiş Tarihlerini Karşılastırıyoruz
+$baslangicTarihi = new DateTime($_REQUEST["baslangicTarihSaat"]);
+$fark = $baslangicTarihi->diff(new DateTime($_REQUEST["bitisTarihSaat"]));
+$fark = $fark->days+1;
 
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
-
-
 foreach( $_REQUEST as $alan => $deger ) {
-	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' ) continue;
+	if( $alan == 'islem' or  $alan == 'PHPSESSID' or  $alan == 'baslangicTarihSaat' or  $alan == 'bitisTarihSaat' ) continue;
 
-	$tarih_alani = explode( '-', $alan );
-	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
-		$alan = $tarih_alani[ 1 ];
-		if( $deger == '' ) $deger = NULL;
-		else $deger	= date( 'Y-m-d', strtotime( $deger ) );
-	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
 }
+
+
+
+$baslangicSaat 	= explode(" ", $_REQUEST['baslangicTarihSaat']);
+$bitisSaat 		= explode(" ", $_REQUEST['bitisTarihSaat']);
+
+if($fark == 1){
+	$alanlar[] 		="tarih";
+	$alanlar[] 		="baslangic_saat";
+	$alanlar[] 		="bitis_saat";
+
+	$degerler[] 	= $baslangicSaat[0];
+	$degerler[] 	= $baslangicSaat[1];
+	$degerler[] 	= $bitisSaat[1];
+}
+
+
+
+print_r($alanlar);
+print_r($degerler);
+
+
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
@@ -48,22 +66,17 @@ SQL;
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
+
 switch( $islem ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
 
-		$resim_adi		= "resim_yok.jpg";
-		$son_eklenen_id	= $sonuc[ 2 ]; 
-		if( isset( $_FILES[ 'input_personel_resim' ] ) and $_FILES[ 'input_personel_resim' ][ 'size' ] > 0 ) {
-			$resim_adi	= $son_eklenen_id . "." . pathinfo( $_FILES[ 'input_personel_resim' ][ 'name' ], PATHINFO_EXTENSION );
-			$dizin		= "../../personel_resimler/";
-			$hedef_yol	= $dizin.$resim_adi;
-			if( move_uploaded_file( $_FILES[ 'input_personel_resim' ][ 'tmp_name' ], $hedef_yol ) ) {
-				$vt->update( 'UPDATE tb_personel SET resim = ? WHERE id = ?', array( $resim_adi, $son_eklenen_id ) );
-			}
-		}
+
+
+
+		
 	break;
 	case 'guncelle':
 		$sonuc = $vt->update( $SQL_guncelle, $degerler );
@@ -73,7 +86,7 @@ switch( $islem ) {
 			$dizin		= "../../personel_resimler/";
 			$hedef_yol	= $dizin.$resim_adi;
 			if( move_uploaded_file( $_FILES[ 'input_personel_resim' ][ 'tmp_name' ], $hedef_yol ) ) {
-				$vt->update( 'UPDATE tb_personel SET resim = ? WHERE id = ?', array( $resim_adi, $personel_id ) );
+				$vt->update( 'UPDATE tb_giris_cikis SET resim = ? WHERE id = ?', array( $resim_adi, $personel_id ) );
 			}
 		}
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
@@ -84,5 +97,5 @@ switch( $islem ) {
 }
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
-header( "Location:../../index.php?modul=giriscikis&personel_id=".$giriscikis_id );
+header( "Location:../../index.php?modul=giriscikis&personel_id=".$personel_id );
 ?>
