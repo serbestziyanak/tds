@@ -2,7 +2,7 @@
 if ( session_status() == PHP_SESSION_NONE ) {
 	session_start();
 }
-	 error_reporting( 0 );
+	 error_reporting( E_ALL );
 	// Bu sayfa için önbellekleme yapmamaya zorla
 	header( 'Pragma: no-cache' );
 	header( 'Cache-Control: no-cache, must revalidate' );

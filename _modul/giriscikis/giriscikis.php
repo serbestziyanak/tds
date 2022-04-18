@@ -16,8 +16,10 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 //Personele Ait Listelenecek Hareket Ay
-$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m");
-
+@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m");
+if($_REQUEST['detay'] == "gun") $listelenecekgun	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: "'".date("Y-m-d")."'";
+if($_REQUEST['detay'] == "gun") $listelenecekgun1	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m-d");
+ 
 $satir_renk				= $personel_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi		= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
@@ -41,6 +43,7 @@ WHERE
 	p.id = ? AND p.aktif = 1
 SQL;
 
+//belirli bir aya göre personelin giriş çıkış hareketleri
 //SELECT *, COUNT(tarih) AS tarihSayisi FROM tb_giris_cikis GROUP BY tarih ORDER BY tarih ASC
 $SQL_tum_giris_cikis = <<< SQL
 SELECT
@@ -54,6 +57,19 @@ WHERE
 	personel_id = ? AND DATE_FORMAT(tarih,'%Y-%m') =? 
 GROUP BY tarih
 ORDER BY tarih ASC 
+SQL;
+
+//Belirli bir güne ait tüm personelin giriş çıkış işlemleri Detay Parametresi var ise devreye girecektir
+$SQL_gunluk_giris_cikis = <<< SQL
+SELECT 
+id,
+CONCAT(adi ," ",soyadi) AS adSoyad,
+(select 
+	COUNT(tarih) 
+	FROM tb_giris_cikis  
+	WHERE  tb_personel.id = tb_giris_cikis.personel_id AND DATE_FORMAT(tarih,'%Y-%m-%d') = $listelenecekgun ) AS tarihSayisi
+FROM tb_personel 
+WHERE firma_id =? AND aktif = 1 
 SQL;
 
 //Belirli tarihe göre giriş çıkış yapılan saatler 
@@ -102,15 +118,26 @@ $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
 $giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
+$gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION['firma_id']) )[2];
 $tum_giris_cikis_tipleri	= $vt->select( $SQL_tum_giris_cikis_tipleri)[2];
 
 $satir_renk					= $personel_id > 0	? 'table-warning' : '';
 
-//Bir günde en fazla kaç giriş çıkış yapıldığını bulma
-foreach($giris_cikislar AS $giriscikis){
-	$tarihSayisi[] = $giriscikis["tarihSayisi"]; 
+if($_REQUEST['detay'] == "gun"){
+	//Bir günde en fazla kaç giriş çıkış yapıldığını bulma
+	foreach($gunluk_giris_cikislar AS $giriscikisgun){
+		$tarihSayisi[] = $giriscikisgun["tarihSayisi"]; 
+	}
+}else{
+	//Bir günde en fazla kaç giriş çıkış yapıldığını bulma
+	foreach($giris_cikislar AS $giriscikis){
+		$tarihSayisi[] = $giriscikis["tarihSayisi"]; 
+	}
 }
-$tarihSayisi = max($tarihSayisi); 
+
+@$tarihSayisi = max($tarihSayisi); 
+
+
 ?>
 
 <section class="content">
@@ -119,6 +146,7 @@ $tarihSayisi = max($tarihSayisi);
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
 				<button class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
 				<button class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
+				<a class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="?modul=giriscikis&detay=gun">Günlük Veri Getir</a>
 				<button class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
 				
 				<div class="col-sm-2" style="float: right;display: flex;">
@@ -135,6 +163,7 @@ $tarihSayisi = max($tarihSayisi);
 					</div>
 				</div>
 			</div>
+			<?php if($_REQUEST['detay'] != "gun"){ ?>
 			<div class="col-md-4">
 				<div class="card card-secondary" id = "card_personeller">
 					<div class="card-header">
@@ -293,6 +322,122 @@ $tarihSayisi = max($tarihSayisi);
 					</div>
 				</div>
 			</div>
+			<?php }else{ ?>
+			<div class="col-12">
+				<div class="card card-secondary">
+					<div class="card-header p-2">
+						<ul class="nav nav-pills">
+							<h6 style = 'font-size: 1rem;'> 14.04.2022 tarihli Personel Hareketleri</h6>
+						</ul>
+					</div>
+					<div class="card-body">
+						<table id="tbl_giriscikislar" class="table table-bordered table-hover table-sm" width = "100%">
+							<thead>
+								<tr>
+									<th style="width: 15px">#</th>
+									<th>Personel Adı</th>
+									<?php
+										$i = 1;
+										while ($i <= $tarihSayisi) {
+											
+											$thBaslikilk = $i == 1 ? 'İlk Giriş' : 'Giriş';
+
+											$thBaslikSon = $i == $tarihSayisi ? 'Son Çıkış' : 'Çıkış';
+
+											echo '<th>'.$thBaslikilk.'</th><th>'.$thBaslikSon.'</th>';
+											$i++;
+										}
+									?>
+									<th>İşlem</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php $sayi = 1; foreach( $gunluk_giris_cikislar AS $giriscikis ) { ?>
+								<tr>
+									<td><?php echo $sayi++; ?></td>
+									<td><?php echo $giriscikis[ 'adSoyad' ]; ?></td>
+									<?php 
+
+										$islemtipi = array();
+										//Gelen tarihe ait giriş çıkışları aldık 
+										$giris_cikis_saatleri = $vt->select($SQL_belirli_tarihli_giris_cikis,array($giriscikis[ 'id' ],$listelenecekgun1))[2];
+
+										if (count($giris_cikis_saatleri) == 0) {
+											$colspan = ($tarihSayisi*2) ;
+											echo '<td colspan="'.$colspan.'" class="text-center">Personel Giriş Yapmamıştır</td>';
+										}
+										$giriscikisFarki = $tarihSayisi - count($giris_cikis_saatleri);
+										
+										//uygulanan işlem tipleri
+										foreach($giris_cikis_saatleri AS $giriscikis){
+											$islemtipi[] = $giriscikis["islemTipi"];
+										}
+
+										//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
+										if (count($giris_cikis_saatleri) ==$tarihSayisi ) {
+											foreach($giris_cikis_saatleri AS $giriscikis){
+												$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+												$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+												echo '
+													<td class="text-center">'.$baslangicSaat.'</td>
+													<td class="text-center">'.$bitisSaat.'</td>	
+												';
+											}
+										}else if(count($giris_cikis_saatleri) == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
+											echo '<td class="text-center">'.$giris_cikis_saatleri[0][ 'baslangic_saat' ].'</td>';
+											$i = 1;
+											while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+												echo '
+													<td class="text-center"> - </td>
+													<td class="text-center"> - </td>	
+												';
+												$i++;
+											}
+											echo '<td class="text-center">'.$giris_cikis_saatleri[0][ 'bitis_saat' ].'</td>';
+										}else{ //Gündee birden fazla giriş çıkış var ise 
+											$i = 1;
+											foreach($giris_cikis_saatleri AS $giriscikis){
+												
+												if($i < count($giris_cikis_saatleri)){
+
+													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+													echo '
+														<td class="text-center">'.$baslangicSaat.'</td>
+														<td class="text-center">'.$bitisSaat.'</td>';
+												}else{
+													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+													echo '<td  class="text-center">'.$baslangicSaat.'</td>';
+													$j = 1;
+													while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+														echo '
+															<td class="text-center"> - </td>
+															<td class="text-center"> - </td>	
+														';
+														$j++;
+													}
+													echo '<td class="text-center">'.$bitisSaat.'</td>';
+												}
+												$i++;
+											}
+										}
+									?>
+									
+									<td> 
+										<?php 
+											echo implode(", ", $islemtipi);
+										?>
+									</td>
+									
+								</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>	
+			<?php } ?>
 		</div>
 	</div>
 </section>

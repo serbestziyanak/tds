@@ -95,10 +95,10 @@ switch( $islem ) {
 				$i = 1;
 				while ($i <= $fark) {
 					
-					$degerler[] 		= $baslangicSaat[0];
-					$sonuc = $vt->insert( $SQL_ekle, $degerler );
+					$sonuc 				= $vt->insert( $SQL_ekle, $degerler );
 					$baslangicSaat[0] 	= date('Y-m-d', strtotime($baslangicSaat[0] . ' +1 day'));
 					array_pop($degerler);
+					$degerler[] 		= $baslangicSaat[0];
 					$i++;
 				}
 		}
