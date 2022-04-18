@@ -8,6 +8,24 @@
       <li class="nav-item d-none d-sm-inline-block">
         <a href="index.php" class="nav-link">AnaSayfa</a>
       </li>
+
+      <li class="nav-item d-sm-inline-block">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default"><?php echo $_SESSION['firma_adi']; ?></button>
+          <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <div class="dropdown-menu" role="menu" style="">
+            <?php 
+              $firmalar = $_SESSION['firmalarListesi'];
+              foreach ($firmalar as $firma) {
+                echo '<a class="dropdown-item" href="_modul/firmaSec.php?firma_id='.$firma["id"].'&firma_adi='.$firma["adi"].'">'.$firma["adi"].'</a>';
+              }
+            ?>
+          </div>
+        </div>
+      </li>
+      
       <!--li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">Contact</a>
       </li-->

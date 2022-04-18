@@ -132,7 +132,7 @@ $moduller = $vt->select( $SQL_modul );
 		</ul>
 	</nav>
 	</div>
-	<div class="sidebar-custom">
+	<div class="sidebar-custom" style="margin-top: -64px;">
 	<a href="#" class="btn btn-link"><i class="fas fa-cogs"></i></a>
 	<a href="_modul/cikis.php" class="btn btn-danger hide-on-collapse pos-right">Çıkış</a>
 	</div>

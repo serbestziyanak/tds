@@ -111,13 +111,15 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1;  foreach( $personeller[ 2 ] AS $personel ) { ?>
+								<?php $sayi = 1;  foreach( $personeller[ 2 ] AS $personel ) { 
+									$evraklarBtnRenk = $personel_ozluk_dosya_turleri_sayisi - $personel[ "dosyaSayisi" ] == 0 ? 'success':'warning'; 
+								?>
 								<tr  <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'";?>>
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
 									<td><?php echo $personel_ozluk_dosya_turleri_sayisi - $personel[ "dosyaSayisi" ]; ?></td>
 									<td align = "center">
-									<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-success btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
+									<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-<?php echo $evraklarBtnRenk; ?> btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
 										Evraklar
 									</a>
 									</td>
@@ -141,7 +143,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 									<div class="input-group">
 										<?php 
 											if(in_array($dosya_turu["id"], $personel_ozluk_dosyalari_idleri)){
-												$buttonRenk  = 'warning';
+												$buttonRenk  = 'success';
 												$buttonYazi = "Güncelle";
 											}else{
 												$buttonRenk  = 'danger';

@@ -14,7 +14,7 @@ SELECT
 FROM
 	tb_personel
 WHERE
-	aktif = 1 AND id = ?
+	aktif = 1 AND id = ? AND firma_id = ?
 SQL;
 
 //Dosya Yüklerken Onceden Bu Dosyanın Var olup Olmadığını Kontrol etme
@@ -25,7 +25,7 @@ FROM
 	tb_personel_ozluk_dosyalari 
 WHERE
 	dosya_turu_id 		= ?
-	AND personel_id 		=?
+	AND personel_id 	=?
 SQL;
 
 //Silinen Dosyayı Çağırıyoruz
@@ -70,7 +70,7 @@ switch( $islem ) {
 		//Dosya Güncelleme esnasında onceki dosya bilgisini alıyoruz
 		$onceki_personel_ozluk_dosyasi 		= $vt->select( $SQL_personel_ozluk_dosyasi_varmi, array( $dosya_turu_id, $personel_id) )[2][0];
 
-		$personel			= $vt->select( $SQL_tum_personel_oku, array( $personel_id ) );
+		$personel			= $vt->select( $SQL_tum_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) );
 		$dosya_turu_adi		= $vt->select( $SQL_dosya_turu_adi, array( $dosya_turu_id ) );
 
 		$dosya_turu_adi		= $dosya_turu_adi[ 2 ][ 0 ][ 'adi' ];
