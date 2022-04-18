@@ -440,7 +440,7 @@ $tarihSayisi = max($tarihSayisi);
 										echo '<td>'.$sayi.'</td>';
 										echo '<td>'.$giris_cikis_tipi["adi"].'</td>';
 										echo '<td>'.$maas_kesintisi.'</td>';
-										echo '<td><button modul= "giriscikis" yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/giriscikisSEG.php?islem=tipsil&tip_id='.$giris_cikis_tipi["id"].'" data-toggle="modal" data-target="#sil_onay">Sil</button></td>';
+										echo '<td><button modul= "giriscikis" yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/tipSEG.php?islem=sil&tip_id='.$giris_cikis_tipi["id"].'" data-toggle="modal" data-target="#sil_onay">Sil</button></td>';
 									echo '</tr>';
 									$sayi++;
 								} 

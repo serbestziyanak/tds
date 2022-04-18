@@ -30,7 +30,7 @@ foreach( $_REQUEST as $alan => $deger ) {
 
 // print_r($tipIdler); //GELEN TİP IDLERİ LİSTELE
 // die();
-
+ksort($alanlar);
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
 $SQL_guncelle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
@@ -62,9 +62,7 @@ $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerç
 
 switch( $islem ) {
 	case 'ekle':
-		KSORT($alanlar);
 		foreach ($tipIdler[0] as $alan => $tipId) {
-			echo $tipId;
 			$degerler[1] = $tipId; 
 			if (!empty($tipIdler[1])) {
 				// Kesinti yapılacak diye secenek seçilmiş mi diye kontrol ediliyor
@@ -73,11 +71,8 @@ switch( $islem ) {
 				$degerler[2] = 0;
 			}
 			
-			KSORT($degerler); // Dizi anahtarına göre sıraladık
-			//print_r($alanlar);die();
+			ksort($degerler); // Dizi anahtarına göre sıraladık
 			$sonuc = $vt->insert( $SQL_ekle, $degerler );
-			array_pop($degerler);//Maas Kesintisi Tipini Çıkardık
-			array_pop($degerler);//Tip İd sini çıkardık
 		}	
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
