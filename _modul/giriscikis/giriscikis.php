@@ -17,7 +17,7 @@ $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: '
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 //Personele Ait Listelenecek Hareket Ay
 @$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m");
-if($_REQUEST['detay'] == "gun") $listelenecekgun	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: "'".date("Y-m-d")."'";
+if($_REQUEST['detay'] == "gun") $listelenecekgun	= array_key_exists( 'tarih'	,$_REQUEST ) ? "'".$_REQUEST[ 'tarih' ]."'"	: "'".date("Y-m-d")."'";
 if($_REQUEST['detay'] == "gun") $listelenecekgun1	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m-d");
  
 $satir_renk				= $personel_id > 0	? 'table-warning'						: '';
@@ -116,6 +116,7 @@ SQL;
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) );
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
+$detay						= array_key_exists( 'detay', $_REQUEST ) ? $_REQUEST[ 'detay' ] : 'personel';
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
 $giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
 $gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION['firma_id']) )[2];
@@ -123,7 +124,7 @@ $tum_giris_cikis_tipleri	= $vt->select( $SQL_tum_giris_cikis_tipleri)[2];
 
 $satir_renk					= $personel_id > 0	? 'table-warning' : '';
 
-if($_REQUEST['detay'] == "gun"){
+if($detay == "gun"){
 	//Bir günde en fazla kaç giriş çıkış yapıldığını bulma
 	foreach($gunluk_giris_cikislar AS $giriscikisgun){
 		$tarihSayisi[] = $giriscikisgun["tarihSayisi"]; 
@@ -146,24 +147,45 @@ if($_REQUEST['detay'] == "gun"){
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
 				<button class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
 				<button class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
-				<a class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="?modul=giriscikis&detay=gun">Günlük Veri Getir</a>
+				<?php 
+					$link 		=  $detay == "gun" ? '?modul=giriscikis' : '?modul=giriscikis&detay=gun'; 
+					$btnyazi 	=  $detay == "gun" ? 'Personele Ait Veri Getir' : 'Günlük Veri Getir'; 
+				?>
+				<a class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
 				<button class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
-				
-				<div class="col-sm-2" style="float: right;display: flex;">
-					<div class="">
-						<div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-							<div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-								<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+
+				<?php if ($detay =="gun")  { ?>
+					<div class="col-sm-2" style="float: right;display: flex;">
+						<div class="">
+							<div class="input-group date" id="datetimepickerGun" data-target-input="nearest">
+								<div class="input-group-append" data-target="#datetimepickerGun" data-toggle="datetimepicker">
+									<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+								</div>
+								<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepickerGun" data-toggle="datetimepicker" id="tarihSec" value="<?php if($listelenecekAy) echo $listelenecekAy; ?>"/>
 							</div>
-							<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepicker1" data-toggle="datetimepicker" id="tarihSec" value="<?php if($listelenecekAy) echo $listelenecekAy; ?>"/>
+						</div>
+						<div style="float: right;display: flex;">
+							<button class="btn btn-success" id="listeleBtn">listele</button>
 						</div>
 					</div>
-					<div style="float: right;display: flex;">
-						<button class="btn btn-success" id="listeleBtn">listele</button>
+				<?php }else{?>
+					
+					<div class="col-sm-2" style="float: right;display: flex;">
+						<div class="">
+							<div class="input-group date" id="datetimepickerAy" data-target-input="nearest">
+								<div class="input-group-append" data-target="#datetimepickerAy" data-toggle="datetimepicker">
+									<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+								</div>
+								<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepickerAy" data-toggle="datetimepicker" id="tarihSec" value="<?php if($listelenecekAy) echo $listelenecekAy; ?>"/>
+							</div>
+						</div>
+						<div style="float: right;display: flex;">
+							<button class="btn btn-success" id="listeleBtn">listele</button>
+						</div>
 					</div>
-				</div>
+				<?php } ?>
 			</div>
-			<?php if($_REQUEST['detay'] != "gun"){ ?>
+			<?php if($detay != "gun"){ ?>
 			<div class="col-md-4">
 				<div class="card card-secondary" id = "card_personeller">
 					<div class="card-header">
@@ -364,7 +386,7 @@ if($_REQUEST['detay'] == "gun"){
 
 										if (count($giris_cikis_saatleri) == 0) {
 											$colspan = ($tarihSayisi*2) ;
-											echo '<td colspan="'.$colspan.'" class="text-center">Personel Giriş Yapmamıştır</td>';
+											echo '<td colspan="'.$colspan.'" class="text-center text-danger"><b>Personel Giriş Yapmamıştır</b></td>';
 										}
 										$giriscikisFarki = $tarihSayisi - count($giris_cikis_saatleri);
 										
@@ -453,10 +475,6 @@ if($_REQUEST['detay'] == "gun"){
 					<h4 class="modal-title">Toplu Hareket Ekle</h4>
 				</div>
 				<div class="modal-body">
-					<div class="alert alert-info alert-dismissible">
-						<h5><i class="icon fas fa-info"></i> Bilgi!</h5>
-						Saatlı olan işlem tiplerinde saat seçilebilir. Örneğin yıllık veya günlük izin verilirken saat seçimine gerek yoktur.
-					</div>
 					<div class="form-group">
 						<label class="control-label">Başlangıc Tarihi ve Saati</label>
 						<div class="input-group date" id="toplubaslangicDateTime" data-target-input="nearest">
@@ -512,10 +530,6 @@ if($_REQUEST['detay'] == "gun"){
 					<h4 class="modal-title">Personel Hareket Ekle</h4>
 				</div>
 				<div class="modal-body">
-					<div class="alert alert-info alert-dismissible">
-						<h5><i class="icon fas fa-info"></i> Bilgi!</h5>
-						Saatlı olan işlem tiplerinde saat seçilebilir. Örneğin yıllık veya günlük izin verilirken saat seçimine gerek yoktur.
-					</div>
 					<div class="form-group">
 						<label class="control-label">Başlangıc Tarihi ve Saati</label>
 						<div class="input-group date" id="baslangicDateTime" data-target-input="nearest">
@@ -690,7 +704,7 @@ if($_REQUEST['detay'] == "gun"){
 
 
 	$(function () {
-		$('#datetimepicker1').datetimepicker({
+		$('#datetimepickerAy').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM',
 			icons: {
@@ -701,6 +715,20 @@ if($_REQUEST['detay'] == "gun"){
 			}
 		});
 	});
+
+	$(function () {
+		$('#datetimepickerGun').datetimepicker({
+			//defaultDate: simdi,
+			format: 'yyyy-MM-DD',
+			icons: {
+				time: "far fa-clock",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down"
+			}
+		});
+	});
+	
 
 	$(function () {
 		$('#baslangicDateTime').datetimepicker({
@@ -758,14 +786,26 @@ if($_REQUEST['detay'] == "gun"){
 	
 
 	$("body").on('click', '#listeleBtn', function() {
-		const tarih 		= $("#tarihSec").val();
-		const  url 			= window.location;
-		const origin		= url.origin;
-		const path			= url.pathname;
-		const search		= (new URL(document.location)).searchParams;
-		const modul   		= search.get('modul');
-		const personel_id   = search.get('personel_id');
-		window.location.replace(origin + path+'?modul='+modul+'&personel_id='+personel_id+'&tarih='+tarih);
+		var tarih 		= $("#tarihSec").val();
+		var  url 			= window.location;
+		var origin		= url.origin;
+		var path			= url.pathname;
+		var search		= (new URL(document.location)).searchParams;
+		var modul   		= search.get('modul');
+		var detay   		= search.get('detay');
+		var personel_id   = search.get('personel_id');
+		if(detay == null) {
+			detay 	= ''; 
+		}else{
+			detay  	= "&detay="+detay;
+		}
+		if(personel_id == null) {
+			personel_id 	= ''; 
+		}else{
+			personel_id  	= "&personel_id="+personel_id;
+		}
+		
+		window.location.replace(origin + path+'?modul='+modul+''+personel_id+''+detay+'&tarih='+tarih);
 	})
 
 	var tbl_personeller = $( "#tbl_personeller" ).DataTable( {

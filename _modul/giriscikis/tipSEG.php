@@ -4,6 +4,7 @@ $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
 $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
+$tip_id			= $_REQUEST[ 'tip_id' ];
 $alanlar		= array();
 $degerler		= array();
 
@@ -47,9 +48,22 @@ WHERE
 	firma_id = ? AND p.aktif = 1
 SQL;
 
+
+//Silinecek Giriş Tipi Personele Uygulanmış mı Kontrol SQL 
+$SQL_tum_giris_cikis = <<< SQL
+SELECT
+	*
+FROM
+	tb_giris_cikis
+INNER JOIN tb_giris_cikis_tipi ON tb_giris_cikis_tipi.id = tb_giris_cikis.islem_tipi
+WHERE
+	firma_id = ? AND islem_tipi = ? 
+SQL;
+
+//Tip Silme
 $SQL_sil = <<< SQL
 DELETE FROM
-	tb_giris_cikis
+	tb_giris_cikis_tipi
 WHERE
 	id = ?
 SQL;
@@ -91,7 +105,12 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 	case 'sil':
-		$sonuc = $vt->delete( $SQL_sil, array( $giriscikis_id) );
+		$tip_uygulanmis_mi			= $vt->select( $SQL_tum_giris_cikis, array($_SESSION['firma_id'],$tip_id) )[2]; // Tip Uygulanmıs mı Personele
+
+		if (count($tip_uygulanmis_mi)<1) {
+			$sonuc = $vt->delete( $SQL_sil, array( $tip_id) );
+		}
+
 	break;
 }
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
