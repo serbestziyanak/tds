@@ -6,6 +6,7 @@ $vt = new VeriTabani();
 $firmaListesi = $_SESSION['firmalar'];
 
 
+
 $SQL_firmalari_oku = <<< SQL
 SELECT
 	 id
@@ -24,7 +25,7 @@ if (in_array(  $_REQUEST["firma_id"], $firmaListesi)) {
 	header( "Location: ../index.php" );
 }
 
-
+$firmalar  = array();
 foreach($firmaListesi AS $firma){
 	$firmalar[] = $vt->select($SQL_firmalari_oku,array($firma[0]))[2][0];
 }	
