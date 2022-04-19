@@ -77,11 +77,11 @@ $SQL_belirli_tarihli_giris_cikis = <<< SQL
 SELECT
     baslangic_saat
     ,bitis_saat
-    ,(SELECT adi 
-		FROM tb_giris_cikis_tipleri 
-		WHERE tb_giris_cikis.islem_tipi = tb_giris_cikis_tipleri.id ) AS islemTipi
+		,adi AS islemTipi
 FROM
 	tb_giris_cikis
+LEFT JOIN tb_giris_cikis_tipi ON tb_giris_cikis_tipi.id =  tb_giris_cikis.islem_tipi
+LEFT JOIN tb_giris_cikis_tipleri ON tb_giris_cikis_tipleri.id =  tb_giris_cikis_tipi.tip_id
 WHERE
 	personel_id = ? AND tarih =? 
 ORDER BY baslangic_saat ASC 
@@ -253,7 +253,6 @@ if($detay == "gun"){
 										}
 									?>
 									<th>İşlem</th>
-									<th data-priority="1" style="width: 20px">Düzenle</th>
 									<th data-priority="1" style="width: 20px">Sil</th>
 								</tr>
 							</thead>
@@ -329,11 +328,7 @@ if($detay == "gun"){
 											echo implode(", ", $islemtipi);
 										?>
 									</td>
-									<td align = "center">
-										<a modul = 'giriscikis' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=giriscikis&islem=guncelle&giriscikis_id=<?php echo $giriscikis[ 'id' ]; ?>" >
-											Düzenle
-										</a>
-									</td>
+									
 									<td align = "center">
 										<button modul= 'giriscikis' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/giriscikisSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&giriscikis_tarih=<?php echo $giriscikis[ 'tarih' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
 									</td>
