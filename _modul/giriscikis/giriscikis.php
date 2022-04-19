@@ -116,7 +116,7 @@ SQL;
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) );
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
-$detay						= array_key_exists( 'detay', $_REQUEST ) ? $_REQUEST[ 'detay' ] : 'personel';
+$detay						= array_key_exists( 'detay', $_REQUEST ) ? $_REQUEST[ 'detay' ] : 'ay';
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
 $giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
 $gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION['firma_id']) )[2];
@@ -843,6 +843,30 @@ if($detay == "gun"){
 		"responsive": true, "lengthChange": true, "autoWidth": true,
 		"stateSave": true,
 		"pageLength" : 15,
+		//"buttons": ["excel", "print"],
+
+		buttons : [
+			{
+				extend	: 'excel',
+				text 	: 'Excel',
+				exportOptions: {
+					columns: ':visible'
+				},
+				title: function(){
+					return "Giriş Çıkış Bilgileri";
+				}
+			},
+			{
+				extend	: 'print',
+				text	: 'Yazdır',
+				exportOptions : {
+					columns : ':visible'
+				},
+				title: function(){
+					return "Giriş Çıkış Bilgileri";
+				}
+			}
+		],
 		"language": {
 			"decimal"			: "",
 			"emptyTable"		: "Gösterilecek kayıt yok!",
@@ -863,7 +887,7 @@ if($detay == "gun"){
 				"previous"	: "Önceki"
 			}
 		}
-	} );
+	} ).buttons().container().appendTo('#tbl_giriscikislar_wrapper .col-md-6:eq(0)');
 
 	$('#card_personeller').on('maximized.lte.cardwidget', function() {
 		var tbl_personeller = $( "#tbl_personeller" ).DataTable();
@@ -878,6 +902,22 @@ if($detay == "gun"){
 		var column = tbl_personeller.column(  tbl_personeller.column.length - 1 );
 		column.visible( ! column.visible() );
 		var column = tbl_personeller.column(  tbl_personeller.column.length - 2 );
+		column.visible( ! column.visible() );
+	} );
+
+	$('#card_giriscikislar').on('maximized.lte.cardwidget', function() {
+		var tbl_giriscikislar = $( "#tbl_giriscikislar" ).DataTable();
+		var column = tbl_giriscikislar.column(  tbl_giriscikislar.column.length - 1 );
+		column.visible( ! column.visible() );
+		var column = tbl_giriscikislar.column(  tbl_giriscikislar.column.length - 2 );
+		column.visible( ! column.visible() );
+	});
+
+	$('#card_giriscikislar').on('minimized.lte.cardwidget', function() {
+		var tbl_giriscikislar = $( "#tbl_giriscikislar" ).DataTable();
+		var column = tbl_giriscikislar.column(  tbl_giriscikislar.column.length - 1 );
+		column.visible( ! column.visible() );
+		var column = tbl_giriscikislar.column(  tbl_giriscikislar.column.length - 2 );
 		column.visible( ! column.visible() );
 	} );
 </script>
