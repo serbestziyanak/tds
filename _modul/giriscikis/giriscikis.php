@@ -161,7 +161,7 @@ if($detay == "gun"){
 								<div class="input-group-append" data-target="#datetimepickerGun" data-toggle="datetimepicker">
 									<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 								</div>
-								<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepickerGun" data-toggle="datetimepicker" id="tarihSec" value="<?php if($listelenecekAy) echo $listelenecekAy; ?>"/>
+								<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepickerGun" data-toggle="datetimepicker" id="tarihSec" value="<?php echo $listelenecekgun1; ?>"/>
 							</div>
 						</div>
 						<div style="float: right;display: flex;">
@@ -234,7 +234,7 @@ if($detay == "gun"){
 						</ul>
 					</div>
 					<div class="card-body">
-						<table id="tbl_giriscikislar" class="table table-bordered table-hover table-sm" width = "100%">
+						<table id="" class="table table-bordered table-hover table-sm" width = "100%">
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>
@@ -346,11 +346,13 @@ if($detay == "gun"){
 			</div>
 			<?php }else{ ?>
 			<div class="col-12">
-				<div class="card card-secondary">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills">
-							<h6 style = 'font-size: 1rem;'> 14.04.2022 tarihli Personel Hareketleri</h6>
-						</ul>
+				<div class="card card-secondary" id = "card_giriscikislar">
+					<div class="card-header">
+						<h3 class="card-title">Tüm Personelin Giriş Çıkış Hareketleri</h3>
+						<div class = "card-tools">
+							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
+							<a id = "yeni_personel" data-toggle = "tooltip" title = "Yeni bir personel ekle" href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
+						</div>
 					</div>
 					<div class="card-body">
 						<table id="tbl_giriscikislar" class="table table-bordered table-hover table-sm" width = "100%">
@@ -360,6 +362,8 @@ if($detay == "gun"){
 									<th>Personel Adı</th>
 									<?php
 										$i = 1;
+
+										echo $tarihSayisi == 0 ? '<th>Giriş Çıkış</th>':'';
 										while ($i <= $tarihSayisi) {
 											
 											$thBaslikilk = $i == 1 ? 'İlk Giriş' : 'Giriş';
@@ -383,11 +387,17 @@ if($detay == "gun"){
 										$islemtipi = array();
 										//Gelen tarihe ait giriş çıkışları aldık 
 										$giris_cikis_saatleri = $vt->select($SQL_belirli_tarihli_giris_cikis,array($giriscikis[ 'id' ],$listelenecekgun1))[2];
-
+										//Personel Girş Veya Çıkış Yapmamış İse
 										if (count($giris_cikis_saatleri) == 0) {
-											$colspan = ($tarihSayisi*2) ;
-											echo '<td colspan="'.$colspan.'" class="text-center text-danger"><b>Personel Giriş Yapmamıştır</b></td>';
+											$colspan = ($tarihSayisi*2);
+											$colspan = $colspan == 0 ? 1 : $colspan;
+											$i = 1;
+											while ($i <= $colspan) { 
+												echo '<td class="text-center">-</td>';
+												$i++;
+											}
 										}
+
 										$giriscikisFarki = $tarihSayisi - count($giris_cikis_saatleri);
 										
 										//uygulanan işlem tipleri
@@ -627,7 +637,7 @@ if($detay == "gun"){
 				</div>
 				<div class="modal-body">
 					<div style="display: none;" id="FirmaTipSayisi" data-tipSayi="<?php echo count($firma_giris_cikis_tipleri); ?>"> </div>
-					<table id="tbl_giriscikislar" class="table table-bordered table-hover table-sm" width = "100%">
+					<table id="" class="table table-bordered table-hover table-sm" width = "100%">
 						<thead>
 							<tr>
 								<th style="width: 15px">Seçiniz</th>
@@ -833,6 +843,32 @@ if($detay == "gun"){
 			}
 		}
 	} ).buttons().container().appendTo('#tbl_personeller_wrapper .col-md-6:eq(0)');
+
+	var tbl_giriscikislar = $( "#tbl_giriscikislar" ).DataTable( {
+		"responsive": true, "lengthChange": true, "autoWidth": true,
+		"stateSave": true,
+		"pageLength" : 15,
+		"language": {
+			"decimal"			: "",
+			"emptyTable"		: "Gösterilecek kayıt yok!",
+			"info"				: "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
+			"infoEmpty"			: "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
+			"infoFiltered"		: "",
+			"infoPostFix"		: "",
+			"thousands"			: ",",
+			"lengthMenu"		: "Show _MENU_ entries",
+			"loadingRecords"	: "Yükleniyor...",
+			"processing"		: "İşleniyor...",
+			"search"			: "Ara:",
+			"zeroRecords"		: "Eşleşen kayıt bulunamadı!",
+			"paginate"			: {
+				"first"		: "İlk",
+				"last"		: "Son",
+				"next"		: "Sonraki",
+				"previous"	: "Önceki"
+			}
+		}
+	} );
 
 	$('#card_personeller').on('maximized.lte.cardwidget', function() {
 		var tbl_personeller = $( "#tbl_personeller" ).DataTable();

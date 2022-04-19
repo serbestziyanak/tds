@@ -328,7 +328,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 			<div class="col-md-4">
 				<div class="card <?php if( $personel_id == 0 ) echo 'card-secondary' ?>">
 					<div class="card-header p-2">
-						<ul class="nav nav-pills">
+						<ul class="nav nav-pills tab-container">
 							<?php if( $personel_id > 0 ) { ?>
 								<li class="nav-item"><a class="nav-link" href="#_genel" id="tab_genel" data-toggle="tab">Genel</a></li>
 								<li class="nav-item"><a class="nav-link" href="#_nufus" id="tab_nufus" data-toggle="tab" disabled>Nüfus</a></li>

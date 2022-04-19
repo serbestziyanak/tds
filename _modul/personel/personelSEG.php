@@ -16,7 +16,8 @@ $SQL_guncelle 	= "UPDATE tb_personel SET ";
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
 $aktif_tab = $_REQUEST["aktif_tab"];
 
-
+$alanlar[]		= 'firma_id';
+$degerler[]		= $_SESSION['firma_id'];
 foreach( $_REQUEST as $alan => $deger ) {
 	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' or $alan == 'aktif_tab' ) continue;
 
@@ -36,8 +37,6 @@ $SQL_guncelle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
 $SQL_guncelle	.= " WHERE id = ?";
 
 if( $islem == 'guncelle' ) $degerler[] = $personel_id;
-
-
 
 $SQL_sil = <<< SQL
 UPDATE
