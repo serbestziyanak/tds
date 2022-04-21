@@ -496,7 +496,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 											<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="tarihalani-dogum_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_personel[ "dogum_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="tarihalani-dogum_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_personel[ "dogum_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker3" required data-toggle="datetimepicker"/>
 										</div>
 									</div>
 									<div class="form-group">

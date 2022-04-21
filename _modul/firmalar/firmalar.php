@@ -10,6 +10,12 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
   echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
+$firma_id             = array_key_exists( 'firma_id' ,$_REQUEST ) ? $_REQUEST[ 'firma_id' ] : 0;
+
+$satir_renk           = $firma_id > 0  ? 'table-warning'                      : '';
+$kaydet_buton_yazi    = $firma_id > 0  ? 'Güncelle'                           : 'Kaydet';
+$kaydet_buton_cls     = $firma_id > 0  ? 'btn btn-warning btn-sm pull-right'  :  'btn btn-success btn-sm pull-right';
+
 $SQL_oku = <<< SQL
 SELECT
   *
@@ -68,8 +74,8 @@ LIMIT
 SQL;
 
   
-  if($sayfa)
-$firma_bilgileri = array(
+if($sayfa)
+  $firma_bilgileri = array(
    'id'       => $firma[ 2 ][ 'id' ]
   ,'adi'      => $firma[ 2 ][ 'adi' ]
 );
@@ -90,16 +96,15 @@ if($sayfa == $sayfalar)
 }
 
 if(isset($_POST['arama'])){
-   $aranan = "%".$_POST['table_search']."%";
-   if(strlen($aranan) >= 3){
-     $sorgu = $vt->select( $SQL_ara, array($aranan) );
-      //print_r($sorgu);
-    }else{
-       echo "Bulunamadı!";
-    }
- }
+  $aranan = "%".$_POST['table_search']."%";
+  if(strlen($aranan) >= 3){
+    $sorgu = $vt->select( $SQL_ara, array($aranan) );
+    //print_r($sorgu);
+  }else{
+     echo "Bulunamadı!";
+  }
+}
    
-$firma_id     = array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
 if(isset($_POST['arama'])){
 	$firmalar = $sorgu;
 }else{
@@ -172,19 +177,19 @@ if( $islem == 'guncelle' )
                   </thead>
                   <tbody>
                   <?php $sayi = ($sayfa-1)*$limit+1;  foreach( $firmalar[ 2 ] AS $firma ) { ?>
-                  <tr>
+                  <tr <?php if( $firma[ 'id' ] == $firma_id ) echo "class = '$satir_renk'"; ?>>
                     <td><?php echo $sayi++; ?></td>
                     <td><b><?php echo $firma[ 'adi' ]; ?></b></td>
                     <td><?php echo $firma[ 'firma' ]; ?></td>
                     <td><?php echo $firma[ 'unvan' ]; ?></td>
                     <td><?php echo $firma[ 'tel' ]; ?></td>
                     <td align = "center">
-                      <a modul = 'firmalar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmalar&islem=guncelle&id=<?php echo $firma[ 'id' ]; ?>" >
+                      <a modul = 'firmalar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmalar&islem=guncelle&firma_id=<?php echo $firma[ 'id' ]; ?>" >
                         Düzenle
                       </a>
                     </td>
                     <td align = "center">
-                      <button modul = 'firmalar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/firmalar/firmalarSEG.php?islem=sil&id=<?php echo $firma[ 'id' ]; ?>" data-toggle="modal" data-target="#firmalar_sil_onay" >Sil</button>
+                      <button modul = 'firmalar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/firmalar/firmalarSEG.php?islem=sil&firma_id=<?php echo $firma[ 'id' ]; ?>" data-toggle="modal" data-target="#firmalar_sil_onay" >Sil</button>
                     </td>
                   </tr>
                   <?php } ?>
@@ -197,75 +202,73 @@ if( $islem == 'guncelle' )
             </div>
             <!-- /.card -->
         </div>
-
-
-     
+        
           <!-- left column -->
-          <div class="col-md-4">
-            <!-- general form elements -->
-            <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">Firma Ekle / Güncelle</h3>
-              </div>
-              <!-- /.card-header -->
-              <!-- form start -->
-              <form id = "kayit_formu" action = "_modul/ontanimlar/firmalarSEG.php" method = "POST">
-                <div class="card-body">
-                  <input type = "hidden" name = "id" value = "<?php echo $firma_bilgileri[ 'id' ]; ?>">
-                  <input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
-                  <div class="form-group">
-                    <label  class="control-label">Firma Adı</label>
-                      <input type="text" class="form-control" name ="firma_adi" value = "<?php echo $firma_bilgileri[ 'adi' ]; ?>" required placeholder="">
-                  </div>
-                  <div class="form-group">
-                    <label  class="control-label">Üst Firma</label>
-                      <input type="text" class="form-control" name ="firma" value = "<?php echo $firma_bilgileri[ 'firma' ]; ?>" required placeholder="">
-                  </div>
-                  <div class="form-group">
-                    <label  class="control-label">Ünvan</label>
-                      <input type="text" class="form-control" name ="unvan" value = "<?php echo $firma_bilgileri[ 'unvan' ]; ?>" required placeholder="">
-                  </div>
-                  <div class="form-group">
-                    <label  class="control-label">Vergi No</label>
-                      <input type="text" class="form-control" name ="vergi_no" value = "<?php echo $firma_bilgileri[ 'vergi_no' ]; ?>" required placeholder="">
-                  </div>
-                  <div class="form-group">
-                    <label  class="control-label">Vergi Dairesi</label>
-                      <input type="text" class="form-control" name ="vergi_dairesi" value = "<?php echo $firma_bilgileri[ 'vergi_dairesi' ]; ?>" required placeholder="">
-                  </div>
-                  <div class="form-group">
-                    <label  class="control-label">Ticaret Sicil No</label>
-                      <input type="text" class="form-control" name ="ticaret_sicil_no" value = "<?php echo $firma_bilgileri[ 'ticaret_sicil_no' ]; ?>" required placeholder="">
-                  </div>
-                  <div class="form-group">
-                    <label  class="control-label">Yetki Belgesi No</label>
-                      <input type="text" class="form-control" name ="yetki_belgesi_no" value = "<?php echo $firma_bilgileri[ 'yetki_belgesi_no' ]; ?>" required placeholder="">
-                  </div>
-				<div class="form-group">
-					<label>Telefon</label>
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text"><i class="fas fa-phone"></i></span>
-						</div>
-						<input type="text" name ="tel" value = "<?php echo $firma_bilgileri[ 'tel' ]; ?>" class="form-control " data-inputmask='"mask": "0(999) 999-9999"' data-mask required>
-					</div>
-					<!-- /.input group -->
-				</div>				  
-                  <div class="form-group">
-                    <label  class="control-label">Adres</label>
-                      <textarea class="form-control" name ="adres" value = "" required placeholder=""><?php echo $firma_bilgileri[ 'adres' ]; ?></textarea>
-                  </div>
-                </div>
-                <!-- /.card-body -->
-                <div class="card-footer">
-                  <button modul= 'firmalar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-                    <button onclick="window.location.href = '?modul=firmalar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
-                </div>
-              </form>
+        <div class="col-md-4">
+          <!-- general form elements -->
+          <div class="card card-secondary">
+            <div class="card-header">
+              <h3 class="card-title">Firma Ekle / Güncelle</h3>
             </div>
-            <!-- /.card -->
-
+            <!-- /.card-header -->
+            <!-- form start -->
+            <form id = "kayit_formu" action = "_modul/firmalar/firmalarSEG.php" method = "POST">
+              <div class="card-body">
+                <input type = "hidden" name = "id" value = "<?php echo $firma_bilgileri[ 'id' ]; ?>">
+                <input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
+                <div class="form-group">
+                  <label  class="control-label">Firma Adı</label>
+                    <input type="text" class="form-control" name ="firma_adi" value = "<?php echo $firma_bilgileri[ 'adi' ]; ?>" required placeholder="">
+                </div>
+                <div class="form-group">
+                  <label  class="control-label">Üst Firma</label>
+                    <input type="text" class="form-control" name ="firma" value = "<?php echo $firma_bilgileri[ 'firma' ]; ?>" required placeholder="">
+                </div>
+                <div class="form-group">
+                  <label  class="control-label">Ünvan</label>
+                    <input type="text" class="form-control" name ="unvan" value = "<?php echo $firma_bilgileri[ 'unvan' ]; ?>" required placeholder="">
+                </div>
+                <div class="form-group">
+                  <label  class="control-label">Vergi No</label>
+                    <input type="text" class="form-control" name ="vergi_no" value = "<?php echo $firma_bilgileri[ 'vergi_no' ]; ?>" required placeholder="">
+                </div>
+                <div class="form-group">
+                  <label  class="control-label">Vergi Dairesi</label>
+                    <input type="text" class="form-control" name ="vergi_dairesi" value = "<?php echo $firma_bilgileri[ 'vergi_dairesi' ]; ?>" required placeholder="">
+                </div>
+                <div class="form-group">
+                  <label  class="control-label">Ticaret Sicil No</label>
+                    <input type="text" class="form-control" name ="ticaret_sicil_no" value = "<?php echo $firma_bilgileri[ 'ticaret_sicil_no' ]; ?>" required placeholder="">
+                </div>
+                <div class="form-group">
+                  <label  class="control-label">Yetki Belgesi No</label>
+                    <input type="text" class="form-control" name ="yetki_belgesi_no" value = "<?php echo $firma_bilgileri[ 'yetki_belgesi_no' ]; ?>" required placeholder="">
+                </div>
+        				<div class="form-group">
+        					<label>Telefon</label>
+        					<div class="input-group">
+        						<div class="input-group-prepend">
+        							<span class="input-group-text"><i class="fas fa-phone"></i></span>
+        						</div>
+        						<input type="text" name ="tel" value = "<?php echo $firma_bilgileri[ 'tel' ]; ?>" class="form-control " data-inputmask='"mask": "0(999) 999-9999"' data-mask required>
+        					</div>
+        					<!-- /.input group -->
+        				</div>				  
+                <div class="form-group">
+                  <label  class="control-label">Adres</label>
+                    <textarea class="form-control" name ="adres" value = "" required placeholder=""><?php echo $firma_bilgileri[ 'adres' ]; ?></textarea>
+                </div>
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer">
+                <button modul= 'firmalar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+                  <button onclick="window.location.href = '?modul=firmalar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+              </div>
+            </form>
           </div>
+          <!-- /.card -->
+
+        </div>
           <!--/.col (left) -->
           <!-- right column -->
 

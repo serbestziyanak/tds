@@ -271,7 +271,7 @@ if($detay == "gun"){
 										
 										//uygulanan işlem tipleri
 										foreach($giris_cikis_saatleri AS $giriscikis){
-											$islemtipi[] = $giriscikis["islemTipi"];
+											$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
 										}
 
 										//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
@@ -323,9 +323,13 @@ if($detay == "gun"){
 										}
 									?>
 									
-									<td> 
+									<td class="text-center"> 
 										<?php 
-											echo implode(", ", $islemtipi);
+											//Gelemeynler için Gelmedi Mesajı Veriyoruz
+											echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+
+											//Mesaiye gelenlere mesaide mesajı veriyoruz
+											echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
 										?>
 									</td>
 									
@@ -382,22 +386,24 @@ if($detay == "gun"){
 										$islemtipi = array();
 										//Gelen tarihe ait giriş çıkışları aldık 
 										$giris_cikis_saatleri = $vt->select($SQL_belirli_tarihli_giris_cikis,array($giriscikis[ 'id' ],$listelenecekgun1))[2];
+
 										//Personel Girş Veya Çıkış Yapmamış İse
 										if (count($giris_cikis_saatleri) == 0) {
 											$colspan = ($tarihSayisi*2);
 											$colspan = $colspan == 0 ? 1 : $colspan;
 											$i = 1;
 											while ($i <= $colspan) { 
-												echo '<td class="text-center">-</td>';
+												echo '<td class="text-center" >-</td>';
 												$i++;
 											}
+											$islemtipi["gelmedi"] = "Gelmedi"; 
 										}
 
 										$giriscikisFarki = $tarihSayisi - count($giris_cikis_saatleri);
 										
 										//uygulanan işlem tipleri
 										foreach($giris_cikis_saatleri AS $giriscikis){
-											$islemtipi[] = $giriscikis["islemTipi"];
+											$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
 										}
 
 										//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
@@ -451,9 +457,15 @@ if($detay == "gun"){
 										}
 									?>
 									
-									<td> 
-										<?php 
-											echo implode(", ", $islemtipi);
+									<td class="text-center"> 
+										<?php
+
+											//Gelemeynler için Gelmedi Mesajı Veriyoruz
+											echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+
+											//Mesaiye gelenlere mesaide mesajı veriyoruz
+											echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+
 										?>
 									</td>
 									
@@ -847,6 +859,11 @@ if($detay == "gun"){
 
 		buttons : [
 			{
+				extend	: 'colvis',
+				text	: "Alan Seçiniz"
+				
+			},
+			{
 				extend	: 'excel',
 				text 	: 'Excel',
 				exportOptions: {
@@ -865,6 +882,12 @@ if($detay == "gun"){
 				title: function(){
 					return "Giriş Çıkış Bilgileri";
 				}
+			}
+		],
+		"columnDefs": [
+			{
+				"targets" : [],
+				"visible" : false
 			}
 		],
 		"language": {

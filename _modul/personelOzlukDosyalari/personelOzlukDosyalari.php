@@ -153,8 +153,9 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 										<div class="custom-file">
 											<input type="hidden" value="<?php echo $dosya_turu[ 'id' ]; ?>" name="dosya_turu_id">
 											<input type="hidden" value="<?php echo $personel_id?>" name="personel_id">
-											<input type="file" class="custom-file-input " id="<?php echo $dosya_turu[ 'id' ]; ?>" name = "OzlukDosya" <?php echo $dosya_turu[ 'filtre' ]; ?>>
-											<label class="custom-file-label" for="exampleInputFile">Dosya Seç</label>
+											<label class="custom-file-label " id="label-<?php echo $dosya_turu[ 'id' ]; ?>" for="exampleInputFile">Dosya Seç</label>
+											<input type="file" class="custom-file-input OzlukDosya " data-id="<?php echo $dosya_turu[ 'id' ]; ?>" id="OzlukDosya-<?php echo $dosya_turu[ 'id' ]; ?>" name = "OzlukDosya[]" multiple <?php echo $dosya_turu[ 'filtre' ]; ?>>
+											
 										</div>
 										<div class="input-group-append">
 											<button class="btn  btn-<?php echo  $buttonRenk; ?>" type = "submit"><?php echo $buttonYazi; ?></button>
@@ -234,7 +235,16 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 	  'stateSave'	: true,
 	  'language'		: {
 		'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json'
-	}
+		}
+	});
+
+	$('.OzlukDosya').change(function () {
+		var id = $(this).data("id");
+		$(this).prev('label').text("Dosyalar Seçildi");
+		document.querySelector("#label-"+id).style.backgroundColor = "#28a745";
+		document.querySelector("#label-"+id).style.color = "#ffffff";
+		document.querySelector("#label-"+id).style.fontWeight = "bold";
+		
 	});
 
 </script>

@@ -67,8 +67,6 @@ SQL;
 
 switch( $islem ) {
 	case 'ekle':
-		//Dosya Güncelleme esnasında onceki dosya bilgisini alıyoruz
-		$onceki_personel_ozluk_dosyasi 		= $vt->select( $SQL_personel_ozluk_dosyasi_varmi, array( $dosya_turu_id, $personel_id) )[2][0];
 
 		$personel			= $vt->select( $SQL_tum_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) );
 		$dosya_turu_adi		= $vt->select( $SQL_dosya_turu_adi, array( $dosya_turu_id ) );
@@ -78,13 +76,16 @@ switch( $islem ) {
 
 		$dosya_turu_adi     = str_replace("/", "ve", $dosya_turu_adi);
 
-
-		if( isset( $_FILES[ "OzlukDosya"] ) and $_FILES[ "OzlukDosya"][ 'size' ] > 0 ) {
-			$dosya_adi	= $tc_no . "_". rand() ."_".  $dosya_turu_adi . "." . pathinfo( $_FILES[ "OzlukDosya"][ 'name' ], PATHINFO_EXTENSION );
-			$dizin		= "../../personel_ozluk_dosyalari/";
-			$hedef_yol	= $dizin.$dosya_adi;
-			if( move_uploaded_file( $_FILES[ "OzlukDosya"][ 'tmp_name' ], $hedef_yol ) ) {
-				$vt->insert( $SQL_dosya_kaydet, array( $personel_id, $dosya_turu_id, $dosya_adi ) );
+		echo '<pre>';
+		print_r($_FILES['OzlukDosya']);
+		foreach ($_FILES['OzlukDosya']["tmp_name"] as $key => $value) {
+			if( isset( $_FILES[ "OzlukDosya"]["tmp_name"][$key] ) and $_FILES[ "OzlukDosya"][ 'size' ][$key] > 0 ) {
+				$dosya_adi	= $tc_no . "_". rand() ."_".  $dosya_turu_adi . "." . pathinfo( $_FILES[ "OzlukDosya"][ 'name' ][$key], PATHINFO_EXTENSION );
+				$dizin		= "../../personel_ozluk_dosyalari/";
+				$hedef_yol	= $dizin.$dosya_adi;
+				if( move_uploaded_file( $_FILES[ "OzlukDosya"][ 'tmp_name' ][$key], $hedef_yol ) ) {
+					$vt->insert( $SQL_dosya_kaydet, array( $personel_id, $dosya_turu_id, $dosya_adi ) );
+				}
 			}
 		}
 	break;

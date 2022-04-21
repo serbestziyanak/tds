@@ -488,8 +488,10 @@ SQL;
 		return $aylar[ $kacinci_ay ][ $ad_uzunlugu ];
 	}
 
+	//2022-04-30 formatındaki tarihe ait günü veriyor
 	public function gunVer($gelenTarih,$locale='tr'){
 	    $gelentarih=explode ("-",$gelenTarih);
+	    //							     AY             Gün              YIL
 	    $gun = date("l",mktime(0,0,0,$gelentarih[1],$gelentarih[2],$gelentarih[0])); 
 	    if ($locale == 'tr') {
 	        switch ($gun) {
@@ -524,5 +526,10 @@ SQL;
 	    }else{
 	        return $gun;
 	    }
+	}
+
+	//Tek Haneli Sayi Veriyor
+	public function ikiHaneliVer($sayi){
+		return strlen($sayi) == 2 ? $sayi : '0'.$sayi;
 	}
 }
