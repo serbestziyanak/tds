@@ -181,7 +181,8 @@ foreach($giris_cikislar AS $giriscikis){
 							</thead>
 							<tbody>
 								<?php 
-									$gunSayisi = date("t",mktime(0,0,0,$ay,01,$yil));
+
+									$gunSayisi = $fn->ikiHaneliVer($ay) == date("m") ? date("d") : date("t",mktime(0,0,0,$ay,01,$yil));
 
 									$sayi = 1; 
 
