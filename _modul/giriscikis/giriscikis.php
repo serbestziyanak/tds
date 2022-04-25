@@ -884,21 +884,6 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 	});
 
-	document.querySelector('#personel-Tr').addEventListener('contextmenu', sagTiklama);
-
-	function sagTiklama(e) {
-		alert(e);
-
-	  	if (typeof e === 'object') {
-	    	switch (e.button) {
-	      		case 2:
-	        		alert('Left button clicked.');
-	        		e.preventDefault();
-	        	break;
-	    }
-	  }
-	}
-
 	$(function () {
 		$('#datetimepickerAy').datetimepicker({
 			//defaultDate: simdi,

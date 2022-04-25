@@ -232,7 +232,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 						</div>
 					</div>
 					<div class="card-body">
-						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%">
+						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%" >
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>
@@ -275,7 +275,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 							</thead>
 							<tbody>
 								<?php $sayi = 1; foreach( $personeller[ 2 ] AS $personel ) { ?>
-								<tr <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'"; ?>>
+								<tr oncontextmenu="fun();" class ="personel-Tr <?php if( $personel[ 'id' ] == $personel_id ) echo $satir_renk; ?>" data-id="<?php echo $personel[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'tc_no' ]; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
@@ -643,7 +643,28 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 		</div>
 	</div>
 </section>
-
+<div id="sagtikmenu" style="display: none;">asdasdasd</div>
+<style type="text/css">
+	.custom-menu {
+	    z-index:1000;
+	    position: absolute;
+	    background-color:#fff;
+	    border: 1px solid #000;
+	    padding: 2px;
+	    border-radius: 5px;
+	}
+	.custom-menu a{
+		display: block;
+		padding: 10px 30px;
+		border-bottom: 1px solid #ddd;
+		color: #000;
+	}
+	.custom-menu a:hover{
+		background-color: #ddd;
+		transition: initial;
+	}
+	
+</style>
 <script type="text/javascript">
 //Adı sıyadını büyük harf yap
 String.prototype.turkishToUpper = function(){
@@ -652,6 +673,30 @@ String.prototype.turkishToUpper = function(){
 	string = string.replace(/(([iışğüçö]))/g, function(letter){ return letters[letter]; })
 	return string.toUpperCase();
 }
+
+$(".personel-Tr").bind("contextmenu", function(event) {
+	//Tıklanan tablo tr personel_id sini al
+	var personel_id = $(this).data("id");
+	//Acılan tüm Menüleri Gizle
+	$("div.custom-menu").hide();
+   	// Genel Sağ Tık Menüsünü Kapat
+    event.preventDefault(); 
+
+    //Açılacak Div İçeriği
+    $("<div class='custom-menu'>"+
+    	"<a href='?modul=personelOzlukDosyalari&islem=guncelle&personel_id="+personel_id+"' >Personel Özlük Dosyası</a>"+
+    	"<a href='?modul=giriscikis&personel_id="+personel_id+"' >Personel Aylık Hareketi</a>"+
+    	"<a href='?modul=puantaj&personel_id="+personel_id+"' >Personel Puantajı</a>"+
+    	"</div>").appendTo("body").css({
+        top: event.pageY + "px",
+        left: event.pageX + "px"
+    });
+}).bind("click", function(event) {
+    if (!$(event.target).is(".custom-menu")) {
+        $("div.custom-menu").hide();
+    }
+});
+
 
 window.onload = function(){
     var tab = document.getElementById("<?php echo $aktif_tab; ?>");
