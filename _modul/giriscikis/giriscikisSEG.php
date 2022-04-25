@@ -13,10 +13,54 @@ $degerler		= array();
 $SQL_ekle		= "INSERT INTO tb_giris_cikis SET ";
 $SQL_guncelle 	= "UPDATE tb_giris_cikis SET ";
 
+$SQL_tum_personel_oku = <<< SQL
+SELECT
+	p.*
+FROM
+	tb_personel AS p
+WHERE
+	p.firma_id = ? AND 
+	p.aktif = 1
+SQL;
+
+//Çıkış Yapılıp Yapılmadığı Kontrolü
+$SQL_personel_gun_cikis = <<< SQL
+SELECT
+	*
+FROM
+	tb_giris_cikis 
+WHERE
+	personel_id 		   = ? AND 
+	tarih 				   = ? AND 
+	baslangic_saat IS NOT NULL AND 
+	bitis_saat IS NULL
+SQL;
+
+//Giriş Çıkış id sine göre listeleme 
+$SQL_personel_giris_cikis = <<< SQL
+SELECT
+	*
+FROM
+	tb_giris_cikis 
+WHERE
+	id 		   = ?
+SQL;
+
+
+
+
+$SQL_sil = <<< SQL
+DELETE FROM
+	tb_giris_cikis
+WHERE
+	id = ?
+SQL;
+
+
 //Baslangıc ve Bitiş Tarihlerini Karşılastırıyoruz
-$baslangicTarihi = new DateTime($_REQUEST["baslangicTarihSaat"]);
-$fark = $baslangicTarihi->diff(new DateTime($_REQUEST["bitisTarihSaat"]));
-$fark = $fark->days+1;
+@$baslangicTarihi 	        = new DateTime($_REQUEST["baslangicTarihSaat"]);
+@$ikiTarihArasindakFark 	= $baslangicTarihi->diff(new DateTime($_REQUEST["bitisTarihSaat"]));
+@$ikiTarihArasindakFark 	= $ikiTarihArasindakFark->days+1;
 
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
 foreach( $_REQUEST as $alan => $deger ) {
@@ -27,86 +71,75 @@ foreach( $_REQUEST as $alan => $deger ) {
 }
 
 //başlangıc ve bitiş saatlerini aldık
-$baslangicSaat 		= explode(" ", $_REQUEST['baslangicTarihSaat']);
-$bitisSaat 			= explode(" ", $_REQUEST['bitisTarihSaat']);
+@$baslangicSaat 		= explode(" ", $_REQUEST['baslangicTarihSaat']);
+@$bitisSaat 			= explode(" ", $_REQUEST['bitisTarihSaat']);
 
-if($fark == 1){
-	$alanlar[] 		= "baslangic_saat";
-	$alanlar[] 		= "bitis_saat";
-	$alanlar[] 		= "tarih";
+if($ikiTarihArasindakFark == 1){
+	$alanlar[] 			= "baslangic_saat";
+	$alanlar[] 			= "bitis_saat";
+	$alanlar[] 			= "tarih";
 
-	$degerler[] 	= $baslangicSaat[1];
-	$degerler[] 	= $bitisSaat[1];
+	$degerler[] 		= $baslangicSaat[1];
+	$degerler[] 		= $bitisSaat[1];
 	if(array_key_exists("toplu", $_REQUEST)){
 		$alanlar[] 		= "personel_id";
 	}
 }else{
 	//degerler sabit oldugu ıcın onceden aldık
-	$alanlar[] 		= "baslangic_saat";
-	$alanlar[] 		= "bitis_saat";
-	$degerler[] 	= $baslangicSaat[1];
-	$degerler[] 	= $bitisSaat[1];
+	$alanlar[] 			= "baslangic_saat";
+	$alanlar[] 			= "bitis_saat";
+	$degerler[] 		= $baslangicSaat[1];
+	$degerler[] 		= $bitisSaat[1];
 
 	//Son iki alan degerleri değişiklik göstereceği için
 	array_key_exists("toplu", $_REQUEST) ? $alanlar[] = "personel_id" : ''; // Toplu Ekleme Yapulıp Yapılmadığı Kontrol edilip Alan Ekliyoruz
-	$alanlar[] 		= "tarih";
+	$alanlar[] 			= "tarih";
 }
 
+if ($islem == "saatguncelle") {
+	$alanlar 			= array();
+	$alanlar[] 			= 'islem_yapan_personel';
+	$alanlar[] 			= 'baslangic_saat_guncellenen';
+	$alanlar[] 			= 'bitis_saat_guncellenen';
 
-$SQL_tum_personel_oku = <<< SQL
-SELECT
-	p.*
-FROM
-	tb_personel AS p
-WHERE
-	firma_id = ? AND p.aktif = 1
-SQL;
+	$degerler			= array();
+	$degerler[]			= $_SESSION['kullanici_id'];
+}
 
-//Çıkış Yapılıp Yapılmadığı Kontrolü
-$SQL_personel_gun_cikis = <<< SQL
-SELECT
-	*
-FROM
-	tb_giris_cikis 
-WHERE
-	personel_id = ? AND tarih = ? AND baslangic_saat IS NOT NULL AND bitis_saat IS NULL
-SQL;
-
-
-$SQL_sil = <<< SQL
-DELETE FROM
-	tb_giris_cikis
-WHERE
-	id = ?
-SQL;
-
+// print_r($alanlar);
+// die();
 //PErsonel Giriş Yapmış ise ama cıkış yapmamış ise personel_cikis_varmi verisi bize true doner
-$personel_cikis_varmi 	= $vt->select($SQL_personel_gun_cikis, array($_REQUEST['personel_id'],$baslangicSaat[0]))[2];
-echo '<pre>';
-echo $baslangicSaat[0];
-echo count($personel_cikis_varmi);
-if (count($personel_cikis_varmi) > 0){
-	$alanlar 		= array();
-	$alanlar[]   	= 'bitis_saat';
-	$islem 			= "guncelle";
+if($islem == "ekle"){
+	$personel_cikis_varmi 	= $vt->select($SQL_personel_gun_cikis, array($_REQUEST['personel_id'],$baslangicSaat[0]))[2];
 
-	$degerler 		= array();
-	$degerler[]		= $baslangicSaat[1];
+	if (count($personel_cikis_varmi) > 0){
+		$alanlar 		= array();
+		$alanlar[]   	= 'bitis_saat';
+		$islem 			= "guncelle";
+
+		$degerler 		= array();
+		$degerler[]		= $baslangicSaat[1];
+	}
 }
-
 
 $personeller 			= $vt->select($SQL_tum_personel_oku, array($_SESSION['firma_id']))[2];
 $personel_id 			= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
 
-$___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
+$___islem_sonuc  		= array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
-$SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
+$SQL_ekle				.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
-$SQL_guncelle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
-$SQL_guncelle	.= " WHERE id = ?";
+$SQL_guncelle 			.= implode( ' = ?, ', $alanlar ) . ' = ?';
+$SQL_guncelle			.= " WHERE id = ?";
 
-if( $islem == 'guncelle' ) $degerler[] = $personel_cikis_varmi[0]["id"];
+//Saat güncellemesi yapılıp yapılmadıgını kontrol ediyoruz
+if ( $islem == "saatguncelle" ) {
+	$islem 				= "guncelle";
+	$islem_turu 		= 'saat_guncelle'; //Hareketeler sayfasında duzenle butonuna tıklanarak guncelleme yapılmış ise yapılacak işlem
+}else{
+	$islem_turu 		= 'saat_ekle';
+}
 
 
 switch( $islem ) {
@@ -117,7 +150,7 @@ switch( $islem ) {
 				$tarih 					= $baslangicSaat[0];
 				$degerler[] 			= $tarih;
 				$degerler[] 			= $personel["id"];
-				while ($i <= $fark) {
+				while ($i <= $ikiTarihArasindakFark) {
 					$sonuc 				= $vt->insert( $SQL_ekle, $degerler );
 					$tarih				= date('Y-m-d', strtotime($tarih . ' +1 day'));
 					array_pop($degerler);
@@ -132,7 +165,8 @@ switch( $islem ) {
 		}else{
 			$i = 1;
 			$degerler[] 		= $baslangicSaat[0]; // Tarih Alanına Deger Atıyoruz
-			while ($i <= $fark) {
+
+			while ($i <= $ikiTarihArasindakFark) {
 				$sonuc 				= $vt->insert( $SQL_ekle, $degerler );
 				$baslangicSaat[0] 	= date('Y-m-d', strtotime($baslangicSaat[0] . ' +1 day'));
 				array_pop($degerler);
@@ -145,7 +179,27 @@ switch( $islem ) {
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
 	break;
 	case 'guncelle':
-		$sonuc = $vt->update( $SQL_guncelle, $degerler );
+
+		if ( $islem_turu == "saat_guncelle" ) {
+			foreach ($_REQUEST["giriscikis_id"] as $alan => $deger) {
+				//DEgısen girişe ait kayıtları getirip katşılaştırmasını yapıyoruz
+				$giriscikis = $vt->select($SQL_personel_giris_cikis, array($_REQUEST["giriscikis_id"][$alan]))[2];
+				
+				$degerler[] = date( 'H:i', strtotime($giriscikis[0]["baslangic_saat"])) == $_REQUEST["baslangic_saat"][$alan] ? '' : $_REQUEST["baslangic_saat"][$alan]; 
+				$degerler[] = date( 'H:i', strtotime($giriscikis[0]["bitis_saat"]))     == $_REQUEST["bitis_saat"][$alan] ?     '' : $_REQUEST["bitis_saat"][$alan]; 
+				$degerler[] = $_REQUEST["giriscikis_id"][$alan];
+
+				$sonuc = $vt->update( $SQL_guncelle, $degerler );
+
+				array_pop($degerler); // Id yı array den  cıkardık
+				array_pop($degerler); // bitis_saati array den cıkardık
+				array_pop($degerler); // Baslangic_saati array den  cıkardık
+
+			}	
+		}else{
+			$degerler[] = $personel_cikis_varmi[0]["id"];
+			$sonuc = $vt->update( $SQL_guncelle, $degerler );
+		}
 		
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;

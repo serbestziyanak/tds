@@ -15,15 +15,21 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
-//Personele Ait Listelenecek Hareket Ay
-@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m");
-$tarih = $listelenecekAy;
-$tarihBol = explode("-", $tarih);
-$ay = intval($tarihBol[1]);
-$yil = $tarihBol[0];
+@$detay			= array_key_exists( 'detay'         ,$_REQUEST ) ? $_REQUEST[ 'detay' ] 		: 'ay';
 
-if($_REQUEST['detay'] == "gun") $listelenecekgun	= array_key_exists( 'tarih'	,$_REQUEST ) ? "'".$_REQUEST[ 'tarih' ]."'"	: "'".date("Y-m-d")."'";
-if($_REQUEST['detay'] == "gun") $listelenecekgun1	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m-d");
+//Personele Ait Listelenecek Hareket Ay
+@$listelenecekAy	= array_key_exists( 'tarih'		,$_REQUEST ) ? $_REQUEST[ 'tarih' ]			: date( "Y-m" );
+
+//Hareketlerde Bulununa duzenle butununa tıklandığında listelenecek tarihi alıyoruz
+@$listelenecekTarih	= array_key_exists( 'duzenlenecek_tarih'	,$_REQUEST ) ? $_REQUEST[ 'duzenlenecek_tarih' ]	: date( "Y-m" );
+
+$tarih 		= $listelenecekAy;
+$tarihBol 	= explode( "-", $tarih);
+$ay 		= intval($tarihBol[1] );
+$yil 		= $tarihBol[0];
+
+if($detay == "gun" ) $listelenecekgun	= array_key_exists( 'tarih'	,$_REQUEST ) ? "'".$_REQUEST[ 'tarih' ]."'"	: "'".date( "Y-m-d" )."'";
+if($detay == "gun" ) $listelenecekgun1	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]			: date( "Y-m-d" );
  
 $satir_renk				= $personel_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi		= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
@@ -45,7 +51,7 @@ SELECT
 FROM
 	tb_personel AS p
 WHERE
-	p.id = ? AND p.aktif = 1
+	p.id = ? AND firma_id =? AND p.aktif = 1
 SQL;
 
 //belirli bir aya göre personelin giriş çıkış hareketleri
@@ -59,7 +65,8 @@ SELECT
 FROM
 	tb_giris_cikis
 WHERE
-	personel_id = ? AND DATE_FORMAT(tarih,'%Y-%m') =? 
+	personel_id = ? AND 
+	DATE_FORMAT(tarih,'%Y-%m') =? 
 GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
@@ -67,28 +74,35 @@ SQL;
 //Belirli bir güne ait tüm personelin giriş çıkış işlemleri Detay Parametresi var ise devreye girecektir
 $SQL_gunluk_giris_cikis = <<< SQL
 SELECT 
-id,
-CONCAT(adi ," ",soyadi) AS adSoyad,
-(select 
-	COUNT(tarih) 
+	p.id,
+	CONCAT(adi ," ",soyadi) AS adSoyad,
+	(select 
+		COUNT(tarih) 
 	FROM tb_giris_cikis  
-	WHERE  tb_personel.id = tb_giris_cikis.personel_id AND DATE_FORMAT(tarih,'%Y-%m-%d') = $listelenecekgun ) AS tarihSayisi
-FROM tb_personel 
-WHERE firma_id =? AND aktif = 1 
+	WHERE  
+		p.id = tb_giris_cikis.personel_id AND 
+		DATE_FORMAT(tarih,'%Y-%m-%d') = $listelenecekgun ) AS tarihSayisi
+FROM tb_personel AS p
+WHERE p.firma_id =? AND aktif = 1 
 SQL;
 
 //Belirli tarihe göre giriş çıkış yapılan saatler 
 $SQL_belirli_tarihli_giris_cikis = <<< SQL
 SELECT
-    baslangic_saat
-    ,bitis_saat
-		,adi AS islemTipi
+     gc.id
+    ,gc.baslangic_saat
+    ,gc.bitis_saat
+	,gc.baslangic_saat_guncellenen
+	,gc.bitis_saat_guncellenen
+	,gc.islem_tipi
+	,tp.adi AS islemTipi
 FROM
-	tb_giris_cikis
-LEFT JOIN tb_giris_cikis_tipi ON tb_giris_cikis_tipi.id =  tb_giris_cikis.islem_tipi
-LEFT JOIN tb_giris_cikis_tipleri ON tb_giris_cikis_tipleri.id =  tb_giris_cikis_tipi.tip_id
+	tb_giris_cikis AS gc
+LEFT JOIN tb_giris_cikis_tipi AS ftp ON ftp.id =  gc.islem_tipi
+LEFT JOIN tb_giris_cikis_tipleri AS tp ON tp.id =  ftp.tip_id
+LEFT JOIN tb_personel AS p ON gc.personel_id =  p.id
 WHERE
-	personel_id = ? AND tarih =? 
+	gc.personel_id = ? AND gc.tarih =? AND p.firma_id = ?
 ORDER BY baslangic_saat ASC 
 SQL;
 
@@ -110,39 +124,46 @@ SQL;
 //Tüm Giriş Çıkış Tipleri
 $SQL_tum_giris_cikis_tipleri = <<< SQL
 SELECT
-tb_giris_cikis_tipleri.id,
-tb_giris_cikis_tipleri.adi,
-(SELECT tip_id from tb_giris_cikis_tipi WHERE tb_giris_cikis_tipi.tip_id = tb_giris_cikis_tipleri.id AND firma_id = 2) AS varmi
+	tb_giris_cikis_tipleri.id,
+	tb_giris_cikis_tipleri.adi,
+	(SELECT tip_id from tb_giris_cikis_tipi 
+	WHERE 
+		tb_giris_cikis_tipi.tip_id = tb_giris_cikis_tipleri.id AND firma_id = 2 ) AS varmi
 FROM
 	tb_giris_cikis_tipleri
 ORDER BY adi ASC
 SQL;
 
 
-$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) );
+$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION[ 'firma_id' ] ) );
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
-$detay						= array_key_exists( 'detay', $_REQUEST ) ? $_REQUEST[ 'detay' ] : 'ay';
-$firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
-$giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
-$gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION['firma_id']) )[2];
+$firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION[ "firma_id" ] ) )[2];
+$giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy ) )[2];
+$gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION[ 'firma_id' ] ) )[2];
 $tum_giris_cikis_tipleri	= $vt->select( $SQL_tum_giris_cikis_tipleri)[2];
 
 $satir_renk					= $personel_id > 0	? 'table-warning' : '';
 
-if($detay == "gun"){
+if($detay == "gun" ){
 	//Bir günde en fazla kaç giriş çıkış yapıldığını bulma
 	foreach($gunluk_giris_cikislar AS $giriscikisgun){
-		$tarihSayisi[] = $giriscikisgun["tarihSayisi"]; 
+		$tarihSayisi[] = $giriscikisgun[ "tarihSayisi" ]; 
 	}
 }else{
 	//Bir günde en fazla kaç giriş çıkış yapıldığını bulma
-	foreach($giris_cikislar AS $giriscikis){
-		$tarihSayisi[] = $giriscikis["tarihSayisi"]; 
+	foreach($giris_cikislar AS $giriscikisgun){
+		$tarihSayisi[] = $giriscikisgun[ "tarihSayisi" ]; 
 	}
 }
+@$tarihSayisi = max($tarihSayisi);
 
-@$tarihSayisi = max($tarihSayisi); 
+//Bir tarihe ait saat düzenleme butonuna tıklandığında personel bilgisini ve personelin yaptığı giriş çıkışlar listesini alıyoruz
+@$personel 					= $vt->select( $SQL_tek_personel_oku, array($personel_id,$_SESSION[ 'firma_id' ] ) )[2];
+if ($islem == "saatduzenle" AND count($personel)>0) {
+	$personel_giris_cikis 	= $vt->select( $SQL_belirli_tarihli_giris_cikis, array($personel_id,$listelenecekTarih,$_SESSION[ 'firma_id' ] ) )[2];
 
+
+}
 
 ?>
 
@@ -153,13 +174,13 @@ if($detay == "gun"){
 				<button class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
 				<button class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
 				<?php 
-					$link 		=  $detay == "gun" ? '?modul=giriscikis' : '?modul=giriscikis&detay=gun'; 
-					$btnyazi 	=  $detay == "gun" ? 'Personele Ait Veri Getir' : 'Günlük Veri Getir'; 
+					$link 		=  $detay == "gun" ? '?modul=giriscikis' 			: '?modul=giriscikis&detay=gun'; 
+					$btnyazi 	=  $detay == "gun" ? 'Personele Ait Veri Getir' 	: 'Günlük Veri Getir'; 
 				?>
 				<a class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
 				<button class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
 
-				<?php if ($detay =="gun")  { ?>
+				<?php if ($detay =="gun" )  { ?>
 					<div class="col-sm-2" style="float: right;display: flex;">
 						<div class="">
 							<div class="input-group date" id="datetimepickerGun" data-target-input="nearest">
@@ -181,7 +202,7 @@ if($detay == "gun"){
 								<div class="input-group-append" data-target="#datetimepickerAy" data-toggle="datetimepicker">
 									<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 								</div>
-								<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepickerAy" data-toggle="datetimepicker" id="tarihSec" value="<?php if($listelenecekAy) echo $listelenecekAy; ?>"/>
+								<input autocomplete="off" type="text" name="tarihSec" class="form-control datetimepicker-input" data-target="#datetimepickerAy" data-toggle="datetimepicker" id="tarihSec" value="<?php if($listelenecekAy ) echo $listelenecekAy; ?>"/>
 							</div>
 						</div>
 						<div style="float: right;display: flex;">
@@ -190,7 +211,7 @@ if($detay == "gun"){
 					</div>
 				<?php } ?>
 			</div>
-			<?php if($detay != "gun"){ ?>
+			<?php if($detay != "gun" ){ ?>
 			<div class="col-md-4">
 				<div class="card card-secondary" id = "card_personeller">
 					<div class="card-header">
@@ -213,12 +234,11 @@ if($detay == "gun"){
 							</thead>
 							<tbody>
 								<?php $sayi = 1; foreach( $personeller[ 2 ] AS $personel ) { ?>
-								<tr <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'"; ?>>
-									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $personel[ 'tc_no' ]; ?></td>
-									<td><?php echo $personel[ 'adi' ]; ?></td>
-									<td><?php echo $personel[ 'soyadi' ]; ?></td>
-
+								<tr <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'"; ?> id="personel-Tr">
+									<td><?php echo $sayi++; ?>					</td>
+									<td><?php echo $personel[ 'tc_no' ]; ?>		</td>
+									<td><?php echo $personel[ 'adi' ]; ?>		</td>
+									<td><?php echo $personel[ 'soyadi' ]; ?>	</td>
 									<td align = "center">
 										<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-success btn-xs" href = "?modul=giriscikis&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo $listelenecekAy; ?>" >
 											Hareketler
@@ -265,12 +285,36 @@ if($detay == "gun"){
 							<tbody>
 								<?php 
 
-									$gunSayisi = $fn->ikiHaneliVer($ay) == date("m") ? date("d") : date("t",mktime(0,0,0,$ay,01,$yil));
+									//
+									$gunSayisi = $fn->ikiHaneliVer($ay ) == date( "m" ) ? date( "d" ) : date( "t",mktime(0,0,0,$ay,01,$yil));
 									$sayi = 1; 
 									while( $sayi <= $gunSayisi ) { 
-									$personel_giris_cikis_saatleri = $vt->select($SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih.'-'.$sayi))[2];
-									$personel_giris_cikis_sayisi   = count($personel_giris_cikis_saatleri);
-									$rows = $personel_giris_cikis_sayisi == 0 ?  1 : $personel_giris_cikis_sayisi;
+
+										$islemtipi = array();
+										$personel_giris_cikis_saatleri 	= $vt->select($SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih."-".$sayi,$_SESSION[ 'firma_id' ] ))[2];
+										$personel_giris_cikis_sayisi   	= count($personel_giris_cikis_saatleri);
+
+										$personel_gec_gelme_sorgula 	= $vt->select($SQL_gec_giris_oku,array($personel_id,"2022-04-22"/*$tarih."-".$sayi*/,$_SESSION[ 'firma_id' ],"08:00" ))[2];
+
+										// echo '<pre>';
+										// print_r($personel_giris_cikis_saatleri);
+										// die();
+
+										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
+										$son_cikis_index 		= $personel_giris_cikis_sayisi - 1;
+										$ilk_islemtipi 			= $personel_giris_cikis_saatleri[0]['islem_tipi'];
+										$son_islemtipi 			= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
+
+										$ilkGirisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
+
+										$SonCikisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
+										
+										if ($ilkGirisSaat > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
+											$islemtipi["gecgelme"] 	 = $ilkGirisSaat;
+										}
+										if ($SonCikisSaat < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+											$islemtipi["erkencikma"] = $SonCikisSaat;
+										}
 
 								?>
 									<tr>
@@ -278,7 +322,6 @@ if($detay == "gun"){
 										<td><?php echo $sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih.'-'.$sayi); ?></td>
 										<?php 
 											$i = 1;
-											$islemtipi = array();
 											if ($personel_giris_cikis_sayisi == 0) {
 												$col = ($tarihSayisi*2);
 												$col = $col == 0 ? 2 : $col;
@@ -287,42 +330,32 @@ if($detay == "gun"){
 													echo '<td class="text-center" >-</td>';
 													$i++;
 												}
-												$islemtipi["gelmedi"] = "Gelmedi"; 
+												$islemtipi[ "gelmedi" ] = "Gelmedi"; 
 											}
 											$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
 										
 											//uygulanan işlem tipleri
 											foreach($personel_giris_cikis_saatleri AS $giriscikis){
-												$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
+												$giriscikis[ "islemTipi" ] != "" ? $islemtipi[] = $giriscikis[ "islemTipi" ] : '';
 											}
-											$fark["UcretliIzin"] 	= 0;
-											$fark["UcretsizIzin"] 	= 0;
-											$fark["mesai"] 		= 0;
+											$fark[ "UcretliIzin" ] 		= 0;
+											$fark[ "UcretsizIzin" ] 	= 0;
+											$fark[ "mesai" ] 			= 0;
 											//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
 											if ($personel_giris_cikis_sayisi ==$tarihSayisi ) {
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
-													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+
+													$baslangicSaat 	= $fn->saatKarsilastir($giriscikis[ 'baslangic_saat' ], $giriscikis["baslangic_saat_guncellenen"]);
+													$bitisSaat 		= $fn->saatKarsilastir($giriscikis[ 'bitis_saat' ], $giriscikis["bitis_saat_guncellenen"]);
+													
 													echo '
 														<td class="text-center">'.$baslangicSaat.'</td>
 														<td class="text-center">'.$bitisSaat.'</td>';
-
-													//Giriş Çıkış Arasındakik Dakika Farkı
-													$baslangicSaati = strtotime($baslangicSaat);
-													$bitisSaati 	= strtotime($bitisSaat);
-													$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
-
-													if ($giriscikis["islemTipi"] == "") {
-														$fark["mesai"] 	+= $ToplamDakika;
-													}else{
-														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-														$giriscikis["maas_kesintisi"] == 1 ? $fark["UcretsizIzin"]  += $ToplamDakika : $fark["UcretliIzin"]  += $ToplamDakika;
-													}
-													
-													
 												}
 											}else if($personel_giris_cikis_sayisi == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
-												echo '<td class="text-center">'.$personel_giris_cikis_saatleri[0][ 'baslangic_saat' ].'</td>';
+												$baslangicSaat 	= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0][ 'baslangic_saat_guncellenen' ]);
+												$bitisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'bitis_saat' ], $personel_giris_cikis_saatleri[0][ 'bitis_saat_guncellenen' ]);
+												echo '<td class="text-center">'.$baslangicSaat.'</td>';
 												$i = 1;
 												while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 													echo '
@@ -331,67 +364,56 @@ if($detay == "gun"){
 													';
 													$i++;
 												}
-												echo '<td class="text-center">'.$personel_giris_cikis_saatleri[0][ 'bitis_saat' ].'</td>';
 
-												$baslangicSaati = strtotime($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ]);
-												$bitisSaati 	 = strtotime($personel_giris_cikis_saatleri[0][ 'bitis_saat' ]);
-												$ToplamDakika 	 = ($bitisSaati - $baslangicSaati) / 60;
+												echo '<td class="text-center">'.$bitisSaat.'</td>';
 
-												if ($personel_giris_cikis_saatleri[0][ 'islemTipi' ] == "") {
-													$fark["mesai"] 	+= $ToplamDakika;
-												}else{
-													//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-													$giriscikis["maas_kesintisi"] == 1 ? $fark["UcretsizIzin"]  += $ToplamDakika : $fark["UcretliIzin"]  += $ToplamDakika;
-												}
-
-											}else{ //Gündee birden fazla giriş çıkış var ise 
+											}else{ //Günde birden fazla giriş çıkış var ise 
 												$i = 1;
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
 													
 													if($i < $personel_giris_cikis_sayisi){
 
-														$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-														$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+														$baslangicSaat 	= $fn->saatKarsilastir($giriscikis[ 'baslangic_saat' ], $giriscikis["baslangic_saat_guncellenen"]);
+														$bitisSaat 		= $fn->saatKarsilastir($giriscikis[ 'bitis_saat' ], $giriscikis["bitis_saat_guncellenen"]);
+
 														echo '
 															<td class="text-center">'.$baslangicSaat.'</td>
 															<td class="text-center">'.$bitisSaat.'</td>';
 													}else{
-														$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-														$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+														$baslangicSaat 	= $fn->saatKarsilastir($giriscikis[ 'baslangic_saat' ], $giriscikis["baslangic_saat_guncellenen"]);
+														$bitisSaat 		= $fn->saatKarsilastir($giriscikis[ 'bitis_saat' ], $giriscikis["bitis_saat_guncellenen"]);
 														echo '<td  class="text-center">'.$baslangicSaat.'</td>';
 														$j = 1;
 														while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 															echo '
 																<td class="text-center"> - </td>
-																<td class="text-center"> - </td>	
-															';
+																<td class="text-center"> - </td>';
 															$j++;
 														}
 														echo '<td class="text-center">'.$bitisSaat.'</td>';
 													}
 													$i++;
-													$baslangicSaati = strtotime($baslangicSaat);
-													$bitisSaati 	= strtotime($bitisSaat);
-													$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
-
-													if ($giriscikis["islemTipi"] == "") {
-														$fark["mesai"] 	+= $ToplamDakika;
-													}else{
-														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-														$giriscikis["maas_kesintisi"] == 1 ? $fark["UcretsizIzin"]  += $ToplamDakika : $fark["UcretliIzin"]  += $ToplamDakika;
-													}
 												}
 											}
 										?>
 										
-										<td>
+										<td width="270px">
 											<?php 
-												echo array_key_exists("gelmedi", $islemtipi) ? '<button class="btn btn-danger btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Tutanak Tut</button>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
-												echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+												if($fn->gunVer($tarih.'-'.$sayi) == "Pazar" ){
+													echo '<b class="text-center text-info">Hafta Tatili</b>';
+												}else{
+													//islemTipi Fonksiyonu personelin izin kullanıp kullanmadığını ise gelme durumunu gelmiş ise erken mi veya gecmi çkıkısını kontrol ediyorum
+													echo $fn->islemTipi($islemtipi,$personel_id,$tarih.'-'.$sayi);
+												}
 											?>
 										</td>
-										
-										<td></td>
+										<td>
+											<?php if($fn->gunVer($tarih.'-'.$sayi) != "Pazar" AND !array_key_exists( "gelmedi", $islemtipi)){  ?>
+												<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=giriscikis&personel_id=<?php echo $personel_id; ?>&duzenlenecek_tarih=<?php echo $tarih.'-'.$fn->ikiHaneliVer($sayi); ?>&islem=saatduzenle" id="saat_duzenle">
+													Düzenle
+												</a>
+											<?php }else{ echo '-'; } ?>
+										</td>
 										
 									</tr>
 								<?php $sayi++; } ?>
@@ -434,18 +456,41 @@ if($detay == "gun"){
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1; foreach( $gunluk_giris_cikislar AS $giriscikis ) { ?>
+								<?php $sayi = 1; foreach( $gunluk_giris_cikislar AS $giriscikis_personel ) { ?>
 								<tr>
 									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $giriscikis[ 'adSoyad' ]; ?></td>
+									<td><?php echo $giriscikis_personel[ 'adSoyad' ]; ?></td>
 									<?php 
 
 										$islemtipi = array();
-										//Gelen tarihe ait giriş çıkışları aldık 
-										$giris_cikis_saatleri = $vt->select($SQL_belirli_tarihli_giris_cikis,array($giriscikis[ 'id' ],$listelenecekgun1))[2];
 
+										//Gelen tarihe ait giriş çıkışları aldık 
+										$personel_giris_cikis_saatleri 	= $vt->select($SQL_belirli_tarihli_giris_cikis,array( $giriscikis_personel[ 'id' ],$listelenecekgun1,$_SESSION[ 'firma_id' ] ) )[2];
+
+										$personel_giris_cikis_sayisi = count($personel_giris_cikis_saatleri);
+										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
+										$son_cikis_index 		= $personel_giris_cikis_sayisi - 1;
+										$ilk_islemtipi 			= $personel_giris_cikis_saatleri[0]['islem_tipi'];
+										$son_islemtipi 			= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
+
+										$ilkGirisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
+
+										$SonCikisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
+										
+										if ($ilkGirisSaat > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
+											$islemtipi["gecgelme"] 	 = $ilkGirisSaat;
+										}
+										if ($SonCikisSaat < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+											$islemtipi["erkencikma"] = $SonCikisSaat;
+										}
+
+
+										$personel_toplam_giriscikis_sayisi = count($personel_giris_cikis_saatleri);
+										
+										$giriscikisFarki = $tarihSayisi - $personel_toplam_giriscikis_sayisi;
+										
 										//Personel Girş Veya Çıkış Yapmamış İse
-										if (count($giris_cikis_saatleri) == 0) {
+										if ($personel_toplam_giriscikis_sayisi == 0) {
 											$colspan = ($tarihSayisi*2);
 											$colspan = $colspan == 0 ? 1 : $colspan;
 											$i = 1;
@@ -453,28 +498,28 @@ if($detay == "gun"){
 												echo '<td class="text-center" >-</td>';
 												$i++;
 											}
-											$islemtipi["gelmedi"] = "Gelmedi"; 
+											$islemtipi[ "gelmedi" ] = "Gelmedi"; 
 										}
 
-										$giriscikisFarki = $tarihSayisi - count($giris_cikis_saatleri);
-										
 										//uygulanan işlem tipleri
-										foreach($giris_cikis_saatleri AS $giriscikis){
-											$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
+										foreach($personel_giris_cikis_saatleri AS $giriscikis_tip){
+											$giriscikis_tip[ "islemTipi" ] != "" ? $islemtipi[] = $giriscikis_tip[ "islemTipi" ] : '';
 										}
 
 										//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
-										if (count($giris_cikis_saatleri) ==$tarihSayisi ) {
-											foreach($giris_cikis_saatleri AS $giriscikis){
-												$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-												$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+										if ($personel_toplam_giriscikis_sayisi ==$tarihSayisi ) {
+											foreach($personel_giris_cikis_saatleri AS $giriscikis_personel){
+												$baslangicSaat 	= $fn->saatKarsilastir($giriscikis_personel[ 'baslangic_saat' ], $giriscikis_personel["baslangic_saat_guncellenen"]);
+												$bitisSaat 		= $fn->saatKarsilastir($giriscikis_personel[ 'bitis_saat' ], $giriscikis_personel["bitis_saat_guncellenen"]);
 												echo '
 													<td class="text-center">'.$baslangicSaat.'</td>
 													<td class="text-center">'.$bitisSaat.'</td>	
 												';
 											}
-										}else if(count($giris_cikis_saatleri) == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
-											echo '<td class="text-center">'.$giris_cikis_saatleri[0][ 'baslangic_saat' ].'</td>';
+										}else if($personel_toplam_giriscikis_sayisi == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
+											$baslangicSaat 	= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0][ 'baslangic_saat_guncellenen' ]);
+											$bitisSaat 	= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'bitis_saat' ], $personel_giris_cikis_saatleri[0][ 'bitis_saat_guncellenen' ]);
+											echo '<td class="text-center">'.$baslangicSaat.'</td>';
 											$i = 1;
 											while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 												echo '
@@ -483,22 +528,19 @@ if($detay == "gun"){
 												';
 												$i++;
 											}
-											echo '<td class="text-center">'.$giris_cikis_saatleri[0][ 'bitis_saat' ].'</td>';
+											echo '<td class="text-center">'.$bitisSaat.'</td>';
 										}else{ //Gündee birden fazla giriş çıkış var ise 
 											$i = 1;
-											foreach($giris_cikis_saatleri AS $giriscikis){
+											foreach($personel_giris_cikis_saatleri AS $giriscikis_saat){
 												
-												if($i < count($giris_cikis_saatleri)){
+												$baslangicSaat 	= $fn->saatKarsilastir($giriscikis_saat[ 'baslangic_saat' ], $giriscikis_saat["baslangic_saat_guncellenen"]);
+												$bitisSaat 		= $fn->saatKarsilastir($giriscikis_saat[ 'bitis_saat' ], $giriscikis_saat["bitis_saat_guncellenen"]);
 
-													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+												if($i < $personel_toplam_giriscikis_sayisi){
 													echo '
 														<td class="text-center">'.$baslangicSaat.'</td>
 														<td class="text-center">'.$bitisSaat.'</td>';
 												}else{
-													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
-													echo '<td  class="text-center">'.$baslangicSaat.'</td>';
 													$j = 1;
 													while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 														echo '
@@ -514,15 +556,14 @@ if($detay == "gun"){
 										}
 									?>
 									
-									<td class="text-center"> 
-										<?php
-
-											//Gelemeynler için Gelmedi Mesajı Veriyoruz
-											echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
-
-											//Mesaiye gelenlere mesaide mesajı veriyoruz
-											echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
-
+									<td class="text-center" width="280px"> 
+										<?php 
+											if($fn->gunVer($tarih.'-'.$sayi) == "Pazar" ){
+												echo '<b class="text-center text-info">Hafta Tatili</b>';
+											}else{
+												//islemTipi Fonksiyonu personelin izin kullanıp kullanmadığını ise gelme durumunu gelmiş ise erken mi veya gecmi çkıkısını kontrol ediyorum
+												echo $fn->islemTipi( $islemtipi, $giriscikis_personel["id"], $tarih );
+											}
 										?>
 									</td>
 									
@@ -572,7 +613,7 @@ if($detay == "gun"){
 						<select class="form-control select2" name = "islem_tipi">
 							<option value="">Seçiniz</option>
 							<?php foreach( $firma_giris_cikis_tipleri as $tip ) { ?>
-								<option value="<?php echo $tip[ 'id' ]; ?>"><?php echo $tip['adi']; ?></option>
+								<option value="<?php echo $tip[ 'id' ]; ?>"><?php echo $tip[ 'adi' ]; ?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -591,7 +632,6 @@ if($detay == "gun"){
 		</div>
 	</div>
 </div>
-
 
 <!--Personel Hareket Ekleme Modalı-->
 <div class="modal fade" id="PersonelHareketEkle"  aria-modal="true" role="dialog">
@@ -627,7 +667,7 @@ if($detay == "gun"){
 						<select class="form-control select2" name = "islem_tipi">
 							<option value="">Seçiniz</option>
 							<?php foreach( $firma_giris_cikis_tipleri as $tip ) { ?>
-								<option value="<?php echo $tip[ 'id' ]; ?>"><?php echo $tip['adi']; ?></option>
+								<option value="<?php echo $tip[ 'id' ]; ?>"><?php echo $tip[ 'adi' ]; ?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -668,12 +708,12 @@ if($detay == "gun"){
 							<?php 
 								$sayi = 1;
 								foreach ($firma_giris_cikis_tipleri as $giris_cikis_tipi) {
-									$maas_kesintisi = $giris_cikis_tipi["maas_kesintisi"] ==1 ? 'Kesintili':' Kesintisiz';
+									$maas_kesintisi = $giris_cikis_tipi[ "maas_kesintisi" ] ==1 ? 'Kesintili':' Kesintisiz';
 									echo '<tr>';
 										echo '<td>'.$sayi.'</td>';
-										echo '<td>'.$giris_cikis_tipi["adi"].'</td>';
+										echo '<td>'.$giris_cikis_tipi[ "adi" ].'</td>';
 										echo '<td>'.$maas_kesintisi.'</td>';
-										echo '<td><button modul= "giriscikis" yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/tipSEG.php?islem=sil&tip_id='.$giris_cikis_tipi["id"].'" data-toggle="modal" data-target="#sil_onay">Sil</button></td>';
+										echo '<td><button modul= "giriscikis" yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/tipSEG.php?islem=sil&tip_id='.$giris_cikis_tipi[ "id" ].'" data-toggle="modal" data-target="#sil_onay">Sil</button></td>';
 									echo '</tr>';
 									$sayi++;
 								} 
@@ -713,22 +753,22 @@ if($detay == "gun"){
 							<?php 
 								$sayi = 1;
 								foreach ($tum_giris_cikis_tipleri as $giris_cikis_tipi) {
-									if ($giris_cikis_tipi["varmi"] == null) {
-										echo '<tr class="TipTr TipTr-'.$giris_cikis_tipi["id"].'">';
+									if ($giris_cikis_tipi[ "varmi" ] == null) {
+										echo '<tr class="TipTr TipTr-'.$giris_cikis_tipi[ "id" ].'">';
 											echo '<td class="text-center">
 														<div class="form-group">
 															<div class="icheck-success d-inline">
-																<input type="checkbox" name = "tip_id[]" value="'.$giris_cikis_tipi["id"].'" id="TipId-'.$giris_cikis_tipi["id"].'">
-																<label for="TipId-'.$giris_cikis_tipi["id"].'">
+																<input type="checkbox" name = "tip_id[]" value="'.$giris_cikis_tipi[ "id" ].'" id="TipId-'.$giris_cikis_tipi[ "id" ].'">
+																<label for="TipId-'.$giris_cikis_tipi[ "id" ].'">
 																</label>
 															</div>
 														</div>
 													</td>';
-											echo '<td>'.$giris_cikis_tipi["adi"].'</td>';
+											echo '<td>'.$giris_cikis_tipi[ "adi" ].'</td>';
 											echo '<td>
 													<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
 														<div class="bootstrap-switch-container" >
-															<input type="checkbox" name="maas_kesintisi[]" checked="" value="'.$giris_cikis_tipi["id"].'" data-bootstrap-switch="" data-off-color="danger" data-on-text="Kesintili" data-off-text="Kesintisiz" data-on-color="success">
+															<input type="checkbox" name="maas_kesintisi[]" checked="" value="'.$giris_cikis_tipi[ "id" ].'" data-bootstrap-switch="" data-off-color="danger" data-on-text="Kesintili" data-off-text="Kesintisiz" data-on-color="success">
 														</div>
 													</div>
 												</td>';
@@ -766,16 +806,98 @@ if($detay == "gun"){
 	</div>
 </div>
 
+<?php  if($islem == "saatduzenle" AND count($personel_giris_cikis)>0 AND count($personel)> 0 ){ ?>
+	<div class="modal fade" id="saat_duzenle_modal"  aria-modal="true" role="dialog">
+		<div class="modal-dialog ">
+			<div class="modal-content">
+				<form action="_modul/giriscikis/giriscikisSEG.php" method="post" >
+					<input type = "hidden" name = "islem" value = "saatguncelle" >
+					<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
+					<div class="modal-header">
+						<h4 class="modal-title">Giriş Çıkış Saati Düzenle</h4>
+					</div>
+					<div class="modal-body">
+						<?php $i = 1; foreach ($personel_giris_cikis as $giris_cikis) { ?>
+							<input type="hidden" value="<?php echo $giris_cikis["id"] ?>" name="giriscikis_id[]">
+							<div class="form-group">
+								<div class="btn btn-danger float-right" id="sil">Sil</div>
+			                    <label>Başlangıc Saati</label>
+			                    <div class="input-group date" id="timepickerBaslangic-<?php echo $i; ?>" data-target-input="nearest">
+			                      <input type="text" name="baslangic_saat[]" class="form-control datetimepicker-input" data-target="#timepickerBaslangic-<?php echo $i; ?>" value="<?php echo $giris_cikis["baslangic_saat"]; ?>">
+			                        <div class="input-group-append" data-target="#timepickerBaslangic-<?php echo $i; ?>" data-toggle="datetimepicker">
+			                          	<div class="input-group-text"><i class="far fa-clock"></i></div>
+			                        </div>
+			                    </div>
+			                    <!-- /.input group -->
+			                </div>
+	                  		<!-- /.form group -->
+	                  		<div class="form-group">
+			                    <label>Bitiş Saati</label>
+			                    <div class="input-group date" id="timepickerBitis-<?php echo $i; ?>" data-target-input="nearest">
+			                      <input type="text" name="bitis_saat[]" class="form-control datetimepicker-input" data-target="#timepickerBitis-<?php echo $i; ?>" value="<?php echo $giris_cikis["bitis_saat"]; ?>"/>
+			                        <div class="input-group-append" data-target="#timepickerBitis-<?php echo $i; ?>" data-toggle="datetimepicker">
+			                          	<div class="input-group-text"><i class="far fa-clock"></i></div>
+			                        </div>
+			                    </div>
+			                    <!-- /.input group -->
+			                </div>
+	                  		<!-- /.form group -->
+	                  		<hr>
+	                  		<hr>
+                  		<?php $i++; } ?>
+                  		
+					</div>
+					<div class="modal-footer justify-content-between">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
+						<button type="submit" class="btn btn-success">Kaydet</button>
+						
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+<?php }else{echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";}?>
+<!--Toplu Hareket Ekleme Modalı-->
+
+
 <script>
+
+	<?php if ($islem =="saatduzenle" ) {?> $('#saat_duzenle_modal').modal( "show" ) <?php } 
+
+	//Personel Kaç defa giriş çıkış yapmıs ise o akadar form için timepicker oluşturuyoruz
+	$i = 1;
+		while ($i <= count($personel_giris_cikis)) {
+		echo "
+			$('#timepickerBaslangic-".$i."').datetimepicker({
+		      	format: 'HH:mm'
+		    });
+
+		    $('#timepickerBitis-".$i."').datetimepicker({
+		      format: 'HH:mm'
+		    });";
+		$i++;
+	}
+	?>
+
 	/* Kayıt silme onay modal açar. */
 	$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
-	} );
-</script>
+	});
 
+	document.querySelector('#personel-Tr').addEventListener('contextmenu', sagTiklama);
 
-<script type="text/javascript">
+	function sagTiklama(e) {
+		alert(e);
 
+	  	if (typeof e === 'object') {
+	    	switch (e.button) {
+	      		case 2:
+	        		alert('Left button clicked.');
+	        		e.preventDefault();
+	        	break;
+	    }
+	  }
+	}
 
 	$(function () {
 		$('#datetimepickerAy').datetimepicker({
@@ -859,8 +981,8 @@ if($detay == "gun"){
 	});
 	
 
-	$("body").on('click', '#listeleBtn', function() {
-		var tarih 		= $("#tarihSec").val();
+	$( "body" ).on('click', '#listeleBtn', function() {
+		var tarih 		= $( "#tarihSec" ).val();
 		var  url 			= window.location;
 		var origin		= url.origin;
 		var path			= url.pathname;
@@ -881,6 +1003,7 @@ if($detay == "gun"){
 		
 		window.location.replace(origin + path+'?modul='+modul+''+personel_id+''+detay+'&tarih='+tarih);
 	})
+	
 
 	var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 		"responsive": true, "lengthChange": true, "autoWidth": true,
@@ -912,7 +1035,7 @@ if($detay == "gun"){
 		"responsive": true, "lengthChange": true, "autoWidth": true,
 		"stateSave": true,
 		"pageLength" : 30,
-		//"buttons": ["excel", "print"],
+		//"buttons": [ "excel", "print" ],
 
 		buttons : [
 			{
@@ -1001,3 +1124,4 @@ if($detay == "gun"){
 		column.visible( ! column.visible() );
 	} );
 </script>
+
