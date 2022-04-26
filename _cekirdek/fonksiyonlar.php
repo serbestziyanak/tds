@@ -550,16 +550,16 @@ SQL;
 			if (count($islemtipi) == 0) {
 				$sonuc   =  '<b class="text-center text-success">Mesaide</b>';
 			}else if ( array_key_exists( "gecgelme", $islemtipi ) or array_key_exists( "erkencikma", $islemtipi ) ){
-				$sonuc = array_key_exists( "gecgelme", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" class="btn btn-outline-info btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Geç Gelme Tutanağı</a>' : '';
+				$sonuc = array_key_exists( "gecgelme", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" class="btn btn-outline-info btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Geç Gelme Tutanağı</a><a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '';
 
 				//Personel erken çıkmış
-				$sonuc .= array_key_exists( "erkencikma", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'" class="btn btn-outline-dark btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Erken Çıkma Tutanağı</a>' : '';
+				$sonuc .= array_key_exists( "erkencikma", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'" class="btn btn-outline-dark btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Erken Çıkma Tutanağı</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'"  target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '';
 			}else{
 				$sonuc = '<b class="text-center text-warning">'.implode( ", ", $islemtipi).'</b>';
 			}
 		}else{
 			//Personel hiç giriş yapmamış ise 
-			$sonuc =  array_key_exists( "gelmedi", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk" class="btn btn-danger btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Tutanak Tut</a>' : '<b class="text-center text-warning">'.implode( ", ", $islemtipi ).'</b>';
+			$sonuc =  array_key_exists( "gelmedi", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk" class="btn btn-danger btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Tutanak Tut</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk"  target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '<b class="text-center text-warning">'.implode( ", ", $islemtipi ).'</b>';
 		}
 
 		return $sonuc;

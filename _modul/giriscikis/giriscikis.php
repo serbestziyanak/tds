@@ -404,6 +404,7 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 												}else{
 													//islemTipi Fonksiyonu personelin izin kullanıp kullanmadığını ise gelme durumunu gelmiş ise erken mi veya gecmi çkıkısını kontrol ediyorum
 													echo $fn->islemTipi($islemtipi,$personel_id,$tarih.'-'.$sayi);
+
 												}
 											?>
 										</td>

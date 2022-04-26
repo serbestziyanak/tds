@@ -2,12 +2,8 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
-
-
-$personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
-@$tarih			= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]					: '';
-
-$tarih 			= explode("-", $tarih);
+$personel_id	= array_key_exists( 'personel_id'	, $_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
+$tarih			= array_key_exists( 'tarih'		    , $_REQUEST ) ? $_REQUEST[ 'tarih' ]		: '';
 
 //Gelen Personele Ait Bilgiler
 $SQL_tek_personel_oku = <<< SQL
@@ -19,7 +15,6 @@ FROM
 WHERE
 	id = ? AND firma_id =? AND aktif = 1
 SQL;
-
 
 //Çıkış Yapılıp Yapılmadığı Kontrolü
 $SQL_personel_gun_giris_cikis = <<< SQL
@@ -37,17 +32,28 @@ $giriscikis 	= $vt->select( $SQL_personel_gun_giris_cikis, array($personel_id,$t
 if(count($personel)<1){
 	echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
 			<h5><i class="icon fas fa-ban"></i> Hata!</h5>
-			Hatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
+			aHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
 		</div>';
 	die();
 }
-if(count($giriscikis)>0){
-	echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
-			<h5><i class="icon fas fa-ban"></i> Hata!</h5>
-			Hatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
-		</div>';
-	die();
+if ( $_REQUEST['tip'] == "gunluk" ) {
+	if(count($giriscikis)>0){
+		echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
+				<h5><i class="icon fas fa-ban"></i> Hata!</h5>
+				bHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
+			</div>';
+		die();
+	}
+}else{
+	if(count($giriscikis)<1){
+		echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
+				<h5><i class="icon fas fa-ban"></i> Hata!</h5>
+				bHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
+			</div>';
+		die();
+	}
 }
+
 
 //saatin sonuna de veya da bırakacağımızı belirliyoruz
 $saat_son_rakam = substr($_REQUEST['saat'], -1);
@@ -55,7 +61,6 @@ $ek = "de";
 if ($saat_son_rakam == 0 or $saat_son_rakam == 6 or $saat_son_rakam == 9 ) {
 	$ek = "da";
 }
-
 
 ?>
 
@@ -152,12 +157,37 @@ $(document).ready(function() {
 		    	title: 'Günlük Devamsızlık Tutanağı',
 		    	author: 'Syntax Yazılım PDKS',
 		    	creator:'Syntax Yazılım PDKS',
-		    	producer:'Syntax Yazılım PDKS',
+		    	producer:'Syntax Yazılım PDKWS',
 		    	subject:'Günlük Devamsızlık Tutanağı'
 		    }
 	    };
-	    createPdf(docDefinition).print({}, window);
 	    
+	    createPdf(docDefinition).print({}, window);
+
+		// const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+		// pdfDocGenerator.download();
+		// pdfDocGenerator.getBlob((blob) => {
+
+		// 	var pdf 	= blob;
+		// 	var data 	= new FormData();
+		// 	data.append('data' 		  , pdf );
+		// 	data.append('personel_id' , "<?php echo $personel_id; ?>" );
+		// 	data.append('tarih' 	  , "<?php echo $tarih; ?>" );
+		// 	data.append('tip' 		  , "<?php echo $_REQUEST[ 'tip' ]; ?>" );
+
+		// 	var xhr = new XMLHttpRequest();
+		// 	xhr.onreadystatechange = function() {
+		// 	  if (this.readyState == 4) {
+		// 	    if (this.status !== 200) {
+		// 	      console.log("hata oluştu");
+		// 	    }
+		// 	  }
+		// 	}
+
+		// 	xhr.open('POST', '_modul/tutanakolustur/tutanakolusturSEG.php', true);
+		// 	xhr.send(data);
+		// });
+
 });
 	
 </script>
