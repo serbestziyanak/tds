@@ -7,33 +7,32 @@ $vt = new VeriTabani();
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
 	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
-	$_REQUEST[ 'personel_id' ]			= $_SESSION[ 'sonuclar' ][ 'id' ];
+	$_REQUEST[ 'personel_id' ]				= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
-
-$islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
-$personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
-@$detay			= array_key_exists( 'detay'         ,$_REQUEST ) ? $_REQUEST[ 'detay' ] 		: 'ay';
+$islem			= array_key_exists( 'islem'		,$_REQUEST ) ? $_REQUEST[ 'islem' ]		: 'ekle';
+$personel_id		= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
+@$detay			= array_key_exists( 'detay'        ,$_REQUEST ) ? $_REQUEST[ 'detay' ] 		: 'ay';
 
 //Personele Ait Listelenecek Hareket Ay
-@$listelenecekAy	= array_key_exists( 'tarih'		,$_REQUEST ) ? $_REQUEST[ 'tarih' ]			: date( "Y-m" );
+@$listelenecekAy	= array_key_exists( 'tarih'			,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date( "Y-m" );
 
 //Hareketlerde Bulununa duzenle butununa tıklandığında listelenecek tarihi alıyoruz
 @$listelenecekTarih	= array_key_exists( 'duzenlenecek_tarih'	,$_REQUEST ) ? $_REQUEST[ 'duzenlenecek_tarih' ]	: date( "Y-m" );
 
-$tarih 		= $listelenecekAy;
-$tarihBol 	= explode( "-", $tarih);
-$ay 		= intval($tarihBol[1] );
-$yil 		= $tarihBol[0];
+$tarih 			= $listelenecekAy;
+$tarihBol 		= explode( "-", $tarih);
+$ay 				= intval($tarihBol[1] );
+$yil 			= $tarihBol[0];
 
 if($detay == "gun" ) $listelenecekgun	= array_key_exists( 'tarih'	,$_REQUEST ) ? "'".$_REQUEST[ 'tarih' ]."'"	: "'".date( "Y-m-d" )."'";
-if($detay == "gun" ) $listelenecekgun1	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]			: date( "Y-m-d" );
+if($detay == "gun" ) $listelenecekgun1	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]		: date( "Y-m-d" );
  
-$satir_renk				= $personel_id > 0	? 'table-warning'						: '';
-$kaydet_buton_yazi		= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
-$kaydet_buton_cls		= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
+$satir_renk		= $personel_id > 0	? 'table-warning'					: '';
+$kaydet_buton_yazi	= $personel_id > 0	? 'Güncelle'						: 'Kaydet';
+$kaydet_buton_cls	= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
@@ -138,7 +137,7 @@ SQL;
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION[ 'firma_id' ] ) );
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION[ "firma_id" ] ) )[2];
-$giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy ) )[2];
+$giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy ) )[2];
 $gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION[ 'firma_id' ] ) )[2];
 $tum_giris_cikis_tipleri	= $vt->select( $SQL_tum_giris_cikis_tipleri)[2];
 
@@ -294,14 +293,12 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 										$personel_giris_cikis_saatleri 	= $vt->select($SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih."-".$sayi,$_SESSION[ 'firma_id' ] ))[2];
 										$personel_giris_cikis_sayisi   	= count($personel_giris_cikis_saatleri);
 
-										$personel_gec_gelme_sorgula 	= $vt->select($SQL_gec_giris_oku,array($personel_id,"2022-04-22"/*$tarih."-".$sayi*/,$_SESSION[ 'firma_id' ],"08:00" ))[2];
-
 										// echo '<pre>';
 										// print_r($personel_giris_cikis_saatleri);
 										// die();
 
 										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
-										$son_cikis_index 		= $personel_giris_cikis_sayisi - 1;
+										$son_cikis_index 		     = $personel_giris_cikis_sayisi - 1;
 										$ilk_islemtipi 			= $personel_giris_cikis_saatleri[0]['islem_tipi'];
 										$son_islemtipi 			= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
 
@@ -470,7 +467,7 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 
 										$personel_giris_cikis_sayisi = count($personel_giris_cikis_saatleri);
 										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
-										$son_cikis_index 		= $personel_giris_cikis_sayisi - 1;
+										$son_cikis_index 			= $personel_giris_cikis_sayisi - 1;
 										$ilk_islemtipi 			= $personel_giris_cikis_saatleri[0]['islem_tipi'];
 										$son_islemtipi 			= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
 
@@ -559,12 +556,8 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 									
 									<td class="text-center" width="280px"> 
 										<?php 
-											if($fn->gunVer($tarih.'-'.$sayi) == "Pazar" ){
-												echo '<b class="text-center text-info">Hafta Tatili</b>';
-											}else{
-												//islemTipi Fonksiyonu personelin izin kullanıp kullanmadığını ise gelme durumunu gelmiş ise erken mi veya gecmi çkıkısını kontrol ediyorum
-												echo $fn->islemTipi( $islemtipi, $giriscikis_personel["id"], $tarih );
-											}
+											//islemTipi Fonksiyonu personelin izin kullanıp kullanmadığını ise gelme durumunu gelmiş ise erken mi veya gecmi çkıkısını kontrol ediyorum
+											echo $fn->islemTipi( $islemtipi, $giriscikis_personel["id"], $tarih );
 										?>
 									</td>
 									
