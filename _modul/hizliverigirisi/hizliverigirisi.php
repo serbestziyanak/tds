@@ -24,11 +24,10 @@ SQL;
 // Tüm şablonların listesi
 $sablon_listesi	= $vt->select( $SQL_sablon_listesi, array() )[ 2 ];
 
-
 $sablon_id = array_key_exists( "sablon_id", $_GET ) ? $_GET[ 'sablon_id' ] : $sablon_listesi[ 0 ][ 'id' ];
 
 
-// Boş grid için kotroller
+// Boş grid için kotrol
 $bos_grid_ise_kontrolleri_kilitle	= $sablon_id > 0 ? '' : 'disabled';
 $card_baslik						= $sablon_id > 0 ? 'Sonuçlar' : 'Lütfen önce bir şablon oluşturunuz...';
 
@@ -78,7 +77,7 @@ $tablo_bilgileri	= $tablo_bilgileri[ 2 ];
 $secilecek_alanlar	= $tablo_alanlar;
 $SQL_veriler		= "";
 
-// Veritabanından gelen alanlara göre yukarıda giridn sütün alanları belirlendi burada da verisi ayarlanıyor.
+// Veritabanından gelen alanlara göre yukarıda giridin sütün alanları belirlendi. burada da verisi ayarlanıyor.
 $SQL_veriler = "SELECT $secilecek_alanlar FROM $tablo_adi WHERE aktif = 1 ORDER BY id DESC"; 
 
 
@@ -223,7 +222,9 @@ foreach( $tablo_bilgileri as $bilgi ) {
 
 
 	$( document ).ready( function() {
+		let grid_card = $( '#grid_card' );
 		grid_card.append( '<div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i> &nbsp;&nbsp;&nbsp;Kaydediliyor...</div>' );
+
 		grid = jspreadsheet( document.getElementById( 'grd_div' ), {
 			 minDimensions:[ sut, sat ]
 			,json: data
@@ -271,13 +272,11 @@ foreach( $tablo_bilgileri as $bilgi ) {
 
 
 	function kaydet() {
-		
 		let grid				= document.getElementById( 'grd_div' ).jexcel;
 		let tum_kayitlar		= grid.getJson();
 		let guncellenenKayitlar	= [];
 		let grid_card			= $( '#grid_card' );
-		
-		
+
 		grid_card.append( '<div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i> &nbsp;&nbsp;&nbsp;Kaydediliyor...</div>' );
 
 		/* 
@@ -289,7 +288,6 @@ foreach( $tablo_bilgileri as $bilgi ) {
 				eklenenKayitlar.push( tum_kayitlar[ i ] );
 			};
 		}
-
 
 		/* 
 		*	Silinen kayıtların listesini hazırla
