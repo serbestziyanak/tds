@@ -213,6 +213,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 
 	// Grid'i Reposnsive hale getir.
 	function gridiResponsiveYap( grid, sut ) {
+		alert("gridiResponsiveYap");
 		let parent_container_width = $( "#grd_div" ).parents( ".card" ).width();
 		toplam_genislik = parent_container_width - 95;
 		ilk_sutun_genisligi = ( toplam_genislik * 5 ) / 100;
@@ -223,6 +224,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 
 
 	$( document ).ready( function() {
+		alert("ready");
 		grid = jspreadsheet( document.getElementById( 'grd_div' ), {
 			 minDimensions:[ sut, sat ]
 			,json: data
@@ -254,6 +256,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 	} );
 
 	$( window ).on( 'resize', function() {
+		alert("resize");
 		gridiResponsiveYap( grid, sut );
 	} );
 
