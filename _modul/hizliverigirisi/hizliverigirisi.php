@@ -84,13 +84,14 @@ $SQL_veriler = "SELECT $secilecek_alanlar FROM $tablo_adi WHERE aktif = 1 ORDER 
 $tablo_veriler		= $vt->select( $SQL_veriler, array() );
 $tablo_veriler		= $tablo_veriler[ 2 ];
 
-
+/*
 $tarih_alani_options = array(
 	 'format'			=> 'DD-MM-YYYY'
 	,'months'			=> array('Oc', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara')
 	,'weekdays'			=> array( 'Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar')
 	,'weekdays_short'	=> Array( 'P', 'S', 'Ç', 'P', 'C', 'Ct', 'P' )
 );
+*/
 
 $grid_kolonlar = array();
 foreach( $tablo_bilgileri as $bilgi ) {
@@ -100,17 +101,17 @@ foreach( $tablo_bilgileri as $bilgi ) {
 		,'name'		=> $bilgi[ 'adi' ]
 	);
 
-	if( $bilgi[ 'adi' ] == 'id' ){
+	if( $bilgi[ 'adi' ] == 'id' ) {
 		$satir[ 'readonly' ] = true;
 	} 
-	if( $satir[ 'type' ] == 'calendar' ) $satir[ 'options' ] = $tarih_alani_options;
+	if( $satir[ 'type' ] == 'calendar' ) $satir[ 'options' ] = array( 'format' => 'DD-MM-YYYY' );
 
 	if( count( explode( "-", $bilgi[ 'ayar' ] ) ) > 1 ) {
 		$kaynak_tablo			= explode( "-", $bilgi[ 'ayar' ] )[ 1 ];
 		$satir[ 'type' ]		= 'dropdown';
 		
-		// Eğer çoklu seçim isniyorsa multiple:true yapılır. Dropdown'un verisindeki id'ler arasında 2;3;43;2 gibi noktalı virgül bırakılmalıdır.
-		// $satir[ 'multiple' ]	= true;
+		/* Eğer çoklu seçim isniyorsa multiple:true ayarı verilir. Dropdown'un verisindeki id'ler arasında 2;3 gibi noktalı virgül bırakılmalıdır. */
+		/* $satir[ 'multiple' ]	= true; */
 		$dropdown_kayitlar		= array();
 
 		$SQL_dropdown_veri_oku	= "SELECT id,adi FROM $kaynak_tablo";
@@ -138,7 +139,8 @@ foreach( $tablo_bilgileri as $bilgi ) {
 								<option value = "<?php echo $sablon[ 'id' ]; ?>" <?php if( $sablon_id == $sablon[ 'id' ] ) echo 'selected'; ?>><?php echo $sablon[ 'adi' ]; ?></option>
 							<?php } ?>
 						</select>&nbsp;
-						<button type="button" class="btn btn-secondary btn-sm float-right" onclick = "yeniKayitEkle()" <?php echo $bos_grid_ise_kontrolleri_kilitle; ?>><i class="fas fa-user-plus"></i> &nbsp;Yeni kayıt ekle</button>&nbsp;
+						<button type="button" class="btn btn-secondary btn-sm" onclick = "yeniKayitEkle()" <?php echo $bos_grid_ise_kontrolleri_kilitle; ?>><i class="fas fa-user-plus"></i> &nbsp;Yeni kayıt ekle</button>&nbsp;
+						<button type="button" class="btn btn-danger btn-sm float-right  jexcel_object" onclick = "sil()"><i class="fas fa-trash"></i> &nbsp;Seçili kayıtları sil</button>&nbsp;
 						<a href = "?modul=sablonlar" class="btn btn-info btn-sm float-right"><i class="fas fa-magic"></i> &nbsp;Yeni şablon oluştur</a>
 					</div>
 				</div>
@@ -157,17 +159,55 @@ foreach( $tablo_bilgileri as $bilgi ) {
 <script>
 	let data = <?php echo json_encode( $tablo_veriler ); ?>;
 
-	//Global değişkenler.
-	let sat		= data.length;
-	let sut		= Object.keys( data[ 0 ] ).length;
-	let grid	= null;
-	//let harfler	= [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "W", "Z" ];
+	/* Global değişkenler. */
+	let satirSayisi	= data.length;
+	let sutunSayisi	= Object.keys( data[ 0 ] ).length;
+	let grid		= null;
+	/* let harfler	= [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "W", "Z" ]; */
 	
-	/* CRUD işlemleri */
+	/* CRUD işlemleri için diziler */
 	let eklenenKayitlar			= [];
 	let guncellenenKayitlar_id	= [];
 	let silinenKayitlar_id		= [];
 
+	let dil_TR = {
+		 'Jan': 'Oca'
+		,'Feb': 'Şub'
+		,'Mar': 'Mar'
+		,'Apr': 'Nis'
+		,'May': 'May'
+		,'Jun': 'Haz'
+		,'Jul': 'Tem'
+		,'Aug': 'Ağu'
+		,'Sep': 'Eyl'
+		,'Oct': 'Ekm'
+		,'Nov': 'Kas'
+		,'Dec': 'Ara'
+		
+		,'January'	: 'Ocak'
+		,'February'	: 'Şubat'
+		,'March'	: 'Mart'
+		,'April'	: 'Nisan'
+		,'May'		: 'Mayıs'
+		,'June'		: 'Haziran'
+		,'July'		: 'Temmuz'
+		,'August'	: 'Ağustos'
+		,'September': 'Eylül'
+		,'October'	: 'Ekim'
+		,'November'	: 'Kasım'
+		,'December'	: 'Aralık'
+
+		,'Sunday'	: 'Pazar'
+		,'Monday'	: 'Pazartesi'
+		,'Tuesday'	: 'Salı'
+		,'Wednesday': 'Çarşamba'
+		,'Thursday'	: 'Perşembe'
+		,'Friday'	: 'Cuma'
+		,'Saturday'	: 'Cumartesi'
+		,'Done'		: 'Tamam'
+		,'Reset'	: 'Temizle'
+		,'Update'	: 'Güncelle'
+	}
 
 	onbeforedeleterow = function( el, rowNumber, numOfRows ) {
 		grid = el.jexcel;
@@ -176,9 +216,9 @@ foreach( $tablo_bilgileri as $bilgi ) {
 			data = grid.getRowData( rows[ i ] );
 			if( data[ 0 ] * 1 > 0 ) silinenKayitlar_id.push( data[ 0 ] );
 		}
+		console.log( silinenKayitlar_id );
 		return true;
 	}
-
 
 	onafterchanges = function( el, records ) {
 		grid =  document.getElementById( 'grd_div' ).jexcel;
@@ -194,48 +234,51 @@ foreach( $tablo_bilgileri as $bilgi ) {
 		}
 	}
 
-
-	// Boş bir kayıt ekle
+	/* Boş bir kayıt ekle */
 	function yeniKayitEkle() {
 		grid = document.getElementById( 'grd_div' ).jexcel;
-		rowNumber = grid.getJson().length + 1;
-		
 		// Direk dizi verince bir satır ekler.
 		// Bu satırın datası da [0] dizisidir.
 		// Yani sadece id=0 olan boş bir kayıt eklemiş olur.
-		// id: [0]
-		// konum : 0 Satır
-		// true : Öncesine ekle 
+		// @id		: [0]
+		// @konum	: 0 Satır
+		// @true	: Öncesine ekle
 		grid.insertRow( [ 0 ], 0, true );
 	}
 
 
-	// Grid'i Reposnsive hale getir.
-	function gridiResponsiveYap( grid, sut ) {
+	/* Grid'i Reposnsive hale getir. */
+	function gridiResponsiveYap( grid, sutunSayisi ) {
 		let parent_container_width = $( "#grd_div" ).parents( ".card" ).width();
 		toplam_genislik = parent_container_width - 95;
 		ilk_sutun_genisligi = ( toplam_genislik * 5 ) / 100;
 		kalan_genislik = toplam_genislik - ilk_sutun_genisligi
-		diger_sutun_genisligi = kalan_genislik / ( sut - 1 );
-		for( var i = 0; i <= sut; i++ ) grid.setWidth ( i, i == 0 ? ilk_sutun_genisligi : diger_sutun_genisligi );
+		diger_sutun_genisligi = kalan_genislik / ( sutunSayisi - 1 );
+		for( var i = 0; i <= sutunSayisi; i++ ) grid.setWidth ( i, i == 0 ? ilk_sutun_genisligi : diger_sutun_genisligi );
 	}
 
+	/* Seçili satırları sil */
+	function sil() {
+		alert('silme işlemini yap');
+	}
 
+	/* Döküman hazır olduğunda jspreadsheet nesnesi oluştur. */
 	$( document ).ready( function() {
 		let grid_card = $( '#grid_card' );
 		grid_card.append( '<div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i> &nbsp;&nbsp;&nbsp;Yükleniyor...</div>' );
 
+		jspreadsheet.setDictionary( dil_TR );
 		grid = jspreadsheet( document.getElementById( 'grd_div' ), {
-			 minDimensions:[ sut, sat ]
+			 minDimensions:[ sutunSayisi, satirSayisi ]
 			,json: data
 			,pagination:20
 			,toolbar:false
 			,search: true
 			// Son satırda entere basınca satır eklemesin
 			,allowManualInsertRow: false
-			,contextMenu	: function() {
-				return false;
-			}
+			// ,contextMenu	: function() {
+			// 	return true;
+			// }
 			,paginationOptions: [ 5, 10, 20, 50, 100, 10000 ]
 			,columns: <?php echo json_encode( $grid_kolonlar ); ?>
 			,onbeforedeleterow	: onbeforedeleterow
@@ -251,24 +294,23 @@ foreach( $tablo_bilgileri as $bilgi ) {
 				,calendarUpdateButtonText:'Güncelle'
 			}
 		} );
-
+		
 		$( ".overlay" ).remove();
-		gridiResponsiveYap( grid, sut );
+		gridiResponsiveYap( grid, sutunSayisi );
 
 	} );
 
 	$( window ).on( 'resize', function() {
-		gridiResponsiveYap( grid, sut );
+		gridiResponsiveYap( grid, sutunSayisi );
 	} );
 
 
-	//Şablon seçme select'i eleman seçince sayfayı yeni şablon_id ile yenile
+	/* Şablon seçme select'i eleman seçince sayfayı yeni şablon_id ile yenile. */
 	$( "#sablon_id" ).change( function() {
 		sablon_id 	= $(this).val();
 		url			= '?modul=hizliverigirisi&sablon_id=' + sablon_id;
 		window.location.href = url;
 	} );
-
 
 
 	function kaydet() {
@@ -322,10 +364,9 @@ foreach( $tablo_bilgileri as $bilgi ) {
 				,tabloAdi				: $( '#txt_tablo_adi' ).val()
 			}
 			,success	: function( sonuc ) {
-				//$( ".overlay" ).remove();
+				/* $( ".overlay" ).remove(); */
 				location.reload();
 			}
 		} );
 	}
-
 </script>
