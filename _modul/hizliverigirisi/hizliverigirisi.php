@@ -238,7 +238,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 			,columns: <?php echo json_encode( $grid_kolonlar ); ?>
 			,onbeforedeleterow	: onbeforedeleterow
 			,onafterchanges		: onafterchanges
-			,license			: 'ZmUxMDQyMTRjNzE0N2Y5MTFlZmQ0OTc5NGM0Yzk5NmUzNDZkMjMyMjcxYzQ3NGYzZmI5NmU2MGU3NWE0ZGEzOWU0Yjc2M2VkNGE2NmE1MDgzZmVjZmJiMDYwZDZmZGViMGNiMTI2OGFkYWUxNjg5YTEyMzA4MDc2OGVjZGFiZGUsZXlKdVlXMWxJam9pUmtsU1FWUWdTMEZRUVZJaUxDSmtZWFJsSWpveE5qVXpOamt5TkRBd0xDSmtiMjFoYVc0aU9sc2lJaXdpYkc5allXeG9iM04wSWwwc0luQnNZVzRpT2pBc0luTmpiM0JsSWpwYkluWTNJaXdpZGpnaVhYMD0='
+			,license			: 'MzJiMWRlZGRmNzVlYzJjMzY5MzhjOWIyMzhmMjA0MDQ0MmQ1YjA2Njg0NDgwMTMyNmIzYWFjMjA5YjBlNDBlODdhYjJmZmM2YTgxY2NiOWJlOTY1YjAzN2E1OGIwOTczMTRkZjZkNWRlZmJiMGIwNGFjYTk5NDYwODA0Njc3MmUsZXlKdVlXMWxJam9pUmtsU1FWUWdTMEZRUVZJaUxDSmtZWFJsSWpveE5qVXpOamt5TkRBd0xDSmtiMjFoYVc0aU9sc2lkR1J6TG5ONWJuUmhlR0pwYkdsemFXMHVZMjl0SWl3aWJHOWpZV3hvYjNOMElsMHNJbkJzWVc0aU9qQXNJbk5qYjNCbElqcGJJblkzSWl3aWRqZ2lYWDA9'
 			,text : {
 				 noRecordsFound:'Kayıt Bulunamadı'
 				,showingPage:'Toplam {1} sayfadan {0}. Sayfa gösteriliyor'
