@@ -23,9 +23,14 @@ foreach( $_REQUEST as $alan => $deger ) {
 
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
+<<<<<<< HEAD
+		$alan 	= $tarih_alani[ 1 ];
+		$deger	= date( 'Y-m-d', strtotime( $deger ) );
+=======
 		$alan = $tarih_alani[ 1 ];
 		if( $deger == '' ) $deger = NULL;
 		else $deger	= date( 'Y-m-d', strtotime( $deger ) );
+>>>>>>> 97d4fda7c9546c511517eed50e5d24d91b207d48
 	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
