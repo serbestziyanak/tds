@@ -223,7 +223,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 
 	$( document ).ready( function() {
 		let grid_card = $( '#grid_card' );
-		grid_card.append( '<div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i> &nbsp;&nbsp;&nbsp;Kaydediliyor...</div>' );
+		grid_card.append( '<div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i> &nbsp;&nbsp;&nbsp;Yükleniyor...</div>' );
 
 		grid = jspreadsheet( document.getElementById( 'grd_div' ), {
 			 minDimensions:[ sut, sat ]
@@ -252,8 +252,8 @@ foreach( $tablo_bilgileri as $bilgi ) {
 			}
 		} );
 
-		gridiResponsiveYap( grid, sut );
 		$( ".overlay" ).remove();
+		gridiResponsiveYap( grid, sut );
 
 	} );
 
