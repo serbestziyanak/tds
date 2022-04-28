@@ -68,6 +68,13 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
+<!-- Hızlı veri girişi kütüphaneleri -->
+<script src="jspreadsheet/jspreadsheet.js"></script>
+<script src="jspreadsheet/jsuites.js"></script>
+<link rel="stylesheet" href="jspreadsheet/jsuites.css" type="text/css" />
+<link rel="stylesheet" href="jspreadsheet/jspreadsheet.css" type="text/css" />
+<link rel="stylesheet" href="jspreadsheet/custom.css" type="text/css" />
+
 <script>
   $.widget.bridge('uibutton', $.ui.button)
 </script>
@@ -130,17 +137,6 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <!-- Toastr -->
 <script src="plugins/toastr/toastr.min.js"></script>
 <script src="_js/mesaj.js"></script>
-
-
-
-<!-- Hızlı veri girişi kütüphaneleri -->
-<script src="https://jspreadsheet.com/v7/jspreadsheet.js"></script>
-<script src="https://jsuites.net/v4/jsuites.js"></script>
-<link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
-<link rel="stylesheet" href="https://jspreadsheet.com/v7/jspreadsheet.css" type="text/css" />
-<link rel="stylesheet" href="jspreadsheet/custom.css" type="text/css" />
-
-
 
 </head>
 	<?php 
