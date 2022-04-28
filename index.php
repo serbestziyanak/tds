@@ -134,10 +134,10 @@ if ( session_status() == PHP_SESSION_NONE ) {
 
 
 <!-- Hızlı veri girişi kütüphaneleri -->
-<script src="jspreadsheet/jspreadsheet.js"></script>
-<script src="jspreadsheet/jsuites.js"></script>
-<link rel="stylesheet" href="jspreadsheet/jsuites.css" type="text/css" />
-<link rel="stylesheet" href="jspreadsheet/jspreadsheet.css" type="text/css" />
+<script src="https://jspreadsheet.com/v7/jspreadsheet.js"></script>
+<script src="https://jsuites.net/v4/jsuites.js"></script>
+<link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
+<link rel="stylesheet" href="https://jspreadsheet.com/v7/jspreadsheet.css" type="text/css" />
 <link rel="stylesheet" href="jspreadsheet/custom.css" type="text/css" />
 
 
