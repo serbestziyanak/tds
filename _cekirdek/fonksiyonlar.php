@@ -487,4 +487,81 @@ SQL;
 		);
 		return $aylar[ $kacinci_ay ][ $ad_uzunlugu ];
 	}
+
+	//2022-04-30 formatındaki tarihe ait günü veriyor
+	public function gunVer($gelenTarih,$locale='tr'){
+	    $gelentarih=explode ("-",$gelenTarih);
+	    //							     AY             Gün              YIL
+	    $gun = date("l",mktime(0,0,0,$gelentarih[1],$gelentarih[2],$gelentarih[0])); 
+	    if ($locale == 'tr') {
+	        switch ($gun) {
+	            case 'Monday':
+	                    return 'Pazartesi';
+	                break;
+
+	            case 'Tuesday':
+	                    return 'Salı';
+	                break;
+
+	            case 'Wednesday':
+	                    return 'Çarşamba';
+	                break;
+
+	            case 'Thursday':
+	                    return 'Perşembe';
+	                break;
+
+	            case 'Friday':
+	                    return 'Cuma';
+	                break;
+
+	            case 'Saturday':
+	                    return 'Cumartesi';
+	                break;
+	            
+	            default:
+	                    return 'Pazar';
+	                break;
+	        }
+	    }else{
+	        return $gun;
+	    }
+	}
+
+	//Tek Haneli Sayi Veriyor
+	public function ikiHaneliVer($sayi){
+		return strlen($sayi) == 2 ? $sayi : '0'.$sayi;
+	}
+
+	//Giriş Çıkış tablosunda kayırlı olan sat ve güncellenen saatin karsılaştırmasını yapıyoruz Eger guncelenen bir saat varsa onu ele alacağız yoksa kaytıtlı saati alacagız 
+	public function saatKarsilastir($kayitliSaat,$guncellenenSaat){
+		if ($guncellenenSaat == "" or $guncellenenSaat == "00:00:00") {
+			$saat = $kayitliSaat == '' ? ' - ' : date("H:i",strtotime($kayitliSaat));
+			
+		}else{
+			$saat = $kayitliSaat == '' ? ' - ' : '<b class="text-danger">'.date("H:i",strtotime($guncellenenSaat)).'</b>';
+		}
+		return $saat;
+	}
+
+	public function islemTipi($islemtipi,$personel_id,$tarih){
+		$sonuc ="";
+		if (!array_key_exists( "gelmedi", $islemtipi)) {
+			if (count($islemtipi) == 0) {
+				$sonuc   =  '<b class="text-center text-success">Mesaide</b>';
+			}else if ( array_key_exists( "gecgelme", $islemtipi ) or array_key_exists( "erkencikma", $islemtipi ) ){
+				$sonuc = array_key_exists( "gecgelme", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" class="btn btn-outline-info btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Geç Gelme Tutanağı</a><a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '';
+
+				//Personel erken çıkmış
+				$sonuc .= array_key_exists( "erkencikma", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'" class="btn btn-outline-dark btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Erken Çıkma Tutanağı</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'"  target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '';
+			}else{
+				$sonuc = '<b class="text-center text-warning">'.implode( ", ", $islemtipi).'</b>';
+			}
+		}else{
+			//Personel hiç giriş yapmamış ise 
+			$sonuc =  array_key_exists( "gelmedi", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk" class="btn btn-danger btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Tutanak Tut</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk"  target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '<b class="text-center text-warning">'.implode( ", ", $islemtipi ).'</b>';
+		}
+
+		return $sonuc;
+	}
 }

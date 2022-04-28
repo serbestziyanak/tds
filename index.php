@@ -2,7 +2,8 @@
 if ( session_status() == PHP_SESSION_NONE ) {
 	session_start();
 }
-	 error_reporting( 0 );
+	define("ADMIN", true);
+	error_reporting( 0 );
 	// Bu sayfa için önbellekleme yapmamaya zorla
 	header( 'Pragma: no-cache' );
 	header( 'Cache-Control: no-cache, must revalidate' );
@@ -13,7 +14,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -156,18 +157,24 @@ SQL;
 
 				<?php
 
-					if( array_key_exists( 'modul', $_REQUEST ) && isset( $_REQUEST[ 'modul' ] ) ) {
-						if( !$fn->yetkiKontrol( $_SESSION[ 'kullanici_id' ], $_REQUEST[ 'modul' ], 'goruntule' ) ) {
-							$modul = 'yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+					if (array_key_exists( 'firma_id', $_SESSION ) ) {
+						if( array_key_exists( 'modul', $_REQUEST ) && isset( $_REQUEST[ 'modul'  ]  ) ) {
+							if( !$fn->yetkiKontrol( $_SESSION[ 'kullanici_id' ], $_REQUEST[ 'modul' ], 'goruntule' ) ) {
+								$modul = 'yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+							} else {
+								/* Modüllerin bulunduğu klasörler modul ismi ile aynı olmayabileceği için klasor/modul_ismi şeklinde dosyalar include ediliyor.*/
+								$modul_klasor = $vt->select( $SQL_modul_klasor, array( $_REQUEST[ 'modul' ] ) );
+								$modul_klasor = $modul_klasor[ 2 ][ 0 ][ 'klasor' ];
+								$modul  = "_modul/" . $modul_klasor  . "/" . $_REQUEST[ 'modul' ] . ".php";
+							}
 						} else {
-							/* Modüllerin bulunduğu klasörler modul ismi ile aynı olmayabileceği için klasor/modul_ismi şeklinde dosyalar include ediliyor.*/
-							$modul_klasor = $vt->select( $SQL_modul_klasor, array( $_REQUEST[ 'modul' ] ) );
-							$modul_klasor = $modul_klasor[ 2 ][ 0 ][ 'klasor' ];
-							$modul  = "_modul/" . $modul_klasor  . "/" . $_REQUEST[ 'modul' ] . ".php";
-						}
-					} else {
-						$modul	= "_modul/anasayfa/anasayfa.php";
+							$modul	= "_modul/anasayfa/anasayfa.php";
+						}						
+					}else{
+						$modul	= "_modul/firmaSec.php";
 					}
+
+					
 				?>
 
 			<div class="content-wrapper">

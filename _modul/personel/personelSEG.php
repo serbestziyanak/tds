@@ -1,5 +1,4 @@
 <?php
-
 include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
@@ -9,19 +8,29 @@ $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'perso
 $alanlar		= array();
 $degerler		= array();
 
-
+ 
 $SQL_ekle		= "INSERT INTO tb_personel SET ";
 $SQL_guncelle 	= "UPDATE tb_personel SET ";
 
 
 /* Alanları ve değerleri ayrı ayrı dizilere at. */
+$aktif_tab = $_REQUEST["aktif_tab"];
+
+$alanlar[]		= 'firma_id';
+$degerler[]		= $_SESSION['firma_id'];
 foreach( $_REQUEST as $alan => $deger ) {
-	if( $alan == 'islem' or $alan == 'personel_id' ) continue;
+	if( $alan == 'islem' or $alan == 'personel_id' or  $alan == 'PHPSESSID' or $alan == 'aktif_tab' ) continue;
 
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
+<<<<<<< HEAD
 		$alan 	= $tarih_alani[ 1 ];
 		$deger	= date( 'Y-m-d', strtotime( $deger ) );
+=======
+		$alan = $tarih_alani[ 1 ];
+		if( $deger == '' ) $deger = NULL;
+		else $deger	= date( 'Y-m-d', strtotime( $deger ) );
+>>>>>>> 97d4fda7c9546c511517eed50e5d24d91b207d48
 	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
@@ -34,16 +43,6 @@ $SQL_guncelle	.= " WHERE id = ?";
 
 if( $islem == 'guncelle' ) $degerler[] = $personel_id;
 
-echo "<pre>";
-print_r( $alanlar );
-print_r( $degerler );
-echo "<br>";
-echo $SQL_guncelle;
-
-//exit;
-
-
-
 $SQL_sil = <<< SQL
 UPDATE
 	tb_personel
@@ -53,12 +52,13 @@ WHERE
 	id = ?
 SQL;
 
-$___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti' );
+$___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
 switch( $islem ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
+		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
 
 		$resim_adi		= "resim_yok.jpg";
 		$son_eklenen_id	= $sonuc[ 2 ]; 
@@ -70,6 +70,7 @@ switch( $islem ) {
 				$vt->update( 'UPDATE tb_personel SET resim = ? WHERE id = ?', array( $resim_adi, $son_eklenen_id ) );
 			}
 		}
+		$personel_id = $son_eklenen_id;
 	break;
 	case 'guncelle':
 		$sonuc = $vt->update( $SQL_guncelle, $degerler );
@@ -89,7 +90,7 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt silinrken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 }
-
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
-header( "Location:../../index.php?modul=personel" );
+$_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
+header( "Location:../../index.php?modul=personel&islem=guncelle&personel_id=".$personel_id."&aktif_tab=".$aktif_tab );
 ?>

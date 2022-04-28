@@ -7,19 +7,21 @@ $vt = new VeriTabani();
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
 	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
+	$_REQUEST[ 'personel_id' ]			= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
 
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
-$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: '_genel';
+$aktif_tab		= array_key_exists( 'aktif_tab'		,$_REQUEST ) ? $_REQUEST[ 'aktif_tab' ]		: 'tab_genel';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 
 
 $satir_renk				= $personel_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi		= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
+
 
 
 $SQL_tum_personel_oku = <<< SQL
@@ -30,11 +32,8 @@ SELECT
 	,b.adi AS bolum_adi
 	,ok1.adi AS ozel_kod1
 	,ok2.adi AS ozel_kod2
-	,ek_g.adi AS ek_grup_adi
 	,u.adi AS uyruk_adi
 	,od.adi AS ogrenim_duzeyi_adi
-	,il.adi AS il_adi
-	,ilc.adi AS ilce_adi
 FROM
 	tb_personel AS p
 LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
@@ -42,11 +41,8 @@ LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
 LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
-LEFT JOIN tb_gruplar AS ek_g ON p.ek_grup_id = ek_g.id
 LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
 LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
-LEFT JOIN tb_iller AS il ON p.il_id = il.id
-LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
 WHERE
 	p.aktif = 1
 SQL;
@@ -60,13 +56,8 @@ SELECT
 	,b.adi AS bolum_adi
 	,ok1.adi AS ozel_kod1
 	,ok2.adi AS ozel_kod2
-	,ek_g.adi AS ek_grup_adi
 	,u.adi AS uyruk_adi
 	,od.adi AS ogrenim_duzeyi_adi
-	,il.adi AS il_adi
-	,il.id AS il_id
-	,ilc.id AS ilce_id
-	,ilc.adi AS ilce_adi
 FROM
 	tb_personel AS p
 LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
@@ -74,11 +65,8 @@ LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
 LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
-LEFT JOIN tb_gruplar AS ek_g ON p.ek_grup_id = ek_g.id
 LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
 LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
-LEFT JOIN tb_iller AS il ON p.il_id = il.id
-LEFT JOIN tb_ilceler AS ilc ON p.ilce_id = ilc.id
 WHERE
 	p.id = ? AND p.aktif = 1
 SQL;
@@ -240,11 +228,11 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 						<h3 class="card-title">Personeller</h3>
 						<div class = "card-tools">
 							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
-							<a data-toggle = "tooltip" title = "Yeni bir personel ekle" href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
+							<a id = "yeni_personel" data-toggle = "tooltip" title = "Yeni bir personel ekle" href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
-						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%">
+						<table id="tbl_personeller" class="table table-bordered table-hover table-sm" width = "100%" >
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>
@@ -253,7 +241,6 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<th>Soyadı</th>
 									<th>Kayıt No</th>
 									<th>Grubu</th>
-									<th>Sicil No</th>
 									<th>İşe Giriş Trh</th>
 									<th>İşten Çıkış Trh</th>
 									<th>Ücret</th>
@@ -264,38 +251,22 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<th>Özel Kod2</th>
 									<th>Uyruğu</th>
 									<th>Cinsiyeti</th>
-									<th>Cüzdan No</th>
 									<th>Baba Adı</th>
 									<th>Ana Adı</th>
 									<th>Doğum Yeri</th>
 									<th>Doğum Tarihi</th>
-									<th>Kızlık Soyadı</th>
 									<th>Medeni Durumu</th>
-									<th>Dini</th>
 									<th>Öğrenim Düzeyi</th>
-									<th>İl</th>
-									<th>İlçe</th>
-									<th>Mahalle</th>
-									<th>Cilt</th>
-									<th>Aile</th>
-									<th>Sıra</th>
-									<th>Veriliş Nedeni</th>
-									<th>Veriliş Tarihi</th>
-									<th>Verildiği Yer</th>
 									<th>Adres</th>
 									<th>Telefon</th>
 									<th>Gsm</th>
-									<th>Sigorta No</th>
 									<th>Sigorta Başı</th>
 									<th>Sigorta Sonu</th>
-									<th>Ek Grubu</th>
 									<th>Diğer Ödeme</th>
-									<th>Günlük Ödeme</th>
 									<th>Aylık Ek Ödeme</th>
 									<th>Banka Şube</th>
 									<th>Banka Hesap</th>
-									<th>Kart No</th>
-									<th>İzin Başlama Tarihi</th>
+									<th>IBAN</th>
 									<th>Kalan İzin</th>
 									<th>Ödenen İzin</th>
 									<th data-priority="1" style="width: 20px">Düzenle</th>
@@ -304,14 +275,13 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 							</thead>
 							<tbody>
 								<?php $sayi = 1; foreach( $personeller[ 2 ] AS $personel ) { ?>
-								<tr <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'"; ?>>
+								<tr oncontextmenu="fun();" class ="personel-Tr <?php if( $personel[ 'id' ] == $personel_id ) echo $satir_renk; ?>" data-id="<?php echo $personel[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'tc_no' ]; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
 									<td><?php echo $personel[ 'soyadi' ]; ?></td>
 									<td><?php echo $personel[ 'kayit_no' ]; ?></td>
 									<td><?php echo $personel[ 'grup_adi' ]; ?></td>
-									<td><?php echo $personel[ 'sicil_no' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'ise_giris_tarihi' ] ); ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'isten_cikis_tarihi' ] ); ?></td>
 									<td><?php echo $personel[ 'ucret' ]; ?></td>
@@ -322,38 +292,22 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<td><?php echo $personel[ 'ozel_kod2' ]; ?></td>
 									<td><?php echo $personel[ 'uyruk_adi' ]; ?></td>
 									<td><?php echo $personel[ 'cinsiyet' ]; ?></td>
-									<td><?php echo $personel[ 'cuzdan_no' ]; ?></td>
 									<td><?php echo $personel[ 'baba_adi' ]; ?></td>
 									<td><?php echo $personel[ 'ana_adi' ]; ?></td>
 									<td><?php echo $personel[ 'dogum_yeri' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'dogum_tarihi' ] ); ?></td>
-									<td><?php echo $personel[ 'kizlik_soyadi' ]; ?></td>
 									<td><?php echo $personel[ 'medeni_hali' ]; ?></td>
-									<td><?php echo $personel[ 'din' ]; ?></td>
 									<td><?php echo $personel[ 'ogrenim_duzeyi_adi' ]; ?></td>
-									<td><?php echo $personel[ 'il_adi' ]; ?></td>
-									<td><?php echo $personel[ 'ilce_adi' ]; ?></td>
-									<td><?php echo $personel[ 'mahalle' ]; ?></td>
-									<td><?php echo $personel[ 'cilt' ]; ?></td>
-									<td><?php echo $personel[ 'aile' ]; ?></td>
-									<td><?php echo $personel[ 'sira' ]; ?></td>
-									<td><?php echo $personel[ 'verilis_nedeni' ]; ?></td>
-									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'verilis_tarihi' ] ); ?></td>
-									<td><?php echo $personel[ 'verildigi_yer' ]; ?></td>
 									<td><?php echo $personel[ 'adres' ]; ?></td>
 									<td><?php echo $personel[ 'sabit_telefon' ]; ?></td>
 									<td><?php echo $personel[ 'mobil_telefon' ]; ?></td>
-									<td><?php echo $personel[ 'sigorta_no' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'sigarta_basi' ] ); ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'sigorta_sonu' ] ); ?></td>
-									<td><?php echo $personel[ 'ek_grup_adi' ]; ?></td>
 									<td><?php echo $personel[ 'diger_odeme' ]; ?></td>
-									<td><?php echo $personel[ 'gunluk_odeme' ]; ?></td>
 									<td><?php echo $personel[ 'aylik_ek_odeme' ]; ?></td>
 									<td><?php echo $personel[ 'banka_sube' ]; ?></td>
 									<td><?php echo $personel[ 'banka_hesap_no' ]; ?></td>
-									<td><?php echo $personel[ 'kart_no' ]; ?></td>
-									<td><?php echo $fn->tarihFormatiDuzelt( $personel[ 'izin_baslama_tarihi' ] ); ?></td>
+									<td><?php echo $personel[ 'iban' ]; ?></td>
 									<td><?php echo $personel[ 'kalan_izin' ]; ?></td>
 									<td><?php echo $personel[ 'odenen_izin' ]; ?></td>
 									<td align = "center">
@@ -374,12 +328,12 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 			<div class="col-md-4">
 				<div class="card <?php if( $personel_id == 0 ) echo 'card-secondary' ?>">
 					<div class="card-header p-2">
-						<ul class="nav nav-pills">
+						<ul class="nav nav-pills tab-container">
 							<?php if( $personel_id > 0 ) { ?>
-								<li class="nav-item"><a class="nav-link active" href="#_genel" data-toggle="tab">Genel</a></li>
-								<li class="nav-item"><a class="nav-link" href="#_nufus" data-toggle="tab" disabled>Nüfus</a></li>
-								<li class="nav-item"><a class="nav-link" href="#_adres" data-toggle="tab">Adres</a></li>
-								<li class="nav-item"><a class="nav-link" href="#_diger" data-toggle="tab">Diğer</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_genel" id="tab_genel" data-toggle="tab">Genel</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_nufus" id="tab_nufus" data-toggle="tab" disabled>Nüfus</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_adres" id="tab_adres" data-toggle="tab">Adres</a></li>
+								<li class="nav-item"><a class="nav-link" href="#_diger" id="tab_diger" data-toggle="tab">Diğer</a></li>
 							<?php } else {
 								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Yeni personel ekle</h6>";
 							} ?>
@@ -389,7 +343,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 						<div class="tab-content">
 							<!-- GENEL BİLGİLER -->
 							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_genel" method = "POST" enctype="multipart/form-data">
 									<input type="file" id="gizli_input_file" name = "input_personel_resim" style = "display:none;" name = "resim" accept="image/gif, image/jpeg, image/png"  onchange="resimOnizle(this)"; />
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
@@ -404,11 +358,11 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									<h3 class="profile-username text-center"><b> </b></h3>
 									<div class="form-group">
 										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_personel[ "adi" ]; ?>">
+										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_personel[ "adi" ]; ?>" id = "txt_adi">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Soyadı</label>
-										<input required type="text" class="form-control" name ="soyadi" value = "<?php echo $tek_personel[ "soyadi" ]; ?>">
+										<input required type="text" class="form-control" name ="soyadi" value = "<?php echo $tek_personel[ "soyadi" ]; ?>" id = "txt_soyadi">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Kayıt No</label>
@@ -426,8 +380,8 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 
 									<div class="form-group">
-										<label class="control-label">Sicil No</label>
-										<input required type="text" class="form-control" name ="sicil_no" value = "<?php echo $tek_personel[ "sicil_no" ]; ?>">
+										<label class="control-label">TC No</label>
+										<input type="text" class="form-control" name ="tc_no" value = "<?php echo $tek_personel[ "tc_no" ]; ?>" required maxlength = "11" minlength = "11">
 									</div>
 									<div class="form-group">
 										<label class="control-label">İşe Girişi</label>
@@ -449,7 +403,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									<div class="form-group">
 										<label class="control-label">Ücreti</label>
-										<input required type="text" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" data-inputmask="'alias': '9999.99'"  placeholder = "0000,00" >
+										<input required type="number" step = "0.01" class="form-control" name ="ucret" value = "<?php echo $tek_personel[ "ucret" ]; ?>" placeholder = "0000,00" >
 									</div>
 
 
@@ -502,13 +456,10 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 							<!-- NÜFUS BİLGİLERİ -->
 							<div class="tab-pane" id="_nufus">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_nufus" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
-									<div class="form-group">
-										<label class="control-label">TC No</label>
-										<input type="text" class="form-control" name ="tc_no" value = "<?php echo $tek_personel[ "tc_no" ]; ?>" required>
-									</div>
+
 									<div class="form-group">
 										<label class="control-label">Uyruğu</label>
 										<select class="form-control select2" name = "uyruk_id" required>
@@ -526,10 +477,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 											<option value = "2" <?php if( $tek_personel[ 'cinsiyet' ] == 2 ) echo 'selected'; ?> >Erkek</option>
 										</select>
 									</div>
-									<div class="form-group">
-										<label class="control-label">Cüzdan No</label>
-										<input required type="text" class="form-control" name ="cuzdan_no" value = "<?php echo $tek_personel[ "cuzdan_no" ]; ?>">
-									</div>
+
 									<div class="form-group">
 										<label class="control-label">Ana Adı</label>
 										<input required type="text" class="form-control" name ="ana_adi" value = "<?php echo $tek_personel[ "ana_adi" ]; ?>">
@@ -548,12 +496,8 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 											<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
 												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 											</div>
-											<input autocomplete="off" type="text" name="tarihalani-dogum_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_personel[ "dogum_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker3" data-toggle="datetimepicker"/>
+											<input autocomplete="off" type="text" name="tarihalani-dogum_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_personel[ "dogum_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker3" required data-toggle="datetimepicker"/>
 										</div>
-									</div>
-									<div class="form-group">
-										<label class="control-label">Kızlık Soyadı</label>
-										<input type="text" class="form-control" name ="kizlik_soyadi" value = "<?php echo $tek_personel[ "kizlik_soyadi" ]; ?>">
 									</div>
 									<div class="form-group">
 										<label class="control-label">Medeni Hali</label>
@@ -563,12 +507,6 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 											<option value = "2" <?php if( $tek_personel[ 'medeni_hali' ] == 2 ) echo 'selected'; ?>>Bekar</option>
 										</select>
 									</div>
-
-									<div class="form-group">
-										<label class="control-label">Dini</label>
-										<input required type="text" class="form-control" name ="din" value = "<?php echo $tek_personel[ "din" ]; ?>">
-									</div>
-
 									<div class="form-group">
 										<label class="control-label">Kan Grubu</label>
 										<select class="form-control" name = "kan_grubu" required>
@@ -594,66 +532,6 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 											<?php } ?>
 										</select>
 									</div>
-
-									<div class="form-group">
-										<label class="control-label">İl</label>
-										<select class="form-control select2" name = "il_id" id="il_id" required>
-											<option value="">Seçiniz</option>
-											<?php foreach( $iller as $il ) { ?>
-												<option value="<?php echo $il[ 'id' ]; ?>" <?php if( $tek_personel[ 'il_id' ] == $il[ 'id' ] ) echo 'selected'; ?>><?php echo $il['adi']; ?></option>
-											<?php } ?>
-										</select>
-									</div>
-									<div class="form-group">
-										<label class="control-label">İlçe</label>
-										<select class="form-control select2" name = "ilce_id" id = "ilce_id" required>
-											<option value="">Seçiniz</option>
-											<?php foreach( $ilceler as $ilce ) { ?>
-												<option value="<?php echo $ilce[ 'id' ]; ?>" <?php if( $tek_personel[ 'ilce_id' ] == $ilce[ 'id' ] ) echo 'selected'; ?>><?php echo $ilce['adi']; ?></option>
-											<?php } ?>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label class="control-label">Mahalle</label>
-										<input required type="text" class="form-control" name ="mahalle" value = "<?php echo $tek_personel[ "mahalle" ]; ?>">
-									</div>
-
-									<div class="form-group">
-										<label class="control-label">Cilt</label>
-										<input required type="text" class="form-control" name ="cilt" value = "<?php echo $tek_personel[ "cilt" ]; ?>">
-									</div>
-
-
-									<div class="form-group">
-										<label class="control-label">Aile</label>
-										<input required type="text" class="form-control" name ="aile" value = "<?php echo $tek_personel[ "aile" ]; ?>">
-									</div>
-
-									<div class="form-group">
-										<label class="control-label">Sıra</label>
-										<input required type="text" class="form-control" name ="sira" value = "<?php echo $tek_personel[ "sira" ]; ?>">
-									</div>
-
-									<div class="form-group">
-										<label class="control-label">Verildiği Yer</label>
-										<input required type="text" class="form-control" name ="verildigi_yer" value = "<?php echo $tek_personel[ "verildigi_yer" ]; ?>">
-									</div>
-
-									<div class="form-group">
-										<label class="control-label">Nedeni</label>
-										<input required type="text" class="form-control" name ="verilis_nedeni" value = "<?php echo $tek_personel[ "verilis_nedeni" ]; ?>">
-									</div>
-									
-									<div class="form-group">
-										<label class="control-label">Veriliş Tarihi</label>
-										<div class="input-group date" id="datetimepicker4" data-target-input="nearest">
-											<div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
-												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
-											</div>
-											<input autocomplete = "off" type="text" name="tarihalani-verilis_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "verilis_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker4" data-toggle="datetimepicker"/>
-										</div>
-									</div>
 									<div class="card-footer">
 										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
@@ -662,7 +540,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 							<!-- ADRES BİLGİLERİ -->
 							<div class="tab-pane" id="_adres">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_adres" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
 									<div class="form-group">
@@ -686,13 +564,9 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 
 							<!-- DİĞER BİLGİLER -->
 							<div class="tab-pane" id="_diger">
-								<form class="form-horizontal" action = "_modul/personel/personelSEG.php" method = "POST" enctype="multipart/form-data">
+								<form class="form-horizontal" action = "_modul/personel/personelSEG.php?aktif_tab=tab_diger" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "personel_id" value = "<?php echo $personel_id; ?>">
-									<div class="form-group">
-										<label class="control-label">Sigorta No</label>
-										<input required type="text" class="form-control" name ="sigorta_no" value = "<?php echo $tek_personel[ "sigorta_no" ]; ?>">
-									</div>
 
 									<div class="form-group">
 										<label class="control-label">Sigorta Başı</label>
@@ -715,28 +589,18 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									
 									<div class="form-group">
-										<label class="control-label">Ek Grub</label>
-										<select class="form-control" name = "ek_grup_id" required>
-											<option value="">Seçiniz</option>
-											<?php foreach( $gruplar as $grup ) { ?>
-												<option value="<?php echo $grup[ 'id' ]; ?>" <?php if( $tek_personel[ 'ek_grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
-											<?php } ?>
-										</select>
-									</div>
-									
-									<div class="form-group">
-										<label class="control-label">Diğer Ödeme</label>
-										<input required type="text" class="form-control" name ="diger_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "0000.00">
+										<label class="control-label">Diğer Ödeme( AGİ )</label>
+										<input required type="number" step = "0.01" class="form-control" name ="diger_odeme" value = "<?php echo $tek_personel[ "diger_odeme" ]; ?>" placeholder = "00000.00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Günlük Ödeme</label>
-										<input required type="text" class="form-control" name ="gunluk_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "0000.00">
+										<input required type="number" step = "0.01" class="form-control" name ="gunluk_odeme"  value = "<?php echo $tek_personel[ "gunluk_odeme" ]; ?>" placeholder = "00000.00">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Aylık Ek Ödeme</label>
-										<input required type="text" class="form-control" name ="aylik_ek_odeme" data-inputmask="'alias': '9999.99'"  value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "0000.00">
+										<input required type="number" step = "0.01" class="form-control" name ="aylik_ek_odeme" value = "<?php echo $tek_personel[ "aylik_ek_odeme" ]; ?>" placeholder = "00000.00">
 									</div>
 									<div class="row">
 										<div class="col-sm-6">
@@ -754,21 +618,9 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 									</div>
 									
 									<div class="form-group">
-										<label class="control-label">Kart No</label>
-										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;(9999) (9999) (9999) (9999)&quot;" required type="text" class="form-control" name ="kart_no" value = "<?php echo $tek_personel[ "kart_no" ]; ?>" >
+										<label class="control-label">IBAN</label>
+										<input autocomplete="off" data-inputmask="&quot;mask&quot;: &quot;TR 99 9999 9999 9999 9999 9999 99&quot;" required type="text" class="form-control" name ="iban" value = "<?php echo $tek_personel[ "iban" ]; ?>" >
 									</div>
-									
-
-									<div class="form-group">
-										<label class="control-label">İzin Başlama Tarihi</label>
-										<div class="input-group date" id="datetimepicker7" data-target-input="nearest">
-											<div class="input-group-append" data-target="#datetimepicker7" data-toggle="datetimepicker">
-												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
-											</div>
-											<input autocomplete="off" type="text" name="tarihalani-izin_baslama_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_personel[ "izin_baslama_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#datetimepicker7" data-toggle="datetimepicker"/>
-										</div>
-									</div>
-
 									<div class="form-group">
 										<label class="control-label">Kalan İzin</label>
 										<input required type="number" class="form-control" name ="kalan_izin" value = "<?php echo $tek_personel[ "kalan_izin" ]; ?>">
@@ -791,9 +643,87 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 		</div>
 	</div>
 </section>
-
+<div id="sagtikmenu" style="display: none;">asdasdasd</div>
+<style type="text/css">
+	.custom-menu {
+	    z-index:1000;
+	    position: absolute;
+	    background-color:#fff;
+	    border: 1px solid #000;
+	    padding: 2px;
+	    border-radius: 5px;
+	}
+	.custom-menu a{
+		display: block;
+		padding: 10px 30px;
+		border-bottom: 1px solid #ddd;
+		color: #000;
+	}
+	.custom-menu a:hover{
+		background-color: #ddd;
+		transition: initial;
+	}
+	
+</style>
 <script type="text/javascript">
+//Adı sıyadını büyük harf yap
+String.prototype.turkishToUpper = function(){
+	var string = this;
+	var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
+	string = string.replace(/(([iışğüçö]))/g, function(letter){ return letters[letter]; })
+	return string.toUpperCase();
+}
 
+$(".personel-Tr").bind("contextmenu", function(event) {
+	//Tıklanan tablo tr personel_id sini al
+	var personel_id = $(this).data("id");
+	//Acılan tüm Menüleri Gizle
+	$("div.custom-menu").hide();
+   	// Genel Sağ Tık Menüsünü Kapat
+    event.preventDefault(); 
+
+    //Açılacak Div İçeriği
+    $("<div class='custom-menu'>"+
+    	"<a href='?modul=personelOzlukDosyalari&islem=guncelle&personel_id="+personel_id+"' >Personel Özlük Dosyası</a>"+
+    	"<a href='?modul=giriscikis&personel_id="+personel_id+"' >Personel Aylık Hareketi</a>"+
+    	"<a href='?modul=puantaj&personel_id="+personel_id+"' >Personel Puantajı</a>"+
+    	"</div>").appendTo("body").css({
+        top: event.pageY + "px",
+        left: event.pageX + "px"
+    });
+}).bind("click", function(event) {
+    if (!$(event.target).is(".custom-menu")) {
+        $("div.custom-menu").hide();
+    }
+});
+
+
+window.onload = function(){
+    var tab = document.getElementById("<?php echo $aktif_tab; ?>");
+        tab.click();
+};
+
+$(function() {
+	$('#txt_adi').keyup(function() {
+		this.value = this.value.turkishToUpper();
+	});
+});
+
+$(function() {
+	$('#txt_soyadi').keyup(function() {
+		this.value = this.value.turkishToUpper();
+	});
+});
+
+
+
+
+// ESC tuşuna basınca formu temizle
+document.addEventListener( 'keydown', function( event ) {
+	if( event.key === "Escape" ) {
+		document.getElementById( 'yeni_personel' ).click();
+	}
+});
 
 /* Kullanıcı resmine tıklayınca file nesnesini tetikle*/
 $( function() {
@@ -957,12 +887,14 @@ $( function () {
 
 var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 	"responsive": true, "lengthChange": true, "autoWidth": true,
+	"stateSave": true,
+	"pageLength" : 25,
 	//"buttons": ["excel", "pdf", "print","colvis"],
 
 	buttons : [
 		{
 			extend	: 'colvis',
-			text	: "Seçiniz"
+			text	: "Alan Seçiniz"
 			
 		},
 		{
@@ -988,7 +920,7 @@ var tbl_personeller = $( "#tbl_personeller" ).DataTable( {
 	],
 	"columnDefs": [
 		{
-			"targets" : [ 1,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 ],
+			"targets" : [ 7,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],
 			"visible" : false
 		}
 	],

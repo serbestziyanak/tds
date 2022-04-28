@@ -91,7 +91,7 @@ if( array_key_exists( 'islem', $_REQUEST ) ) {
 $vt->islemBitir();
 $___islem_sonuc[ 'firma_id' ] = $id;
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
-header( 'Location: ../../index.php?modul=firmalar' );
+header( 'Location: ../../index.php?modul=firmalar&firma_id='.$id );
 
 
 ?>

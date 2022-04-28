@@ -20,3 +20,22 @@ div.dt-button-collection div.dropdown-menu {
 	max-height: 500px !important;
 	overflow-y: scroll !important;
 }
+.tab-container{
+	justify-content: space-evenly;
+}
+.tab-container li{
+	text-align: center;
+	width: 24%;
+}.tab-container li a{
+	background-color: #ff4343;
+	width: 100%;
+	color: #fff !important;
+}
+.tab-container .nav-link:not(.active):hover {
+    color: #fff;
+    font-weight: bold;
+}
+.tab-container .nav-link.active {
+    border: none;
+}
+
