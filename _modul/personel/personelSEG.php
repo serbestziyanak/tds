@@ -22,7 +22,6 @@ foreach( $_REQUEST as $alan => $deger ) {
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
 		$alan 	= $tarih_alani[ 1 ];
 		$deger	= date( 'Y-m-d', strtotime( $deger ) );
-		echo $alan . ' : ' . $deger . '<br>';
 	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
