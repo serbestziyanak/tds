@@ -79,7 +79,7 @@ $secilecek_alanlar	= $tablo_alanlar;
 $SQL_veriler		= "";
 
 // Veritabanından gelen alanlara göre yukarıda giridn sütün alanları belirlendi burada da verisi ayarlanıyor.
-$SQL_veriler = "SELECT $secilecek_alanlar FROM $tablo_adi WHERE aktif = 1"; 
+$SQL_veriler = "SELECT $secilecek_alanlar FROM $tablo_adi WHERE aktif = 1 ORDER BY id DESC"; 
 
 
 $tablo_veriler		= $vt->select( $SQL_veriler, array() );
@@ -321,8 +321,8 @@ foreach( $tablo_bilgileri as $bilgi ) {
 				,tabloAdi				: $( '#txt_tablo_adi' ).val()
 			}
 			,success	: function( sonuc ) {
-				$( ".overlay" ).remove();
-				//location.reload();
+				//$( ".overlay" ).remove();
+				location.reload();
 			}
 		} );
 	}

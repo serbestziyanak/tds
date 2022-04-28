@@ -3,17 +3,11 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
-$SQL_sil		= "";
-$SQL_ekle		= "";
-$SQL_guncelle	= "";
-$tabloAdi		= $_REQUEST[ 'tabloAdi' ];
+
+$tabloAdi = $_REQUEST[ 'tabloAdi' ];
+
 
 // Silinen kayıtları veritabanına yansıt.
-if( array_key_exists( 'eklenenKayitlar', $_REQUEST ) ) {
-	
-}
-
-// Eklenen kayıtları veritabanına yansıt.
 if( array_key_exists( 'silinenKayitlar', $_REQUEST ) ) {
 	$silinenKayitlar	= $_REQUEST[ 'silinenKayitlar' ];
 	$silinen_idler		= implode( ",", $silinenKayitlar );
@@ -53,7 +47,27 @@ if( array_key_exists( 'guncellenenKayitlar', $_REQUEST ) ) {
 		$SQL_guncelle	.= " WHERE id = ?";
 		$vt->update( $SQL_guncelle, $degerler );
 	}
-	
 }
+
+//Eklenen kayıtları veritabanına yansıt.
+if( array_key_exists( 'eklenenKayitlar', $_REQUEST ) ) {
+
+	$eklenenKayitlar	= $_REQUEST[ 'eklenenKayitlar' ];
+	$param				= array();
+
+	foreach( $eklenenKayitlar as $kayit ) {
+		$SQL_ekle	= "INSERT INTO $tabloAdi SET ";
+		$alanlar	= array();
+		$degerler	= array();
+		
+		foreach( $kayit as $anahtar => $deger ) {
+			$alanlar[] = $anahtar;
+			$degerler[] = $deger;
+		}
+		$SQL_ekle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
+		$vt->insert( $SQL_ekle, $degerler );
+	}
+}
+echo 1;
 
 ?>
