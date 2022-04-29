@@ -128,7 +128,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 	$grid_kolonlar[] = $satir;
 }
 
-array_unshift( $grid_kolonlar, array( 'type' => 'number', 'title' => 'ID', 'name' => 'id' ) );
+array_unshift( $grid_kolonlar, array( 'type' => 'number', 'title' => 'ID', 'name' => 'id', 'readonly' => true ) );
 print_r($grid_kolonlar);
 ?>
 <div class="row">
