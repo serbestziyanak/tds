@@ -42,6 +42,8 @@ $tablo_alan_secici	= explode( ",", $tablo_alanlar );
 
 $tablo_alan_secici 	= "'" . implode ( "', '", $tablo_alan_secici ) . "'";
 
+print_r( $tablo_alan_secici );
+echo "--------------------";
 
 // Tablonun alanları veritipleri ve açıklaması okunuyor. Açıklamada gerekli ayarlar yer aldığı için okunuyor.
 $SQL_tablo_bilgileri_oku = <<< SQL
@@ -74,6 +76,8 @@ $veriTipleri = array(
 $tablo_bilgileri	= $vt->select( $SQL_tablo_bilgileri_oku, array() );
 $tablo_bilgileri	= $tablo_bilgileri[ 2 ];
 
+echo "<pre>";
+print_r( $tablo_bilgileri );
 
 $secilecek_alanlar	= $tablo_alanlar;
 $SQL_veriler		= "";
@@ -275,6 +279,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 			,pagination:20
 			,toolbar:false
 			,search: true
+			,loadingSpin : true
 			// Son satırda entere basınca satır eklemesin
 			,allowManualInsertRow: false
 			// ,contextMenu	: function() {
@@ -295,7 +300,6 @@ foreach( $tablo_bilgileri as $bilgi ) {
 				,calendarUpdateButtonText:'Güncelle'
 			}
 		} );
-		
 		$( ".overlay" ).remove();
 		gridiResponsiveYap( grid, sutunSayisi );
 
