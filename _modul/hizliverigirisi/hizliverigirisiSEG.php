@@ -3,11 +3,11 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
-/* İşlem yapılacak tablonun adı */
+
 $tabloAdi = $_REQUEST[ 'tabloAdi' ];
 
 
-/* Silinen kayıtları veritabanına yansıt. */
+// Silinen kayıtları veritabanına yansıt.
 if( array_key_exists( 'silinenKayitlar', $_REQUEST ) ) {
 	$silinenKayitlar	= $_REQUEST[ 'silinenKayitlar' ];
 	$silinen_idler		= implode( ",", $silinenKayitlar );
@@ -22,7 +22,7 @@ if( array_key_exists( 'silinenKayitlar', $_REQUEST ) ) {
 	$vt->update( $SQL_sil, array() );
 }
 
-/* Güncellenen kayıtları veritabanına yansıt. */
+// Güncellenen kayıtları veritabanına yansıt.
 if( array_key_exists( 'guncellenenKayitlar', $_REQUEST ) ) {
 
 	$guncellenenKayitlar	= $_REQUEST[ 'guncellenenKayitlar' ];
@@ -49,8 +49,9 @@ if( array_key_exists( 'guncellenenKayitlar', $_REQUEST ) ) {
 	}
 }
 
-/* Eklenen kayıtları veritabanına yansıt. */
+//Eklenen kayıtları veritabanına yansıt.
 if( array_key_exists( 'eklenenKayitlar', $_REQUEST ) ) {
+
 	$eklenenKayitlar	= $_REQUEST[ 'eklenenKayitlar' ];
 	$param				= array();
 
@@ -68,4 +69,5 @@ if( array_key_exists( 'eklenenKayitlar', $_REQUEST ) ) {
 	}
 }
 echo 1;
+
 ?>
