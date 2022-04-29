@@ -93,7 +93,10 @@ $tarih_alani_options = array(
 );
 
 $grid_kolonlar = array();
+
 foreach( $tablo_bilgileri as $bilgi ) {
+	if( $bilgi[ 'adi' ] == 'id' ) continue;
+	
 	$satir = array(
 		 'type'		=> $veriTipleri[ $bilgi[ 'tipi' ] ]
 		,'title'	=> strlen( $bilgi[ 'ayar' ] ) > 0 ? explode( "-", $bilgi[ 'ayar' ] )[ 0 ] : $bilgi[ 'adi' ]
@@ -124,6 +127,8 @@ foreach( $tablo_bilgileri as $bilgi ) {
 	}
 	$grid_kolonlar[] = $satir;
 }
+
+array_unshift( $grid_kolonlar, array( 'type' => 'number', 'title' => 'ID', 'name' => 'id' ) );
 print_r($grid_kolonlar);
 ?>
 <div class="row">
