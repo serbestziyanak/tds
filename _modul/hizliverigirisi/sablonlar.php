@@ -143,7 +143,7 @@ $tablo_alanlar	= $vt->select( $SQL_tablo_alanlar_oku, array( $tablolar[ 0 ][ 'ta
 									<?php
 										foreach( $tablo_alanlar as $alan ) {
 											$id		= $alan[ 'alan_orj' ];
-											if( $id == 'id' or $id = 'aktif' ) continue;
+											if( $id == 'id' or $id == 'aktif' ) continue;
 											$adi	= strlen( $alan[ 'alan_tr' ] ) > 0 ? explode( "-", $alan[ 'alan_tr' ] )[ 0 ] : $alan[ 'alan_orj' ];
 											echo "<option value = '$id'>$adi</option>";
 										}
