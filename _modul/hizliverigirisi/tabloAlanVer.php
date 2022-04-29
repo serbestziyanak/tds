@@ -38,7 +38,8 @@ $sonuc = "";
 foreach( $tablo_alanlar AS $alan ) {
 	$id		= $alan[ 'alan_orj' ];
 	$adi	= strlen( $alan[ 'alan_tr' ] ) > 0 ? explode( "-", $alan[ 'alan_tr' ] )[ 0 ] : $alan[ 'alan_orj' ];
-
+	
+	if( $id == 'id' ) continue;
 	if( in_array( $alan[ 'alan_orj' ], $sablon_alanlar ) && $sablon_id ) {
 		$sonuc .= "<option value = '$id' selected>$adi</option>";
 	} else {

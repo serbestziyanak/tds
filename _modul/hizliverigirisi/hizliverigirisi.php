@@ -39,6 +39,7 @@ $tablo_alanlar		= $sablon_bilgileri[ 0 ][ 'alanlar' ];
 
 // Tablonun hangi alanları çekilcek.
 $tablo_alan_secici	= explode( ",", $tablo_alanlar );
+
 $tablo_alan_secici 	= "'" . implode ( "', '", $tablo_alan_secici ) . "'";
 
 
