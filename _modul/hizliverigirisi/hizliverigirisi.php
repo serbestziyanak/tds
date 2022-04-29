@@ -100,7 +100,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 		,'name'		=> $bilgi[ 'adi' ]
 	);
 
-	if( $bilgi[ 'adi' ] == 'id' ){
+	if( $bilgi[ 'adi' ] == 'id' ) {
 		$satir[ 'readonly' ] = true;
 	} 
 	if( $satir[ 'type' ] == 'calendar' ) $satir[ 'options' ] = $tarih_alani_options;
@@ -124,7 +124,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 	}
 	$grid_kolonlar[] = $satir;
 }
-
+print_r($grid_kolonlar);
 ?>
 <div class="row">
 	<div class="col-md-12" id = "ust_container">
