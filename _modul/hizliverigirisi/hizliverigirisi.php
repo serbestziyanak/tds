@@ -78,7 +78,7 @@ $secilecek_alanlar	= $tablo_alanlar;
 $SQL_veriler		= "";
 
 // Veritabanından gelen alanlara göre yukarıda giridin sütün alanları belirlendi. burada da verisi ayarlanıyor.
-$SQL_veriler = "SELECT $secilecek_alanlar FROM $tablo_adi WHERE aktif = 1 ORDER BY id DESC"; 
+$SQL_veriler = "SELECT $secilecek_alanlar FROM $tablo_adi WHERE aktif = 1"; 
 
 
 $tablo_veriler		= $vt->select( $SQL_veriler, array() );
