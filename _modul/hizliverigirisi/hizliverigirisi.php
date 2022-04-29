@@ -103,9 +103,6 @@ foreach( $tablo_bilgileri as $bilgi ) {
 		,'name'		=> $bilgi[ 'adi' ]
 	);
 
-	if( $bilgi[ 'adi' ] == 'id' ) {
-		$satir[ 'readonly' ] = true;
-	} 
 	if( $satir[ 'type' ] == 'calendar' ) $satir[ 'options' ] = $tarih_alani_options;
 
 	if( count( explode( "-", $bilgi[ 'ayar' ] ) ) > 1 ) {
@@ -128,7 +125,9 @@ foreach( $tablo_bilgileri as $bilgi ) {
 	$grid_kolonlar[] = $satir;
 }
 
+/* id alanını dizinin en başına ekle */
 array_unshift( $grid_kolonlar, array( 'type' => 'number', 'title' => 'ID', 'name' => 'id', 'readonly' => true ) );
+
 print_r($grid_kolonlar);
 ?>
 <div class="row">
