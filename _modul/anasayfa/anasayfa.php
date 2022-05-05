@@ -51,7 +51,28 @@ WHERE
     t.id not  IN (SELECT tutanak_id FROM tb_tutanak_dosyalari)
 SQL;
 
-    //İzinli Olan Veya gelip çıkış yapan personel sayısı 
+//Tek personele ait tutanak listesi
+$SQL_tek_tutanak_oku = <<< SQL
+SELECT
+    p.id AS personel_id,
+    p.adi,
+    p.soyadi,
+    t.tarih,
+    t.saat,
+    t.tip,
+    t.id AS tutanak_id
+FROM tb_tutanak as t
+INNER JOIN tb_personel AS p ON p.id = t.personel_id
+WHERE 
+    t.tip       = ? AND
+    p.id        = ? AND
+    t.tarih     = ? AND
+    p.aktif     = 1 AND 
+    t.id IN (SELECT tutanak_id FROM tb_tutanak_dosyalari)
+SQL;
+
+
+//İzinli Olan Veya gelip çıkış yapan personel sayısı 
 $SQL_izinli_cikan_personel = <<< SQL
 SELECT
     p.*
@@ -85,30 +106,38 @@ WHERE
 ORDER BY baslangic_saat ASC 
 SQL;
 
-$tum_personel                       = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
-$icerde_olan_personel               = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
-$izinli_cikan_personel              = $vt->select( $SQL_izinli_cikan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
-$izinli_cikan_personel              = $vt->select( $SQL_izinli_cikan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
+$tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
+$icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
 
-$gelmeyen_tutanak_listesi           = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gelmeyen" ) ) [2];
-$gecgelen_tutanak_listesi           = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
-$erkencikan_tutanak_listesi         = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
+//tutanak dosyası oluşturulmayan personel listesi
+$gelmeyen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
+$gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
+$erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
 
-$gelmeyen_personel_listesi          = Array();
-$erken_cikan_personel_listesi       = Array();
-$gec_gelen_personel_listesi         = Array();
-$izinli_personel_listesi            = Array();
-$gelip_cikan_personel_listesi       = Array();
+$gelmeyen_personel_sayisi               = Array();
+$gelmeyen_personel_tutanak_tutulmayan   = Array();
+$erken_cikan_personel_tutanak_tutulmayan= Array();
+$gec_gelen_personel_tutanak_tutulmayan  = Array();
+$izinli_personel_listesi                = Array();
+$gelip_cikan_personel_listesi           = Array();
 
-$gec_giris_saatler                  = Array();
-$erken_cikis_saatler                = Array();
+$gec_giris_saatler                      = Array();
+$erken_cikis_saatler                    = Array();
 
 foreach ($tum_personel as $personel) {
-    $personel_giris_cikis_saatleri  = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
+
+    //Personel bugun giriş veya çıkış yapmış mı kontrolünü sağlıyoruz
+    $personel_giris_cikis_saatleri      = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
 
     if (count($personel_giris_cikis_saatleri) < 1 ) {
 
-        $gelmeyen_personel_listesi[]    = $personel;
+        $personele_ait_tutanak_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+        //tutanak dosyaları eklenmisse 
+        if ( count( $personele_ait_tutanak_var_mi ) <= 0 ) {
+            $gelmeyen_personel_tutanak_tutulmayan[]    = $personel;
+        }
+        
+        $gelmeyen_personel_sayisi[]       = $personel;
 
     }else{
 
@@ -124,13 +153,22 @@ foreach ($tum_personel as $personel) {
         $SonCikisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 
         if ($ilkGirisSaat > "08:00" AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
-            $gec_giris_saatler[$personel["id"]]     = $ilkGirisSaat;
-            $gec_gelen_personel_listesi[]           = $personel;
+            $personele_ait_tutanak_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gecgelme", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+            if ( count( $personele_ait_tutanak_var_mi ) <= 0 ) {
+                $gec_gelen_personel_tutanak_tutulmayan[]   = $personel;
+                $gec_giris_saatler[$personel["id"]]         = $ilkGirisSaat;
+            }
+            
         }
 
         if ($SonCikisSaat < "18:30" AND $SonCikisSaat != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
-            $erken_giris_saatler[$personel["id"]]   = $SonCikisSaat;
-            $erken_cikan_personel_listesi[]         = $personel;
+            
+            $personele_ait_tutanak_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+            if ( count( $personele_ait_tutanak_var_mi ) <= 0 ) {
+                $erken_cikan_personel_tutanak_tutulmayan[]  = $personel;
+                $erken_cikan_personel_listesi[]             = $personel;
+            }
+            
         }
 
         if ( $personel_giris_cikis_sayisi == 1 AND  $ilk_islemtipi != "0"  ) {
@@ -181,7 +219,7 @@ foreach ($tum_personel as $personel) {
         <!-- small box -->
         <div class="small-box bg-warning">
             <div class="inner">
-                <h3><?php echo count($gelmeyen_personel_listesi); ?></h3>
+                <h3><?php echo count($gelmeyen_personel_sayisi); ?></h3>
                 <p>Gelmeyen Personel</p>
             </div>
             <div class="icon">
@@ -214,10 +252,10 @@ foreach ($tum_personel as $personel) {
                 <ul class="nav nav-pills nav-tabs tab-container" id="custom-tabs-two-tab" role="tablist" style="padding: 10px 0px 15px 0px;">
                     <li class="pt-2 px-3"><h3 class="card-title"><b>Bekleyen Tutanaklar</b></h3></li>
                     <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-two-home-tab" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home" aria-selected="false">Gelmeyenler <b class=" badge bg-warning"><?php echo count( $gelmeyen_personel_listesi ) + count( $gelmeyen_tutanak_listesi ); ?></b></a>
+                        <a class="nav-link active" id="custom-tabs-two-home-tab" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home" aria-selected="false">Gelmeyenler <b class=" badge bg-warning"><?php echo count( $gelmeyen_personel_tutanak_tutulmayan ) + count( $gelmeyen_tutanak_listesi ); ?></b></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-two-profile-tab" data-toggle="pill" href="#custom-tabs-two-profile" role="tab" aria-controls="custom-tabs-two-profile" aria-selected="false">Geç Gelenler <b class="badge bg-warning"><?php echo count( $gec_gelen_personel_listesi ) + count( $gecgelen_tutanak_listesi ); ?></b></a>
+                        <a class="nav-link" id="custom-tabs-two-profile-tab" data-toggle="pill" href="#custom-tabs-two-profile" role="tab" aria-controls="custom-tabs-two-profile" aria-selected="false">Geç Gelenler <b class="badge bg-warning"><?php echo count( $gec_gelen_personel_tutanak_tutulmayan ) + count( $gecgelen_tutanak_listesi ); ?></b></a>
 
                     </li>
                     <li class="nav-item">
@@ -236,7 +274,7 @@ foreach ($tum_personel as $personel) {
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
-                                <?php $sayi = 1; foreach ($gelmeyen_personel_listesi as $personel) { ?>
+                                <?php $sayi = 1; foreach ($gelmeyen_personel_tutanak_tutulmayan as $personel) { ?>
                                     <tr class                = "personel-Tr" 
                                         data-personel_id     = "<?php echo $personel[ 'id' ]; ?>" 
                                         data-tutanak_id      = ""
@@ -275,7 +313,7 @@ foreach ($tum_personel as $personel) {
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
-                                <?php $sayi = 1; foreach ($gec_gelen_personel_listesi as $personel) { ?>
+                                <?php $sayi = 1; foreach ($gec_gelen_personel_tutanak_tutulmayan as $personel) { ?>
                                     <tr class               = "personel-Tr" 
                                         data-personel_id    = "<?php echo $personel[ 'id' ]; ?>" 
                                         data-tutanak_id     = ""
@@ -430,10 +468,31 @@ foreach ($tum_personel as $personel) {
                 formData.append( "tip",          $( "#tip" ).val() );
                 formData.append( "tarih",        $( "#tarih" ).val() );
                 formData.append( "saat",         $( "#saat" ).val() );
-                window.location.reload();
             });
-            
+
+            // this.on('completemultiple', function (){
+            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
+            //     setTimeout(reload(), 5000);
+            // });
+
+            // this.on("queuecomplete", function (file) {
+            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
+            //     setTimeout(location.reload(), 5000);
+            // });
+        },
+        success: function(file, response){
+            var response = JSON.parse(response);
+            if ( response.sonuc == 'ok' ){
+                mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
+                
+                const yenile = setTimeout(sayfa_yenile, 2500);
+
+                function sayfa_yenile() {
+                    location.reload();
+                }
+            }
         }
+
     };
 
     $( "body" ).on('click', '.personel-Tr', function() {

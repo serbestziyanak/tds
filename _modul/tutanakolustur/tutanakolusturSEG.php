@@ -10,7 +10,6 @@
 	$tarih			= array_key_exists( 'tarih'		    , $_REQUEST ) ? $_REQUEST[ 'tarih' ]		: '';
 	$tip			= array_key_exists( 'tip'		    , $_REQUEST ) ? $_REQUEST[ 'tip' ]		: '';
 	$saat			= array_key_exists( 'saat'		    , $_REQUEST ) ? $_REQUEST[ 'saat' ]		: '';
-	$tip			= array_key_exists( 'tip'		    , $_REQUEST ) ? $_REQUEST[ 'tip' ]		: '';
 
 	//Gelen Personele Ait Bilgiler
 	$SQL_tek_personel_oku = <<< SQL
@@ -55,7 +54,7 @@
 
 	$SQL_tutanak_kaydet = <<< SQL
 	INSERT INTO
-		tb_tutanak_dosyalari
+		tb_tutanak
 	SET
 		 firma_id		= ?
 		,personel_id	= ?
@@ -94,14 +93,16 @@
 			die();
 		}
 	}
-	if( count( $tutanak_oku ) > 0 ){
-		$dizin		= "../../tutanak/".$personel_id.'/';
-		//personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
-		if (!file_exists($dizin)) {
-            if(!mkdir($dizin, '0777', true)){
-       			$sonuc["sonuc"] = "hata";
-            }
+	$dizin		= "../../tutanak/".$personel_id.'/';
+	//personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
+	if (!file_exists($dizin)) {
+        if(!mkdir($dizin, '0777', true)){
+   			$sonuc["sonuc"] = "hata";
         }
+    }
+
+	if( count( $tutanak_oku ) > 0 ){
+
 		//Gelen Dosyaları Yüklemesini Yapıyoruz
 		foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 			if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
@@ -114,9 +115,27 @@
 			}
 		}
 	}else{	
-		//Tunaka tablosuna kayıt yapılıp dosya yüklenecek
-		$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi ) );
 		
+		//Tunaka tablosuna kayıt yapılıp dosya yüklenecek
+		$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s") );
+		$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
+		$tutanak_id 	= $tutanak_Ekle[ 2 ];
+
+		if ( $tutanak_id > 0) {
+			//Gelen Dosyaları Yüklemesini Yapıyoruz
+			foreach ($_FILES['file']["tmp_name"] as $key => $value) {
+				if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
+					$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
+					$hedef_yol	= $dizin.$dosya_adi;
+					if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
+						$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi ) );
+						$sonuc["sonuc"] = 'ok';
+					}
+				}
+			}
+			$sonuc[ "sonuc" ] = 'ok';
+		}
+
 	}
 
 	echo json_encode($sonuc);
