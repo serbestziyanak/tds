@@ -28,7 +28,8 @@ WHERE
     gc.tarih       = ? AND 
     gc.baslangic_saat IS NOT NULL AND 
     gc.bitis_saat     IS NULL AND 
-    p.aktif        = 1 
+    p.aktif        = 1 AND
+    gc.aktif       = 1
 GROUP BY p.id
 SQL;
 
@@ -84,7 +85,8 @@ WHERE
     gc.tarih      = ? AND 
     gc.baslangic_saat IS NOT NULL AND 
     gc.bitis_saat     IS NOT NULL AND 
-    p.aktif       = 1
+    p.aktif       = 1 AND
+    gc.aktif      = 1
 GROUP BY p.id
 ORDER BY adi ASC
 SQL;
@@ -102,7 +104,10 @@ FROM
     tb_giris_cikis AS gc
 LEFT JOIN tb_personel AS p ON gc.personel_id =  p.id
 WHERE
-    gc.personel_id = ? AND gc.tarih =? AND p.firma_id = ?
+    gc.personel_id  = ? AND 
+    gc.tarih        = ? AND
+    p.firma_id      = ? AND 
+    gc.aktif        = 1
 ORDER BY baslangic_saat ASC 
 SQL;
 
@@ -263,7 +268,7 @@ foreach ($tum_personel as $personel) {
                     </li>
                 </ul>
             </div>
-            <div class="card-body direct-chat-messages" style="height:530px;">
+            <div class="card-body direct-chat-messages" style="height:auto; min-height: 333px; max-height: 530px; ">
                 <div class="tab-content" id="custom-tabs-two-tabContent">
                     <div class="tab-pane fade active show" id="custom-tabs-two-home" role="tabpanel" aria-labelledby="custom-tabs-two-home-tab">
                         <table class="table table-bordered table-hover table-sm dataTable no-footer dtr-inline" id="tbl_gelmeyenler" style="width: 100%;">
@@ -399,7 +404,7 @@ foreach ($tum_personel as $personel) {
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="">
-                    <div class="dropzone" id="dropzone">
+                    <div class="dropzone" id="dropzone" style="min-height: 247px;">
                         <div class="dz-message">
                             <h3 class="m-h-lg">Yüklemek istediğiniz dosyaları buyara sürükleyiniz</h3>
                             <p class="m-b-lg text-muted">(Yüklemek için dosyalarınızı sürükleyiniz yada buraya tıklayınız)<br>En Fazla 10 Resim Birden Yükleyebilirsiniz</p>

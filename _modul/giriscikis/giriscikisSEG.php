@@ -33,7 +33,8 @@ WHERE
 	personel_id 		   = ? AND 
 	tarih 				   = ? AND 
 	baslangic_saat IS NOT NULL AND 
-	bitis_saat IS NULL
+	bitis_saat IS NULL AND
+	aktif = 1
 SQL;
 
 //Giriş Çıkış id sine göre listeleme 
@@ -43,17 +44,30 @@ SELECT
 FROM
 	tb_giris_cikis 
 WHERE
-	id 		   = ?
+	id 		   = ? AND
+	aktif 	   = 1
 SQL;
 
 
-
+//Giriş çıkış idsine ve personel idsine göre veri olup olmadığını kontrol etme
+$SQL_giris_cikis_oku = <<< SQL
+SELECT
+	*
+FROM
+	tb_giris_cikis 
+WHERE
+	id 		   	= ? AND 
+	personel_id = ? AND
+	aktif 		= 1 
+SQL;
 
 $SQL_sil = <<< SQL
-DELETE FROM
-	tb_giris_cikis
+UPDATE tb_giris_cikis
+SET 
+	aktif 				 = 0,
+	kaydi_silen_personel = ?
 WHERE
-	id = ?
+	id 					 = ?  
 SQL;
 
 
@@ -131,7 +145,7 @@ $___islem_sonuc  		= array( 'hata' => false, 'mesaj' => 'İşlem başarı ile ge
 $SQL_ekle				.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
 $SQL_guncelle 			.= implode( ' = ?, ', $alanlar ) . ' = ?';
-$SQL_guncelle			.= " WHERE id = ?";
+$SQL_guncelle			.= " WHERE aktif = 1 AND id = ?";
 
 //Saat güncellemesi yapılıp yapılmadıgını kontrol ediyoruz
 if ( $islem == "saatguncelle" ) {
@@ -204,7 +218,11 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 	case 'sil':
-		$sonuc = $vt->delete( $SQL_sil, array( $giriscikis_id ) );
+		$giris_cikis_varmi = $vt->select( $SQL_giris_cikis_oku, array( $giriscikis_id, $personel_id ) );
+		if ( count( $giris_cikis_varmi ) > 0 ) {
+			$sonuc = $vt->delete( $SQL_sil, array( $_SESSION['kullanici_id'], $giriscikis_id ) );
+		}
+		
 	break;
 }
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;

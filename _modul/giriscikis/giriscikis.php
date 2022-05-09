@@ -64,8 +64,9 @@ SELECT
 FROM
 	tb_giris_cikis
 WHERE
-	personel_id = ? AND 
-	DATE_FORMAT(tarih,'%Y-%m') =? 
+	personel_id 			  = ? AND 
+	DATE_FORMAT(tarih,'%Y-%m') =? AND
+	aktif 				  = 1
 GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
@@ -80,7 +81,8 @@ SELECT
 	FROM tb_giris_cikis  
 	WHERE  
 		p.id = tb_giris_cikis.personel_id AND 
-		DATE_FORMAT(tarih,'%Y-%m-%d') = $listelenecekgun ) AS tarihSayisi
+		DATE_FORMAT(tarih,'%Y-%m-%d') = $listelenecekgun AND
+		tb_giris_cikis.aktif = 1 ) AS tarihSayisi
 FROM tb_personel AS p
 WHERE p.firma_id =? AND aktif = 1 
 SQL;
@@ -101,7 +103,7 @@ LEFT JOIN tb_giris_cikis_tipi AS ftp ON ftp.id =  gc.islem_tipi
 LEFT JOIN tb_giris_cikis_tipleri AS tp ON tp.id =  ftp.tip_id
 LEFT JOIN tb_personel AS p ON gc.personel_id =  p.id
 WHERE
-	gc.personel_id = ? AND gc.tarih =? AND p.firma_id = ?
+	gc.personel_id = ? AND gc.tarih =? AND p.firma_id = ? AND gc.aktif = 1
 ORDER BY baslangic_saat ASC 
 SQL;
 
@@ -783,22 +785,6 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 	</div>
 </div>
 
-<div class="modal fade"  id="sil_onay">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Lütfen Dikkat</h4>
-			</div>
-			<div class="modal-body">
-				<p>Bu kaydı silmek istediğinize emin misiniz?</p>
-			</div>
-			<div class="modal-footer justify-content-between">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
-				<a class="btn btn-danger btn-evet">Evet</a>
-			</div>
-		</div>
-	</div>
-</div>
 
 <?php  if($islem == "saatduzenle" AND count($personel_giris_cikis)>0 AND count($personel)> 0 ){ ?>
 	<div class="modal fade" id="saat_duzenle_modal"  aria-modal="true" role="dialog">
@@ -812,18 +798,18 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 					</div>
 					<div class="modal-body">
 						<?php $i = 1; foreach ($personel_giris_cikis as $giris_cikis) { ?>
-							<input type="hidden" value="<?php echo $giris_cikis["id"] ?>" name="giriscikis_id[]">
+							<input type="hidden" value="<?php echo $giris_cikis["id"]; ?>" name="giriscikis_id[]">
 							<div class="form-group">
-								<div class="btn btn-danger float-right" id="sil">Sil</div>
-			                    <label>Başlangıc Saati</label>
-			                    <div class="input-group date" id="timepickerBaslangic-<?php echo $i; ?>" data-target-input="nearest">
-			                      <input type="text" name="baslangic_saat[]" class="form-control datetimepicker-input" data-target="#timepickerBaslangic-<?php echo $i; ?>" value="<?php echo $giris_cikis["baslangic_saat"]; ?>">
-			                        <div class="input-group-append" data-target="#timepickerBaslangic-<?php echo $i; ?>" data-toggle="datetimepicker">
-			                          	<div class="input-group-text"><i class="far fa-clock"></i></div>
-			                        </div>
-			                    </div>
-			                    <!-- /.input group -->
-			                </div>
+								<span  modul= "giriscikis" yetki_islem="sil" data-href="_modul/giriscikis/giriscikisSEG.php?islem=sil&giriscikis_id=<?php echo $giris_cikis["id"]; ?>&personel_id=<?php echo $personel_id; ?>" data-toggle="modal" data-target="#sil_onay"  class="btn btn-xs btn-danger float-right" id="sil">Sil</span>
+				                    <label>Başlangıc Saati</label>
+				                    <div class="input-group date" id="timepickerBaslangic-<?php echo $i; ?>" data-target-input="nearest">
+				                      <input type="text" name="baslangic_saat[]" class="form-control datetimepicker-input" data-target="#timepickerBaslangic-<?php echo $i; ?>" value="<?php echo $giris_cikis["baslangic_saat"]; ?>">
+				                        <div class="input-group-append" data-target="#timepickerBaslangic-<?php echo $i; ?>" data-toggle="datetimepicker">
+				                          	<div class="input-group-text"><i class="far fa-clock"></i></div>
+				                        </div>
+				                    </div>
+				                    <!-- /.input group -->
+				                </div>
 	                  		<!-- /.form group -->
 	                  		<div class="form-group">
 			                    <label>Bitiş Saati</label>
@@ -836,7 +822,6 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 			                    <!-- /.input group -->
 			                </div>
 	                  		<!-- /.form group -->
-	                  		<hr>
 	                  		<hr>
                   		<?php $i++; } ?>
                   		
@@ -853,6 +838,23 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 <?php }else{echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";}?>
 <!--Toplu Hareket Ekleme Modalı-->
 
+
+<div class="modal fade"  id="sil_onay">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Lütfen Dikkat</h4>
+			</div>
+			<div class="modal-body">
+				<p>Bu kaydı silmek istediğinize emin misiniz?</p>
+			</div>
+			<div class="modal-footer justify-content-between">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
+				<a class="btn btn-danger btn-evet">Evet</a>
+			</div>
+		</div>
+	</div>
+</div>
 
 <script>
 
