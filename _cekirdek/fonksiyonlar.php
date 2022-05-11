@@ -536,31 +536,49 @@ SQL;
 	//Giriş Çıkış tablosunda kayırlı olan sat ve güncellenen saatin karsılaştırmasını yapıyoruz Eger guncelenen bir saat varsa onu ele alacağız yoksa kaytıtlı saati alacagız 
 	public function saatKarsilastir($kayitliSaat,$guncellenenSaat){
 		if ($guncellenenSaat == "" or $guncellenenSaat == "00:00:00") {
-			$saat = $kayitliSaat == '' ? ' - ' : date("H:i",strtotime($kayitliSaat));
+			$saat[] = $kayitliSaat == '' ? ' - ' : date("H:i",strtotime($kayitliSaat));
+			$saat[] = $kayitliSaat == '' ? ' - ' : date("H:i",strtotime($kayitliSaat));
 			
 		}else{
-			$saat = $kayitliSaat == '' ? ' - ' : '<b class="text-danger">'.date("H:i",strtotime($guncellenenSaat)).'</b>';
+			$saat[] = $kayitliSaat == '' ? ' - ' : date("H:i",strtotime($guncellenenSaat));
+			$saat[] = $kayitliSaat == '' ? ' - ' : '<b class="text-danger">'.date("H:i",strtotime($guncellenenSaat)).'</b>';
 		}
 		return $saat;
 	}
 
 	public function islemTipi($islemtipi,$personel_id,$tarih){
-		$sonuc ="";
+		$sonuc  = "";
+		$baslik = "Tutanak Oluştur";
 		if (!array_key_exists( "gelmedi", $islemtipi)) {
 			if (count($islemtipi) == 0) {
-				$sonuc   =  '<b class="text-center text-success">Mesaide</b>';
+				$baslik  = 	'Mesaide';
 			}else if ( array_key_exists( "gecgelme", $islemtipi ) or array_key_exists( "erkencikma", $islemtipi ) ){
-				$sonuc = array_key_exists( "gecgelme", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" class="btn btn-outline-info btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Geç Gelme Tutanağı</a><a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '';
+				$sonuc = array_key_exists( "gecgelme", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" class="btn btn-outline-info btn-xs col-sm-12" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn" >Geç Gelme Yazdır </a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gecgelme&saat='.$islemtipi["gecgelme"].'" target="_blank" class="btn btn-xs col-sm-12 btn-dark mt-1">Geç Gelme Word İndir</a>' : '';
 
 				//Personel erken çıkmış
-				$sonuc .= array_key_exists( "erkencikma", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'" class="btn btn-outline-dark btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Erken Çıkma Tutanağı</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'"  target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '';
+				$sonuc .= array_key_exists( "erkencikma", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'" class="btn btn-outline-primary btn-xs col-sm-12 mt-1" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Erken Çıkma Yazdır</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=erkencikma&saat='.$islemtipi["erkencikma"].'"  target="_blank" class="btn btn-xs col-sm-12 btn-dark mt-1">Erken Çıkma Word İndir</a>' : '';
 			}else{
 				$sonuc = '<b class="text-center text-warning">'.implode( ", ", $islemtipi).'</b>';
 			}
 		}else{
 			//Personel hiç giriş yapmamış ise 
-			$sonuc =  array_key_exists( "gelmedi", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk" class="btn btn-danger btn-xs" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Tutanak Tut</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk"  target="_blank" class="btn btn-xs btn-dark">Word İndir</a>' : '<b class="text-center text-warning">'.implode( ", ", $islemtipi ).'</b>';
+			$sonuc =  array_key_exists( "gelmedi", $islemtipi ) ? '<a target="_blank" href="?modul=tutanakolustur&personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk" class="btn btn-danger btn-xs col-sm-12" data-id="'.$personel_id.'" id="GelememeTutanakOlusturBtn">Tutanak Tut</a> <a href="_modul/wordolustur/wordolustur.php?personel_id='.$personel_id.'&tarih='.$tarih.'&tip=gunluk"  target="_blank" class="btn btn-xs col-sm-12 btn-dark mt-1">Word İndir</a>' : '<b class="text-center text-warning">'.implode( ", ", $islemtipi ).'</b>';
 		}
+		if ( $baslik == 'Mesaide' ){
+			$sonuc  = '<b class="text-success">Mesaide</b>';
+		}else{
+			//dropdown menu oluşturma
+			$sonuc = '
+			<div class="btn-group">
+	          <button type="button" class="btn btn-xs btn-default" data-toggle="dropdown" aria-expanded="false">'.$baslik.'</button>
+	          
+	          </button>
+	          <div class="dropdown-menu" role="menu" style="min-width:180px; padding:10px;">
+	            '.$sonuc.'
+	          </div>
+	        </div>';
+		}
+			
 
 		return $sonuc;
 	}

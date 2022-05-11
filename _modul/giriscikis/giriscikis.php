@@ -300,19 +300,19 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 										// die();
 
 										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
-										$son_cikis_index 		     = $personel_giris_cikis_sayisi - 1;
-										$ilk_islemtipi 			= $personel_giris_cikis_saatleri[0]['islem_tipi'];
-										$son_islemtipi 			= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
+										$son_cikis_index 	= $personel_giris_cikis_sayisi - 1;
+										$ilk_islemtipi 	= $personel_giris_cikis_saatleri[0]['islem_tipi'];
+										$son_islemtipi 	= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
 
-										$ilkGirisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
+										$ilkGirisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
 
-										$SonCikisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
+										$SonCikisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 										
-										if ($ilkGirisSaat > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
-											$islemtipi["gecgelme"] 	 = $ilkGirisSaat;
+										if ($ilkGirisSaat[0] > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
+											$islemtipi["gecgelme"] 	 = $ilkGirisSaat[0];
 										}
-										if ($SonCikisSaat < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
-											$islemtipi["erkencikma"] = $SonCikisSaat;
+										if ($SonCikisSaat[0] < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+											$islemtipi["erkencikma"] = $SonCikisSaat[0];
 										}
 
 								?>
@@ -348,13 +348,13 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 													$bitisSaat 		= $fn->saatKarsilastir($giriscikis[ 'bitis_saat' ], $giriscikis["bitis_saat_guncellenen"]);
 													
 													echo '
-														<td class="text-center">'.$baslangicSaat.'</td>
-														<td class="text-center">'.$bitisSaat.'</td>';
+														<td class="text-center">'.$baslangicSaat[1].'</td>
+														<td class="text-center">'.$bitisSaat[1].'</td>';
 												}
 											}else if($personel_giris_cikis_sayisi == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
 												$baslangicSaat 	= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0][ 'baslangic_saat_guncellenen' ]);
 												$bitisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'bitis_saat' ], $personel_giris_cikis_saatleri[0][ 'bitis_saat_guncellenen' ]);
-												echo '<td class="text-center">'.$baslangicSaat.'</td>';
+												echo '<td class="text-center">'.$baslangicSaat[1].'</td>';
 												$i = 1;
 												while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 													echo '
@@ -364,7 +364,7 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 													$i++;
 												}
 
-												echo '<td class="text-center">'.$bitisSaat.'</td>';
+												echo '<td class="text-center">'.$bitisSaat[1].'</td>';
 
 											}else{ //Günde birden fazla giriş çıkış var ise 
 												$i = 1;
@@ -376,12 +376,12 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 														$bitisSaat 		= $fn->saatKarsilastir($giriscikis[ 'bitis_saat' ], $giriscikis["bitis_saat_guncellenen"]);
 
 														echo '
-															<td class="text-center">'.$baslangicSaat.'</td>
-															<td class="text-center">'.$bitisSaat.'</td>';
+															<td class="text-center">'.$baslangicSaat[1].'</td>
+															<td class="text-center">'.$bitisSaat[1].'</td>';
 													}else{
 														$baslangicSaat 	= $fn->saatKarsilastir($giriscikis[ 'baslangic_saat' ], $giriscikis["baslangic_saat_guncellenen"]);
 														$bitisSaat 		= $fn->saatKarsilastir($giriscikis[ 'bitis_saat' ], $giriscikis["bitis_saat_guncellenen"]);
-														echo '<td  class="text-center">'.$baslangicSaat.'</td>';
+														echo '<td  class="text-center">'.$baslangicSaat[1].'</td>';
 														$j = 1;
 														while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 															echo '
@@ -389,7 +389,7 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 																<td class="text-center"> - </td>';
 															$j++;
 														}
-														echo '<td class="text-center">'.$bitisSaat.'</td>';
+														echo '<td class="text-center">'.$bitisSaat[1].'</td>';
 													}
 													$i++;
 												}
@@ -477,11 +477,11 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 
 										$SonCikisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 										
-										if ($ilkGirisSaat > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
-											$islemtipi["gecgelme"] 	 = $ilkGirisSaat;
+										if ($ilkGirisSaat[0] > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
+											$islemtipi["gecgelme"] 	 = $ilkGirisSaat[0];
 										}
-										if ($SonCikisSaat < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
-											$islemtipi["erkencikma"] = $SonCikisSaat;
+										if ($SonCikisSaat[0] < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+											$islemtipi["erkencikma"] = $SonCikisSaat[0];
 										}
 
 
@@ -512,14 +512,14 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 												$baslangicSaat 	= $fn->saatKarsilastir($giriscikis_personel[ 'baslangic_saat' ], $giriscikis_personel["baslangic_saat_guncellenen"]);
 												$bitisSaat 		= $fn->saatKarsilastir($giriscikis_personel[ 'bitis_saat' ], $giriscikis_personel["bitis_saat_guncellenen"]);
 												echo '
-													<td class="text-center">'.$baslangicSaat.'</td>
-													<td class="text-center">'.$bitisSaat.'</td>	
+													<td class="text-center">'.$baslangicSaat[1].'</td>
+													<td class="text-center">'.$bitisSaat[1].'</td>	
 												';
 											}
 										}else if($personel_toplam_giriscikis_sayisi == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
 											$baslangicSaat 	= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0][ 'baslangic_saat_guncellenen' ]);
 											$bitisSaat 	= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'bitis_saat' ], $personel_giris_cikis_saatleri[0][ 'bitis_saat_guncellenen' ]);
-											echo '<td class="text-center">'.$baslangicSaat.'</td>';
+											echo '<td class="text-center">'.$baslangicSaat[1].'</td>';
 											$i = 1;
 											while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 												echo '
@@ -528,7 +528,7 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 												';
 												$i++;
 											}
-											echo '<td class="text-center">'.$bitisSaat.'</td>';
+											echo '<td class="text-center">'.$bitisSaat[1].'</td>';
 										}else{ //Gündee birden fazla giriş çıkış var ise 
 											$i = 1;
 											foreach($personel_giris_cikis_saatleri AS $giriscikis_saat){
@@ -538,8 +538,8 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 
 												if($i < $personel_toplam_giriscikis_sayisi){
 													echo '
-														<td class="text-center">'.$baslangicSaat.'</td>
-														<td class="text-center">'.$bitisSaat.'</td>';
+														<td class="text-center">'.$baslangicSaat[1].'</td>
+														<td class="text-center">'.$bitisSaat[1].'</td>';
 												}else{
 													$j = 1;
 													while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
@@ -549,7 +549,7 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 														';
 														$j++;
 													}
-													echo '<td class="text-center">'.$bitisSaat.'</td>';
+													echo '<td class="text-center">'.$bitisSaat[1].'</td>';
 												}
 												$i++;
 											}
