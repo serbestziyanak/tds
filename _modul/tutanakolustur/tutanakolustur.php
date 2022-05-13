@@ -63,13 +63,6 @@ if ( array_key_exists( 'saat', $_REQUEST ) ){
 	}
 }
 
-//saatin sonuna de veya da bırakacağımızı belirliyoruz
-$saat_son_rakam = substr($_REQUEST['saat'], -1);
-$ek = "de";
-if ($saat_son_rakam == 0 or $saat_son_rakam == 6 or $saat_son_rakam == 9 ) {
-	$ek = "da";
-}
-
 ?>
 
 <script type="text/javascript">
@@ -168,7 +161,6 @@ $(document).ready(function() {
 		    	subject:'Günlük Devamsızlık Tutanağı'
 		    }
 	    };
-	    alert();
 	    createPdf(docDefinition).print({}, window);
 
 });
