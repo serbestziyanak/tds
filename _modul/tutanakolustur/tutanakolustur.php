@@ -161,32 +161,8 @@ $(document).ready(function() {
 		    	subject:'Günlük Devamsızlık Tutanağı'
 		    }
 	    };
-	    
+	    alert();
 	    createPdf(docDefinition).print({}, window);
-
-		// const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-		// pdfDocGenerator.download();
-		// pdfDocGenerator.getBlob((blob) => {
-
-		// 	var pdf 	= blob;
-		// 	var data 	= new FormData();
-		// 	data.append('data' 		  , pdf );
-		// 	data.append('personel_id' , "<?php echo $personel_id; ?>" );
-		// 	data.append('tarih' 	  , "<?php echo $tarih; ?>" );
-		// 	data.append('tip' 		  , "<?php echo $_REQUEST[ 'tip' ]; ?>" );
-
-		// 	var xhr = new XMLHttpRequest();
-		// 	xhr.onreadystatechange = function() {
-		// 	  if (this.readyState == 4) {
-		// 	    if (this.status !== 200) {
-		// 	      console.log("hata oluştu");
-		// 	    }
-		// 	  }
-		// 	}
-
-		// 	xhr.open('POST', '_modul/tutanakolustur/tutanakolusturSEG.php', true);
-		// 	xhr.send(data);
-		// });
 
 });
 	
