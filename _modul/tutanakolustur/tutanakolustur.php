@@ -54,6 +54,14 @@ if ( $_REQUEST['tip'] == "gunluk" ) {
 	}
 }
 
+if ( array_key_exists( 'saat', $_REQUEST ) ){
+	//saatin sonuna de veya da bırakacağımızı belirliyoruz
+	$saat_son_rakam = substr($_REQUEST['saat'], -1);
+	$ek = "de";
+	if ($saat_son_rakam == 0 or $saat_son_rakam == 6 or $saat_son_rakam == 9 ) {
+		$ek = "da";
+	}
+}
 
 //saatin sonuna de veya da bırakacağımızı belirliyoruz
 $saat_son_rakam = substr($_REQUEST['saat'], -1);
@@ -83,7 +91,6 @@ $(document).ready(function() {
 		tutanak_icerigi = '\u200B\t \u200B\t Yukarıda Unvanı adresi yazılı işyerimizde çalışan <?php echo $personel[0]["tc_no"]; ?> T.C. kimlik numaralı <?php echo $personel[0]["adsoyad"] ?> isimli işçimiz <?php echo date("d.m.Y", strtotime($_REQUEST["tarih"])); ?> tarihinde iznimiz ve bilgimiz olmaksızın mazeretsiz olarak saat <?php echo $_REQUEST["saat"]."\'".$ek; ?> iş yerimizden ayrılmıştır.\n\n\u200B \t\u200B\t İşbu tutanak <?php echo date("d.m.Y") ?> tarihinde aşağıda isimleri yazılı şahitler huzurunda düzenlenmiş ve müştereken imza altına alınmıştır.';
 	}
 
-	var canvasElement = document.getElementById("canvas");
 		var tarih = new Date();
 	    var docDefinition = {
 	        content: [

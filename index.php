@@ -3,7 +3,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 	session_start();
 }
 	define("ADMIN", true);
-	error_reporting( E_ALL );
+	error_reporting( 0 );
 	// Bu sayfa için önbellekleme yapmamaya zorla
 	header( 'Pragma: no-cache' );
 	header( 'Cache-Control: no-cache, must revalidate' );
