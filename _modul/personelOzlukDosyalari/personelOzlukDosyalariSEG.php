@@ -7,6 +7,7 @@ $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: '
 $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'personel_id' ]	: 0;
 $dosya_turu_id	= array_key_exists( 'dosya_turu_id', $_REQUEST )	? $_REQUEST[ 'dosya_turu_id' ]	: 0;
 $dosya_id		= array_key_exists( 'dosya_id', $_REQUEST )			? $_REQUEST[ 'dosya_id' ]		: 0;
+$dosya_durumu	= array_key_exists( 'dosya_durumu', $_REQUEST )		? $_REQUEST[ 'dosya_durumu' ]	: 0;
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
@@ -65,10 +66,25 @@ WHERE
 	id = ?
 SQL;
 
+$SQL_dosya_durum_guncelle = <<< SQL
+UPDATE
+	tb_personel
+SET
+	ozluk_dosya_durumu = ?
+WHERE
+	id = ?
+SQL;
+
+// Firmaya ait personel olup olmadıgını kontrol etme personel yok ise işlemi sonlandırılıyors
+$personel = $vt->select( $SQL_tum_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) );
+
+if( count( $personel ) < 1 ){
+	$sonuc[ "sonuc" ] = 'hata';
+	die();
+}
+
 switch( $islem ) {
 	case 'ekle':
-
-		$personel			= $vt->select( $SQL_tum_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) );
 		$dosya_turu_adi		= $vt->select( $SQL_dosya_turu_adi, array( $dosya_turu_id ) );
 
 		$dosya_turu_adi		= $dosya_turu_adi[ 2 ][ 0 ][ 'adi' ];
@@ -99,6 +115,25 @@ switch( $islem ) {
 		//Sunucudan Dosyayı Siliyoruz.
 		unlink($dizin.$personel_ozluk_dosyasi["dosya"]);
 	break;
+
+	case 'dosyadurumu':
+		$sonuc[ "sonuc" ] = 'hata';
+		if ( $dosya_durumu == 0 or $dosya_durumu == 1 ) {
+			$personel_dosya_durumu_guncelle = $vt->update($SQL_dosya_durum_guncelle,array($dosya_durumu,$personel_id));
+			if ( $personel_dosya_durumu_guncelle ){
+				$sonuc["sonuc"] = "ok";
+				echo json_encode($sonuc);
+				die();
+			}else{
+				$sonuc["sonuc"] = "hata";
+				echo json_encode($sonuc);
+				die();
+			}
+			
+
+		}
+	break;
+	
 }
 header( "Location:../../index.php?modul=personelOzlukDosyalari&personel_id=$personel_id" );
 ?>

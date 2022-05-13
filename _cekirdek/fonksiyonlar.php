@@ -582,4 +582,23 @@ SQL;
 
 		return $sonuc;
 	}
+
+	public function islem_tipi_isim( $islem ) {
+		
+		switch ($islem) {
+			case 'gunluk':
+				$sonuc = 'Gelmeme';
+				break;
+
+			case 'gecgelme':
+				$sonuc = 'Geç Gelme';
+				break;
+			
+			case 'erkencikma':
+				$sonuc = 'Geç Gelme';
+				break;
+		}
+
+		return $sonuc;
+	}
 }

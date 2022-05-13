@@ -692,6 +692,9 @@ foreach ($tum_personel as $personel) {
                 </div>
                 <div class="card-body" id="CardBody">
                     <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="">
+                        <div class="form-group">
+                            <input type="text" name="aciklama" id="aciklama" class="form-control" placeholder="Acıklama Kısmı">
+                        </div>
                         <div class="dropzone" id="dropzone" style="min-height: 247px;">
                             <div class="dz-message">
                                 <h3 class="m-h-lg">Yüklemek istediğiniz dosyaları buyara sürükleyiniz</h3>
@@ -766,6 +769,7 @@ foreach ($tum_personel as $personel) {
                 formData.append( "tip",          $( "#tip" ).val() );
                 formData.append( "tarih",        $( "#tarih" ).val() );
                 formData.append( "saat",         $( "#saat" ).val() );
+                formData.append( "aciklama",     $( "#aciklama" ).val() );
                 formData.append( "islem",        $( "#islem" ).val() );
             });
 
@@ -826,7 +830,7 @@ foreach ($tum_personel as $personel) {
         var ad          = $( this ).data( "ad" ); 
         var tip         = $( this ).data( "tip" ); 
         var tarih       = $( this ).data( "tarih" ); 
-        var saat        = $( this ).data( "saat" ); 
+        var saat        = $( this ).data( "saat" );
 
         //Gelen verileri forma atıyoruz
         $( "#personel_id" ).val( personel_id );

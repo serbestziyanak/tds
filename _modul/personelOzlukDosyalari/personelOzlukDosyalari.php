@@ -8,6 +8,7 @@ $SQL_tum_personel_oku = <<< SQL
 SELECT
 	 tb_personel.id
 	,CONCAT( adi, " ", soyadi ) as adi
+	,ozluk_dosya_durumu
 	,(select COUNT(tb_personel_ozluk_dosyalari.id) 
 		FROM tb_personel_ozluk_dosyalari 
 		WHERE tb_personel_ozluk_dosyalari.personel_id = tb_personel.id 
@@ -22,8 +23,9 @@ $SQL_tek_personel_oku = <<< SQL
 SELECT
 	id
 	,adi,
-	soyadi
-	,(select COUNT(tb_personel_ozluk_dosyalari.id) 
+	soyadi,
+	ozluk_dosya_durumu,
+	(select COUNT(tb_personel_ozluk_dosyalari.id) 
 		FROM tb_personel_ozluk_dosyalari 
 		WHERE tb_personel_ozluk_dosyalari.personel_id = tb_personel.id  
 		GROUP BY personel_id) AS dosyaSayisi
@@ -47,6 +49,26 @@ WHERE
 	od.personel_id = ?
 SQL;
 
+//Personele ait tutanaklar lisetsi
+$SQL_personel_tutanaklari = <<< SQL
+SELECT
+	t.id as tutanak_id,
+	t.tarih,
+	t.tip,
+	t.saat,
+	td.aciklama,
+	td.dosya,
+	td.id as dosya_id
+FROM 
+	tb_tutanak AS t 
+INNER JOIN 
+	tb_tutanak_dosyalari AS td ON t.id = td.tutanak_id
+WHERE 
+	t.firma_id 		= ? AND
+	t.personel_id 	= ?
+ORDER BY t.tarih ASC,  t.id ASC
+SQL;
+
 $SQL_personel_ozluk_dosya_turleri = <<< SQL
 SELECT
 	*
@@ -54,10 +76,13 @@ FROM
 	tb_personel_ozluk_dosya_turleri
 SQL;
 
+
+
 $personeller					= $vt->select( $SQL_tum_personel_oku, array() );
 $personel_id					= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
 $personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[2];
+$personel_tutanaklari			= $vt->select( $SQL_personel_tutanaklari, array( $_SESSION['firma_id'], $personel_id ) )[2];
 $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, array() );
 
 //Özlük Dosyası İçin İstanilen Evrak Sayısı 
@@ -112,12 +137,13 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 							</thead>
 							<tbody>
 								<?php $sayi = 1;  foreach( $personeller[ 2 ] AS $personel ) { 
-									$evraklarBtnRenk = $personel_ozluk_dosya_turleri_sayisi - $personel[ "dosyaSayisi" ] == 0 ? 'success':'warning'; 
+									$evraklarBtnRenk = $personel[ "ozluk_dosya_durumu" ] == 1 ? 'success' : 'warning'; 
+									$dosya_durumu = $personel[ "ozluk_dosya_durumu" ] == 1 ? 'Tamam' : 'Eksik'; 
 								?>
 								<tr  <?php if( $personel[ 'id' ] == $personel_id ) echo "class = '$satir_renk'";?>>
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
-									<td><?php echo $personel_ozluk_dosya_turleri_sayisi - $personel[ "dosyaSayisi" ]; ?></td>
+									<td><?php echo $dosya_durumu; ?></td>
 									<td align = "center">
 									<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-<?php echo $evraklarBtnRenk; ?> btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
 										Evraklar
@@ -131,9 +157,18 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 				</div>
 			</div>
 			<div class = "col-md-8">
-				<div class="card card-primary">
+				<div class="card card-light">
 					<div class="card-header">
-						<h3 class="card-title"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Özlük Dosyası Ekle</h3>
+						<h3 class="card-title">
+							<?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Özlük Dosyası Ekle
+						</h3>
+						<div class="card-tools">
+							<div class="icheck-success">
+								Personele Ait Dosyalar Tamamlandı &nbsp;
+								<input type="checkbox" <?php echo $tek_personel[ 2 ][ 0 ][ 'ozluk_dosya_durumu' ] == 1 ? 'checked' : ''; ?>  onclick="dosyaDurumu(this,<?php echo $personel_id; ?>);" id="dosyaDurumu" >
+								<label for="dosyaDurumu"  ></label>
+							</div>
+						</div>
 					</div>
 					<div class="card-body">
 						<?php foreach( $personel_ozluk_dosya_turleri[ 2 ] AS $dosya_turu ) { ?>
@@ -217,10 +252,123 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 						</div>
 					</div>
 				</div>
+				<div class="card card-warning">
+					<div class="card-header">
+						<h3 class="card-title"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Tutanakları</h3>
+						<div class="card-tools">
+	                        <button type="button" class="btn btn-outline-dark personel-Tr" data-durum="yeni" data-personel_id ="<?php echo $personel_id; ?>">
+	                            <i class="fas fa-file"></i> &nbsp; Yeni Tutanak Ekle
+	                        </button>
+	                    </div>
+					</div>
+					<div class="card-body">
+						<div class="card card-default">
+							<div class="card-body">
+								<div id="actions" class="row">
+									<table class="table table-striped table-valign-middle">
+										<tbody>
+											<?php
+											if( count( $personel_tutanaklari ) > 0 ) {
+												foreach( $personel_tutanaklari AS $tutanak ) { ?>
+													<tr>
+														<td>
+															<?php
+																if ( $tutanak[ "aciklama" ]  != '' ) {
+																	echo $tutanak[ "aciklama" ];
+																}else{
+																	echo $tutanak[ 'tarih' ].'tarihli'.$fn->islem_tipi_isim( $tutanak[ "tip" ] ).'Tutanağı';
+																}
+															?>
+														</td>
+														<td align = "right" width = "20%">
+															<button class="personel-Tr btn btn-dark"
+																data-personel_id    ="<?php echo $personel_id; ?>"
+																data-tutanak_id 	="<?php echo $tutanak[ 'tutanak_id' ]; ?>"
+																data-tarih 		    ="<?php echo $tutanak[ 'tarih' ]; ?>"
+																data-saat 			="<?php echo $tutanak[ 'saat' ]; ?>"
+																data-tip			="<?php echo $tutanak[ 'tip' ]; ?>"
+																data-durum			="<?php echo $tutanak[ 'durum' ]; ?>">
+																<i class = "fa fa-file"></i>&nbsp; Dosya Yükle
+															</button>
+														</td>
+
+														<td align = "right" width = "5%">
+															<a href = "tutanak/<?php echo $personel_id; ?>/<?php echo $tutanak[ 'dosya' ]; ?>"
+																data-toggle="tooltip"
+																data-placement="top"
+																title="Dosyayı İndir" target="_blank">
+																<i class = "fa fa-download"></i>
+
+															</a>
+														</td>
+														<td align = "right" width = "5%">
+															<a href = "" 
+															modul = 'personelOzlukDosyalari' yetki_islem="sil"
+															data-href="_modul/tutanakolustur/olusturSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&dosya_id=<?php echo $tutanak[ 'dosya_id' ]; ?>"
+															data-target="#kayit_sil"
+															data-toggle="modal"
+															data-toggle="tooltip" 
+															data-placement="left" 
+															title="Dosyayı Sil">
+															<i class = "fa fa-trash color:red"></i>
+														</a>
+													</td>
+												</tr>
+												<?php
+											}
+										} else { ?>
+											<h6>Listelenecek kayıt bulunamadı!</h6>
+										<?php } ?>
+										</tbody>	
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </section>
+
+<!-- dropzone modal -->
+<div class="modal fade" id="dosyayukle" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content ">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Tutanak Dosya Yükleme</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="dropzonedosya" id="DosyaAlani" >
+	                <div class="card-body" id="CardBody">
+	                    <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="">
+	                    	<div class="form-group">
+	                    		<input type="text" name="aciklama" id="aciklama" class="form-control" placeholder="Acıklama Kısmı">
+	                        </div>
+	                        <div class="dropzone" id="dropzone" style="min-height: 247px;">
+	                            <div class="dz-message">
+	                                <h3 class="m-h-lg">Yüklemek istediğiniz dosyaları buyara sürükleyiniz</h3>
+	                                <p class="m-b-lg text-muted">(Yüklemek için dosyalarınızı sürükleyiniz yada buraya tıklayınız)<br>En Fazla 10 Resim Birden Yükleyebilirsiniz</p>
+	                            </div>
+	                        </div>
+	                        <input type="hidden" name="personel_id" id="personel_id">
+	                        <input type="hidden" name="tutanak_id" id="tutanak_id">
+	                        <input type="hidden" name="tip" id="tip">
+	                        <input type="hidden" name="tarih" id="tarih">
+	                        <input type="hidden" name="saat" id="saat">
+	                        <input type="hidden" name="durum" id="durum">
+	                        <input type="hidden" name="islem" id="islem" value="dosyaekle">
+	                        <a href="javascript:void(0);" class="btn btn-outline-info" style="margin-top:10px; width: 100%;" id="submit-all">Yükle</a>
+	                    </form>
+		            </div>
+		        </div> 
+			</div>
+		</div>
+	</div>
+</div>
+
+
 
 <script>
 	$('#tbl_personelOzlukDosyalari').DataTable({
@@ -246,5 +394,128 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 		document.querySelector("#label-"+id).style.fontWeight = "bold";
 		
 	});
+	
+    Dropzone.options.dropzone = {
+        url: 'http://localhost/tds/tds/_modul/tutanakolustur/tutanakolusturSEG.php',
+        autoProcessQueue: false,
+        uploadMultiple:true,
+        parallelUploads: 10,
+        maxFiles: 10,
+        acceptedFiles: ".jpeg,.jpg,.png,.pdf",
+
+        init: function () {
+
+            var submitButton = document.querySelector("#submit-all");
+            var wrapperThis = this;
+
+            submitButton.addEventListener("click", function () {
+                wrapperThis.processQueue();
+            });
+
+            this.on("addedfile", function (file) {
+
+                // Kaldır Butonu Oluşturma
+                var removeButton = Dropzone.createElement("<div class'text-center' style='display: block; width: 100%;text-align: center;margin-top: 7px;'><button style='display:block;width: 100%;border-radius:7px;' class='btn btn-xs btn-danger'>Kaldır</button>");
+
+                // Kaldır Butonuna Tıklandığında
+                removeButton.addEventListener("click", function (e) {
+                    // Make sure the button click doesn't submit the form:
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Remove the file preview.
+                    wrapperThis.removeFile(file);
+                    // If you want to the delete the file on the server as well,
+                    // you can do the AJAX request here.
+                });
+
+                // Add the button to the file preview element.
+                file.previewElement.appendChild(removeButton);
+            });
+
+            this.on('sendingmultiple', function (data, xhr, formData) {
+                formData.append( "personel_id",  $( "#personel_id" ).val() );
+                formData.append( "tutanak_id",   $( "#tutanak_id" ).val() );
+                formData.append( "tip",          $( "#tip" ).val() );
+                formData.append( "tarih",        $( "#tarih" ).val() );
+                formData.append( "saat",         $( "#saat" ).val() );
+                formData.append( "aciklama",     $( "#aciklama" ).val() );
+                formData.append( "durum",        $( "#durum" ).val() );
+                formData.append( "islem",        $( "#islem" ).val() );
+            });
+
+            // this.on('completemultiple', function (){
+            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
+            //     setTimeout(reload(), 5000);
+            // });
+
+            // this.on("queuecomplete", function (file) {
+            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
+            //     setTimeout(location.reload(), 5000);
+            // });
+        },
+        success: function(file, response){
+            var response = JSON.parse(response);
+            if ( response.sonuc == 'ok' ){
+                mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
+                
+                const yenile = setTimeout(sayfa_yenile, 2500);
+
+                function sayfa_yenile() {
+                    location.reload();
+                }
+            }
+        }
+    };
+
+    $( "body" ).on('click', '.personel-Tr', function() {
+
+        $("#dosyayukle").modal("show");
+
+        //Tablodaki tüm satırları normale ceviriyoruzz  Tıklanan satırı arka planını warning yapıyoruz
+        $(".personel-Tr").each(function() {
+            $(this).removeClass("table-warning")
+        });
+        $(this).addClass("table-warning");
+
+        //Satıra ait data verileri çekiyoruz
+        var personel_id = $( this ).data( "personel_id" );
+        var tutanak_id  = $( this ).data( "tutanak_id" );
+        var tip         = $( this ).data( "tip" ); 
+        var tarih       = $( this ).data( "tarih" ); 
+        var saat        = $( this ).data( "saat" ); 
+        var durum       = $( this ).data( "durum" ); 
+
+        //Gelen verileri forma atıyoruz
+        $( "#personel_id" ).val( personel_id );
+        $( "#tutanak_id" ).val( tutanak_id );
+        $( "#tip" ).val( tip );
+        $( "#tarih" ).val( tarih );
+        $( "#saat" ).val( saat );
+        $( "#durum" ).val( durum );
+        
+    });
+
+    function dosyaDurumu(cb,personel_id) {
+    	var dosya_durumu;
+	  	var personel_id 	= personel_id; 
+	  	 cb.checked == true  ?  dosya_durumu 	= 1 : dosya_durumu 	= 0;
+
+	  	var url         	= '_modul/personelOzlukDosyalari/personelOzlukDosyalariSEG.php?islem=dosyadurumu';
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: 'personel_id=' + personel_id+'&dosya_durumu=' + dosya_durumu, 
+            cache: false,
+            success: function(response) {
+                var response = JSON.parse(response);
+                if ( response.sonuc == 'ok' ){
+                    mesajVer('Personele Ait Dosya Durumu Güncelllendi','yesil');
+                }
+            }
+
+        })
+	}
+    
 
 </script>

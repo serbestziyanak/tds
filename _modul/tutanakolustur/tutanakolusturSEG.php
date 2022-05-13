@@ -10,6 +10,8 @@
 	$tarih			= array_key_exists( 'tarih'		    , $_REQUEST ) ? $_REQUEST[ 'tarih' ]		: '';
 	$tip			= array_key_exists( 'tip'		    , $_REQUEST ) ? $_REQUEST[ 'tip' ]			: '';
 	$saat			= array_key_exists( 'saat'		    , $_REQUEST ) ? $_REQUEST[ 'saat' ]			: '';
+	$aciklama		= array_key_exists( 'aciklama'		, $_REQUEST ) ? $_REQUEST[ 'aciklama' ]		: '';
+	$durum			= array_key_exists( 'durum'		    , $_REQUEST ) ? $_REQUEST[ 'durum' ]		: 'eski';
 	$islem			= array_key_exists( 'islem'		    , $_REQUEST ) ? $_REQUEST[ 'islem' ]		: '';
 
 	//Gelen Personele Ait Bilgiler
@@ -66,6 +68,7 @@
 	SET
 		 tutanak_id		= ?
 		,dosya			= ?
+		,aciklama	    = ?
 	SQL;
 
 	$SQL_tutanak_kaydet = <<< SQL
@@ -98,27 +101,11 @@
 	if( count( $personel ) < 1 ){
 		echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
 				<h5><i class="icon fas fa-ban"></i> Hata!</h5>
-				aHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
+				Hatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
 			</div>';
 		die();
 	}
-	if ( $_REQUEST['tip'] == "gunluk" ){
-		if( count( $giriscikis ) > 0 ){
-			echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
-					<h5><i class="icon fas fa-ban"></i> Hata!</h5>
-					bHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
-				</div>';
-			die();
-		}
-	}else{
-		if( count( $giriscikis ) < 1 ){
-			echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
-					<h5><i class="icon fas fa-ban"></i> Hata!</h5>
-					bHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
-				</div>';
-			die();
-		}
-	}
+
 	$dizin		= "../../tutanak/".$personel_id.'/';
 	//personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
 	if (!file_exists($dizin)) {
@@ -127,65 +114,109 @@
         }
     }
 
-    switch ($islem) {
-    	case 'dosyaekle':
-    		
-    		if( count( $tutanak_oku ) > 0 ){
+	if ( $durum == 'yeni' ) {
 
-				//Gelen Dosyaları Yüklemesini Yapıyoruz
-				foreach ($_FILES['file']["tmp_name"] as $key => $value) {
-					if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
-						$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
-						$hedef_yol	= $dizin.$dosya_adi;
-						if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
-							$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi ) );
-							$sonuc["sonuc"] = 'ok';
-						}
+		//Tunaka tablosuna kayıt yapılıp dosya yüklenecek
+		$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), 1 );
+		$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
+		$tutanak_id 	= $tutanak_Ekle[ 2 ];
+
+		if ( $tutanak_id > 0) {
+			//Gelen Dosyaları Yüklemesini Yapıyoruz
+			foreach ($_FILES['file']["tmp_name"] as $key => $value) {
+				if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
+					$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
+					$hedef_yol	= $dizin.$dosya_adi;
+					if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
+						$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi, $aciklama ) );
+						$sonuc["sonuc"] = 'ok';
 					}
 				}
-			}else{	
-				
-				//Tunaka tablosuna kayıt yapılıp dosya yüklenecek
-				$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), '' );
-				$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
-				$tutanak_id 	= $tutanak_Ekle[ 2 ];
+			}
+		}
+		
+	}else if ( $durum == 'eski' ) {
 
-				if ( $tutanak_id > 0) {
+
+		if ( $_REQUEST['tip'] == "gunluk" ){
+			if( count( $giriscikis ) > 0 ){
+				echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
+						<h5><i class="icon fas fa-ban"></i> Hata!</h5>
+						bHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
+					</div>';
+				die();
+			}
+		}else{
+			if( count( $giriscikis ) < 1 ){
+				echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
+						<h5><i class="icon fas fa-ban"></i> Hata!</h5>
+						bHatalı İşlem Yapmaya Çalışmaktasınız. Hemen Sayfadan Çıkmanız gerekmekte.
+					</div>';
+				die();
+			}
+		}
+
+	    switch ($islem) {
+	    	case 'dosyaekle':
+	    		
+	    		if( count( $tutanak_oku ) > 0 ){ 
+
 					//Gelen Dosyaları Yüklemesini Yapıyoruz
 					foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 						if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 							$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
 							$hedef_yol	= $dizin.$dosya_adi;
 							if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
-								$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi ) );
+								$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi, $aciklama ) );
 								$sonuc["sonuc"] = 'ok';
 							}
 						}
 					}
-					$sonuc[ "sonuc" ] = 'ok';
-				}
+				}else{	
+					
+					//Tunaka tablosuna kayıt yapılıp dosya yüklenecek
+					$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), 1 );
+					$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
+					$tutanak_id 	= $tutanak_Ekle[ 2 ];
 
-			}
-    		break;
-    	
-    	case 'yazdirma':
-			if( count( $tutanak_varmi ) > 0 ){
-				if ($tutanak_varmi[ 0 ][ "yazdirma" ] == 1 ) {
-					$sonuc[ "sonuc" ] = 'hata';
+					if ( $tutanak_id > 0) {
+						//Gelen Dosyaları Yüklemesini Yapıyoruz
+						foreach ($_FILES['file']["tmp_name"] as $key => $value) {
+							if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
+								$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
+								$hedef_yol	= $dizin.$dosya_adi;
+								if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
+									$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi, $aciklama ) );
+									$sonuc["sonuc"] = 'ok';
+								}
+							}
+						}
+						$sonuc[ "sonuc" ] = 'ok';
+					}
+				}
+	    		break;
+	    	
+	    	case 'yazdirma':
+				if( count( $tutanak_varmi ) > 0 ){
+					if ($tutanak_varmi[ 0 ][ "yazdirma" ] == 1 ) {
+						$sonuc[ "sonuc" ] = 'hata';
+					}else{
+						$tutanak_id 		= $tutanak_varmi[ 0 ][ "id" ];
+						$degerler 			= array( $tutanak_id );
+						$tutanak_yazdirma 	= $vt->update( $SQL_yazdirma_guncelle, $degerler );
+						$sonuc[ "sonuc" ] 	= 'ok';
+					}
 				}else{
-					$tutanak_id 		= $tutanak_varmi[ 0 ][ "id" ];
-					$degerler 			= array( $tutanak_id );
-					$tutanak_yazdirma 	= $vt->update( $SQL_yazdirma_guncelle, $degerler );
-					$sonuc[ "sonuc" ] 	= 'ok';
+					$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), 1 );
+					$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
+					$sonuc[ "sonuc" ]	= 'ok';
 				}
-			}else{
-				$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), 1 );
-				$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
-				$sonuc[ "sonuc" ]	= 'ok';
-			}
 
-    		break;
-    }
+	    		break;
+
+	    	case 'sil':
+	    }
+	}
 		
 
 	echo json_encode($sonuc);
