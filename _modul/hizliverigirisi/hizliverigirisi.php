@@ -126,7 +126,7 @@ foreach( $tablo_bilgileri as $bilgi ) {
 }
 
 /* id alanını dizinin en başına ekle */
-array_unshift( $grid_kolonlar, array( 'type' => 'number', 'title' => 'ID', 'name' => 'id', 'readonly' => true ) );
+array_unshift( $grid_kolonlar, array( 'type' => 'text', 'title' => '#', 'name' => 'id', 'readonly' => true ) );
 ?>
 <div class="row">
 	<div class="col-md-12" id = "ust_container">
