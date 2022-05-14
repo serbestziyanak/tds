@@ -304,7 +304,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 														<td align = "right" width = "5%">
 															<a href = "" 
 															modul = 'personelOzlukDosyalari' yetki_islem="sil"
-															data-href="_modul/tutanakolustur/olusturSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&dosya_id=<?php echo $tutanak[ 'dosya_id' ]; ?>"
+															data-href="_modul/tutanakolustur/tutanakolusturSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&dosya_id=<?php echo $tutanak[ 'dosya_id' ]; ?>&tutanak_id=<?php echo $tutanak[ 'tutanak_id' ]; ?>"
 															data-target="#kayit_sil"
 															data-toggle="modal"
 															data-toggle="tooltip" 

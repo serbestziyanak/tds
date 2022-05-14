@@ -12,6 +12,7 @@
 	$saat			= array_key_exists( 'saat'		    , $_REQUEST ) ? $_REQUEST[ 'saat' ]			: '';
 	$aciklama		= array_key_exists( 'aciklama'		, $_REQUEST ) ? $_REQUEST[ 'aciklama' ]		: '';
 	$durum			= array_key_exists( 'durum'		    , $_REQUEST ) ? $_REQUEST[ 'durum' ]		: 'eski';
+	$dosya_id		= array_key_exists( 'dosya_id'		, $_REQUEST ) ? $_REQUEST[ 'dosya_id' ]		: '';
 	$islem			= array_key_exists( 'islem'		    , $_REQUEST ) ? $_REQUEST[ 'islem' ]		: '';
 
 	//Gelen Personele Ait Bilgiler
@@ -48,6 +49,25 @@
 	SQL;
 
 	//gelen kayıt tutanaklar tablosunda var mı yok mu yoknrol ediyoruz
+	$SQL_dosya_oku = <<< SQL
+	SELECT
+		t.id as tutanak_id,
+		t.personel_id,
+		t.firma_id,
+		td.dosya,
+		td.id as dosya_id
+	FROM
+		tb_tutanak AS t
+	INNER JOIN 
+		tb_tutanak_dosyalari AS td ON td.tutanak_id = t.id
+	WHERE
+		t.personel_id 	= ? AND 
+		t.id 			= ? AND 
+		t.firma_id 		= ? AND
+		td.id  			= ?
+	SQL;
+
+	//gelen kayıt tutanaklar tablosunda var mı yok mu yoknrol ediyoruz
 	$SQL_tutanak_varmi = <<< SQL
 	SELECT
 		*
@@ -61,7 +81,7 @@
 		tip 		= ?
 	SQL;
 	
-
+	//Tutanak Dosya Kaydetme
 	$SQL_dosya_kaydet = <<< SQL
 	INSERT INTO
 		tb_tutanak_dosyalari
@@ -71,6 +91,7 @@
 		,aciklama	    = ?
 	SQL;
 
+	//Tutanak Kaydetme
 	$SQL_tutanak_kaydet = <<< SQL
 	INSERT INTO
 		tb_tutanak
@@ -84,6 +105,7 @@
 		,yazdirma 		= ?
 	SQL;
 	
+	//Tutanak dosyası tekrar yazdırmamak için bilgi güncelleme
 	$SQL_yazdirma_guncelle = <<< SQL
 	UPDATE 
 		tb_tutanak
@@ -91,6 +113,14 @@
 		yazdirma 	= 1
 	WHERE
 		id 			= ?  
+	SQL;
+
+	//Tutanak dcosya silme
+	$SQL_dosya_sil = <<< SQL
+	DELETE FROM
+		tb_tutanak_dosyalari
+	WHERE
+		id = ?
 	SQL;
 
 	$personel 		= $vt->select( $SQL_tek_personel_oku, array($personel_id, $_SESSION['firma_id'] ) )[2];
@@ -135,7 +165,7 @@
 			}
 		}
 		
-	}else if ( $durum == 'eski' ) {
+	}else if ( $durum == 'eski' AND $islem != 'sil' ) {
 
 
 		if ( $_REQUEST['tip'] == "gunluk" ){
@@ -213,30 +243,23 @@
 				}
 
 	    		break;
-
-	    	case 'sil':
 	    }
 	}
-		
 
+	if ( $islem == 'sil' ) {
+
+		//Silinecek dosyanın bilgileri aldık
+		$tutanak_dosyasi = $vt->select( $SQL_dosya_oku, array( $personel_id, $tutanak_id, $_SESSION['firma_id'], $dosya_id) ) [2];
+		if ( count( $tutanak_dosyasi ) > 0 ) {
+			$vt->delete( $SQL_dosya_sil, array( $dosya_id ) );
+			//Sunucudan Dosyayı Siliyoruz.
+			unlink( $dizin.$tutanak_dosyasi [0] ["dosya"] );
+			$sonuc[ "sonuc" ]	= 'ok';
+
+			header( "Location:../../index.php?modul=personelOzlukDosyalari&personel_id=$personel_id" );
+		}	
+	}
+	
 	echo json_encode($sonuc);
-
-
-
-	//Ototmatık sunucuya dosyayı kaydetme
-	// if(!empty($_FILES['data'])) {
-	// 	$dosya_adi	= rand() .".pdf";
-	// 	$dizin		= "../../personel_tutanak/";
-	// 	$hedef_yol	= $dizin.$dosya_adi;
-	// 	move_uploaded_file( $_FILES[ "data"][ 'tmp_name' ], $hedef_yol );
-	// 	//echo file_get_contents($_FILES['data']['tmp_name']);
-	// 	//
-
-	//     // PDF is located at $_FILES['data']['tmp_name']
-	//     // rename(...) it or send via email etc.
-	//     // $content = file_get_contents($_FILES['data']['tmp_name']);
-	// } else {
-	//     throw new Exception("no data");
-	// }
 
 ?>
