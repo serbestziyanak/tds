@@ -726,7 +726,7 @@ foreach ($tum_personel as $personel) {
 <script type="text/javascript">
 
     Dropzone.options.dropzone = {
-        url: 'http://localhost/tds/tds/_modul/tutanakolustur/tutanakolusturSEG.php',
+        url: '_modul/tutanakolustur/tutanakolusturSEG.php',
         autoProcessQueue: false,
         uploadMultiple:true,
         parallelUploads: 10,

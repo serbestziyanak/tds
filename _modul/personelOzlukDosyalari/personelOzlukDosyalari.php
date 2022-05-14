@@ -396,7 +396,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 	});
 	
     Dropzone.options.dropzone = {
-        url: 'http://localhost/tds/tds/_modul/tutanakolustur/tutanakolusturSEG.php',
+        url: '_modul/tutanakolustur/tutanakolusturSEG.php',
         autoProcessQueue: false,
         uploadMultiple:true,
         parallelUploads: 10,
