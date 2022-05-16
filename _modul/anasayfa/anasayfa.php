@@ -322,17 +322,12 @@ foreach ($tum_personel as $personel) {
                                 <th>#</th>
                                 <th>Adı Soyadı</th>
                                 <th>Tarih</th>
-                                <th>Yazırma</th>
+                                <th>Yazdırma</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
                                 <?php $sayi = 1; foreach ($gelmeyen_personel_tutanak_tutulmayan as $personel) { ?>
-                                    <tr class                = "" 
-                                        data-personel_id     = "<?php echo $personel[ 'id' ]; ?>" 
-                                        data-tutanak_id      = ""
-                                        data-tip             = "gunluk" 
-                                        data-ad              = "<?php echo $personel[ 'adi' ].' '.$personel["soyadi"]; ?>"
-                                        data-tarih           = "<?php echo date( 'Y-m-d' ); ?>">
+                                    <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $personel["adi"].' '.$personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y' ); ?></td>
@@ -355,12 +350,7 @@ foreach ($tum_personel as $personel) {
                                 <?php $sayi++; } ?>
 
                                 <?php foreach ($gelmeyen_tutanak_listesi as $tutanak_personel) { ?>
-                                    <tr class                = "" 
-                                        data-personel_id     = "<?php echo $tutanak_personel[ 'personel_id' ]; ?>"
-                                        data-tutanak_id      = "<?php echo $tutanak_personel[ 'tutanak_id' ]; ?>"
-                                        data-tip             = "gunluk"
-                                        data-ad              = "<?php echo $tutanak_personel["adi"].' '.$tutanak_personel["soyadi"]; ?>"
-                                        data-tarih           = "<?php echo $tutanak_personel[ 'tarih' ]; ?>">
+                                    <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $tutanak_personel["adi"].' '.$tutanak_personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y', strtotime( $tutanak_personel[ 'tarih' ] ) ); ?></td>
@@ -395,13 +385,7 @@ foreach ($tum_personel as $personel) {
                             </thead>
                             <tbody>
                                 <?php $sayi = 1; foreach ($gec_gelen_personel_tutanak_tutulmayan as $personel) { ?>
-                                    <tr class               = "" 
-                                        data-personel_id    = "<?php echo $personel[ 'id' ]; ?>" 
-                                        data-tutanak_id     = ""
-                                        data-tip            = "gecgelme" 
-                                        data-ad             = "<?php echo $personel[ 'adi' ].' '.$personel["soyadi"]; ?>"
-                                        data-tarih          = "<?php echo date( 'Y-m-d' ); ?>"
-                                        data-saat           = "<?php echo $gec_giris_saatler[ $personel[ 'id' ] ]; ?>">
+                                    <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $personel["adi"].' '.$personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y' ); ?></td>
@@ -425,13 +409,7 @@ foreach ($tum_personel as $personel) {
                                 <?php $sayi++; } ?>
 
                                 <?php foreach ($gecgelen_tutanak_listesi as $gecgelen_personel) { ?>
-                                    <tr class               = "" 
-                                        data-personel_id    = "<?php echo $gecgelen_personel[ 'personel_id' ]; ?>"
-                                        data-tutanak_id     = "<?php echo $gecgelen_personel[ 'tutanak_id' ]; ?>"
-                                        data-tip            = "gecgelme"
-                                        data-ad             = "<?php echo $gecgelen_personel["adi"].' '.$gecgelen_personel["soyadi"]; ?>"
-                                        data-tarih          = "<?php echo $gecgelen_personel[ 'tarih' ]; ?>"
-                                        data-saat           = "<?php echo $gecgelen_personel[ 'saat' ]; ?>">
+                                    <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $gecgelen_personel["adi"].' '.$gecgelen_personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y', strtotime( $gecgelen_personel[ 'tarih' ] ) ); ?></td>
@@ -463,18 +441,12 @@ foreach ($tum_personel as $personel) {
                                 <th>#</th>
                                 <th>Adı Soyadı</th>
                                 <th>Tarih</th>
-                                <th width="80px">Yazırma</th>
+                                <th width="80px">Yazdırma</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
                                 <?php $sayi = 1; foreach ($erken_cikan_personel_listesi as $personel) { ?>
-                                    <tr class               = "" 
-                                        data-personel_id    = "<?php echo $personel[ 'id' ]; ?>" 
-                                        data-tutanak_id     = ""
-                                        data-tip            = "erkencikma" 
-                                        data-ad             = "<?php echo $personel[ 'adi' ].' '.$personel["soyadi"]; ?>"
-                                        data-tarih          = "<?php echo date( 'Y-m-d' ); ?>"
-                                        data-saat           = "<?php echo $gec_giris_saatler[ $personel[ 'id' ] ]; ?>">
+                                    <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $personel["adi"].' '.$personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y' ); ?></td>
@@ -498,13 +470,7 @@ foreach ($tum_personel as $personel) {
                                 <?php $sayi++; } ?>
 
                                 <?php foreach ($erkencikan_tutanak_listesi as $erkencikan_personel) { ?>
-                                    <tr class               = "" 
-                                        data-personel_id    = "<?php echo $erkencikan_personel[ 'personel_id' ]; ?>"
-                                        data-tutanak_id     = "<?php echo $erkencikan_personel[ 'tutanak_id' ]; ?>"
-                                        data-tip            = "erkencikma"
-                                        data-ad             = "<?php echo $erkencikan_personel["adi"].' '.$erkencikan_personel["soyadi"]; ?>"
-                                        data-tarih          = "<?php echo $erkencikan_personel[ 'tarih' ]; ?>"
-                                        data-saat           = "<?php echo $erkencikan_personel[ 'saat' ]; ?>">
+                                    <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $erkencikan_personel["adi"].' '.$erkencikan_personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y', strtotime( $erkencikan_personel[ 'tarih' ] ) ); ?></td>
@@ -559,7 +525,6 @@ foreach ($tum_personel as $personel) {
                                 <th>#</th>
                                 <th>Adı Soyadı</th>
                                 <th>Tarih</th>
-                                <th>Yazırma</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
@@ -573,20 +538,6 @@ foreach ($tum_personel as $personel) {
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $tutanak_personel["adi"].' '.$tutanak_personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y', strtotime( $tutanak_personel[ 'tarih' ] ) ); ?></td>
-                                        <td width="80" class="text-center">
-                                            <div class="icheck-primary d-inline ml-2">
-                                                <input
-                                                type="checkbox"
-                                                data-personel_id     = "<?php echo $tutanak_personel[ 'personel_id' ]; ?>" 
-                                                data-tutanak_id      = ""
-                                                data-tip             = "gunluk" 
-                                                data-ad              = "<?php echo $personel[ 'adi' ].' '.$personel["soyadi"]; ?>"
-                                                data-tarih           = "<?php echo date( 'Y-m-d' ); ?>"
-                                                class                = "yazdirma"
-                                                id                   = "<?php echo $sayi.'-'.$tutanak_personel[ "personel_id" ]; ?>">
-                                                <label for="<?php echo $sayi.'-'.$tutanak_personel[ "personel_id" ]; ?>"></label>
-                                            </div>
-                                        </td>
                                         <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</td>
                                     </tr>
                                 <?php $sayi++; } ?>
@@ -599,7 +550,6 @@ foreach ($tum_personel as $personel) {
                                 <th>#</th>
                                 <th>Adı Soyadı</th>
                                 <th>Tarih</th>
-                                <th width="80">Yazdırma</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
@@ -614,21 +564,6 @@ foreach ($tum_personel as $personel) {
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $gecgelen_personel["adi"].' '.$gecgelen_personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y', strtotime( $gecgelen_personel[ 'tarih' ] ) ); ?></td>
-                                        <td width="80" class="text-center">
-                                            <div class="icheck-primary d-inline ml-2">
-                                                <input
-                                                type="checkbox"
-                                                data-personel_id    = "<?php echo $gecgelen_personel[ 'personel_id' ]; ?>"
-                                                data-tutanak_id     = "<?php echo $gecgelen_personel[ 'tutanak_id' ]; ?>"
-                                                data-tip            = "gecgelme"
-                                                data-ad             = "<?php echo $gecgelen_personel["adi"].' '.$gecgelen_personel["soyadi"]; ?>"
-                                                data-tarih          = "<?php echo $gecgelen_personel[ 'tarih' ]; ?>"
-                                                data-saat           = "<?php echo $gecgelen_personel[ 'saat' ]; ?>"
-                                                class                = "yazdirma"
-                                                id                   = "gecgelme-<?php echo $sayi.'-'.$gecgelen_personel[ "personel_id" ]; ?>">
-                                                <label for="gecgelme-<?php echo $sayi.'-'.$gecgelen_personel[ "personel_id" ]; ?>"></label>
-                                            </div>
-                                        </td>
                                         <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
                                     </tr>
                                 <?php $sayi++; } ?>
@@ -641,7 +576,6 @@ foreach ($tum_personel as $personel) {
                                 <th>#</th>
                                 <th>Adı Soyadı</th>
                                 <th>Tarih</th>
-                                <th width="80px">Yazırma</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
@@ -656,21 +590,6 @@ foreach ($tum_personel as $personel) {
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $erkencikan_personel["adi"].' '.$erkencikan_personel["soyadi"]; ?></td>
                                         <td><?php echo date( 'd.m.Y', strtotime( $erkencikan_personel[ 'tarih' ] ) ); ?></td>
-                                        <td width="80" class="text-center">
-                                            <div class="icheck-primary d-inline ml-2">
-                                                <input
-                                                type="checkbox"
-                                                data-personel_id    = "<?php echo $erkencikan_personel[ 'personel_id' ]; ?>"
-                                                data-tutanak_id     = "<?php echo $erkencikan_personel[ 'tutanak_id' ]; ?>"
-                                                data-tip            = "erkencikma"
-                                                data-ad             = "<?php echo $erkencikan_personel["adi"].' '.$erkencikan_personel["soyadi"]; ?>"
-                                                data-tarih          = "<?php echo $erkencikan_personel[ 'tarih' ]; ?>"
-                                                data-saat           = "<?php echo $erkencikan_personel[ 'saat' ]; ?>"
-                                                class                = "yazdirma"
-                                                id                   = "<?php echo $sayi.'-'.$erkencikan_personel[ "personel_id" ]; ?>">
-                                                <label for="<?php echo $sayi.'-'.$erkencikan_personel[ "personel_id" ]; ?>"></label>
-                                            </div>
-                                        </td>
                                         <td width="80"><a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
                                     </tr>
                                 <?php $sayi++; } ?>
@@ -691,11 +610,11 @@ foreach ($tum_personel as $personel) {
                     </div>
                 </div>
                 <div class="card-body" id="CardBody">
-                    <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="">
+                    <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="" id="dropzonform">
                         <div class="form-group">
                             <input type="text" name="aciklama" id="aciklama" class="form-control" placeholder="Acıklama Kısmı">
                         </div>
-                        <div class="dropzone" id="dropzone" style="min-height: 247px;">
+                        <div class="dropzone" action="_modul/tutanakolustur/tutanakolusturSEG.php"  id="dropzone" style="min-height: 247px;">
                             <div class="dz-message">
                                 <h3 class="m-h-lg">Yüklemek istediğiniz dosyaları buyara sürükleyiniz</h3>
                                 <p class="m-b-lg text-muted">(Yüklemek için dosyalarınızı sürükleyiniz yada buraya tıklayınız)<br>En Fazla 10 Resim Birden Yükleyebilirsiniz</p>
@@ -725,78 +644,6 @@ foreach ($tum_personel as $personel) {
 
 <script type="text/javascript">
 
-    Dropzone.options.dropzone = {
-        url: '_modul/tutanakolustur/tutanakolusturSEG.php',
-        autoProcessQueue: false,
-        uploadMultiple:true,
-        parallelUploads: 10,
-        maxFiles: 10,
-        acceptedFiles: ".jpeg,.jpg,.png,.pdf",
-
-        init: function () {
-
-            var submitButton = document.querySelector("#submit-all");
-            var wrapperThis = this;
-
-            submitButton.addEventListener("click", function () {
-                wrapperThis.processQueue();
-            });
-
-            this.on("addedfile", function (file) {
-
-                // Kaldır Butonu Oluşturma
-                var removeButton = Dropzone.createElement("<div class'text-center' style='display: block; width: 100%;text-align: center;margin-top: 7px;'><button style='display:block;width: 100%;border-radius:7px;' class='btn btn-xs btn-danger'>Kaldır</button>");
-
-                // Kaldır Butonuna Tıklandığında
-                removeButton.addEventListener("click", function (e) {
-                    // Make sure the button click doesn't submit the form:
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    // Remove the file preview.
-                    wrapperThis.removeFile(file);
-                    // If you want to the delete the file on the server as well,
-                    // you can do the AJAX request here.
-                });
-
-                // Add the button to the file preview element.
-                file.previewElement.appendChild(removeButton);
-            });
-
-            this.on('sendingmultiple', function (data, xhr, formData) {
-                formData.append( "personel_id",  $( "#personel_id" ).val() );
-                formData.append( "tutanak_id",   $( "#tutanak_id" ).val() );
-                formData.append( "tip",          $( "#tip" ).val() );
-                formData.append( "tarih",        $( "#tarih" ).val() );
-                formData.append( "saat",         $( "#saat" ).val() );
-                formData.append( "aciklama",     $( "#aciklama" ).val() );
-                formData.append( "islem",        $( "#islem" ).val() );
-            });
-
-            // this.on('completemultiple', function (){
-            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
-            //     setTimeout(reload(), 5000);
-            // });
-
-            // this.on("queuecomplete", function (file) {
-            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
-            //     setTimeout(location.reload(), 5000);
-            // });
-        },
-        success: function(file, response){
-            var response = JSON.parse(response);
-            if ( response.sonuc == 'ok' ){
-                mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
-                
-                const yenile = setTimeout(sayfa_yenile, 2500);
-
-                function sayfa_yenile() {
-                    location.reload();
-                }
-            }
-        }
-
-    };
 
     $( "body" ).on('click', '.personel-Tr', function() {
 

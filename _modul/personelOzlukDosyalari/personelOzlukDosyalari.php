@@ -282,12 +282,12 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 														</td>
 														<td align = "right" width = "20%">
 															<button class="personel-Tr btn btn-dark"
-																data-personel_id    ="<?php echo $personel_id; ?>"
-																data-tutanak_id 	="<?php echo $tutanak[ 'tutanak_id' ]; ?>"
-																data-tarih 		    ="<?php echo $tutanak[ 'tarih' ]; ?>"
-																data-saat 			="<?php echo $tutanak[ 'saat' ]; ?>"
-																data-tip			="<?php echo $tutanak[ 'tip' ]; ?>"
-																data-durum			="<?php echo $tutanak[ 'durum' ]; ?>">
+																data-personel_id    = "<?php echo $personel_id; ?>"
+																data-tutanak_id 	= "<?php echo $tutanak[ 'tutanak_id' ]; ?>"
+																data-tarih 		    = "<?php echo $tutanak[ 'tarih' ]; ?>"
+																data-saat 			= "<?php echo $tutanak[ 'saat' ]; ?>"
+																data-tip			= "<?php echo $tutanak[ 'tip' ]; ?>"
+																data-durum			= "eski">
 																<i class = "fa fa-file"></i>&nbsp; Dosya Yükle
 															</button>
 														</td>
@@ -342,11 +342,11 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 			<div class="modal-body">
 				<div class="dropzonedosya" id="DosyaAlani" >
 	                <div class="card-body" id="CardBody">
-	                    <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="">
+	                    <form enctype="multipart/form-data" method="POST"  name="mainFileUploader" class="" id="dropzonform">
 	                    	<div class="form-group">
 	                    		<input type="text" name="aciklama" id="aciklama" class="form-control" placeholder="Acıklama Kısmı">
 	                        </div>
-	                        <div class="dropzone" id="dropzone" style="min-height: 247px;">
+	                        <div action = "_modul/tutanakolustur/tutanakolusturSEG.php" class="dropzone" id="dropzone" style="min-height: 247px;">
 	                            <div class="dz-message">
 	                                <h3 class="m-h-lg">Yüklemek istediğiniz dosyaları buyara sürükleyiniz</h3>
 	                                <p class="m-b-lg text-muted">(Yüklemek için dosyalarınızı sürükleyiniz yada buraya tıklayınız)<br>En Fazla 10 Resim Birden Yükleyebilirsiniz</p>
@@ -394,79 +394,6 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 		document.querySelector("#label-"+id).style.fontWeight = "bold";
 		
 	});
-	
-    Dropzone.options.dropzone = {
-        url: '_modul/tutanakolustur/tutanakolusturSEG.php',
-        autoProcessQueue: false,
-        uploadMultiple:true,
-        parallelUploads: 10,
-        maxFiles: 10,
-        acceptedFiles: ".jpeg,.jpg,.png,.pdf",
-
-        init: function () {
-
-            var submitButton = document.querySelector("#submit-all");
-            var wrapperThis = this;
-
-            submitButton.addEventListener("click", function () {
-                wrapperThis.processQueue();
-            });
-
-            this.on("addedfile", function (file) {
-
-                // Kaldır Butonu Oluşturma
-                var removeButton = Dropzone.createElement("<div class'text-center' style='display: block; width: 100%;text-align: center;margin-top: 7px;'><button style='display:block;width: 100%;border-radius:7px;' class='btn btn-xs btn-danger'>Kaldır</button>");
-
-                // Kaldır Butonuna Tıklandığında
-                removeButton.addEventListener("click", function (e) {
-                    // Make sure the button click doesn't submit the form:
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    // Remove the file preview.
-                    wrapperThis.removeFile(file);
-                    // If you want to the delete the file on the server as well,
-                    // you can do the AJAX request here.
-                });
-
-                // Add the button to the file preview element.
-                file.previewElement.appendChild(removeButton);
-            });
-
-            this.on('sendingmultiple', function (data, xhr, formData) {
-                formData.append( "personel_id",  $( "#personel_id" ).val() );
-                formData.append( "tutanak_id",   $( "#tutanak_id" ).val() );
-                formData.append( "tip",          $( "#tip" ).val() );
-                formData.append( "tarih",        $( "#tarih" ).val() );
-                formData.append( "saat",         $( "#saat" ).val() );
-                formData.append( "aciklama",     $( "#aciklama" ).val() );
-                formData.append( "durum",        $( "#durum" ).val() );
-                formData.append( "islem",        $( "#islem" ).val() );
-            });
-
-            // this.on('completemultiple', function (){
-            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
-            //     setTimeout(reload(), 5000);
-            // });
-
-            // this.on("queuecomplete", function (file) {
-            //     mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
-            //     setTimeout(location.reload(), 5000);
-            // });
-        },
-        success: function(file, response){
-            var response = JSON.parse(response);
-            if ( response.sonuc == 'ok' ){
-                mesajVer('Personel İçin Tutanaklar Eklendi', 'yesil');
-                
-                const yenile = setTimeout(sayfa_yenile, 2500);
-
-                function sayfa_yenile() {
-                    location.reload();
-                }
-            }
-        }
-    };
 
     $( "body" ).on('click', '.personel-Tr', function() {
 

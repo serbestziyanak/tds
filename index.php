@@ -137,6 +137,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <!-- Toastr -->
 <script src="plugins/toastr/toastr.min.js"></script>
 <script src="_js/mesaj.js"></script>
+<script src="_js/dropzoneYukle.js"></script>
 
 </head>
 	<?php 
