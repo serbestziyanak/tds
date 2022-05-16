@@ -134,11 +134,9 @@ if ( $konu == 'dosya' ) {
 			}
 				
 			break;
-		
-		default:
-			// code...
-			break;
 	}
+
+	header( "Location:../../index.php?modul=firmaDosyalari" );
 
 }
 
