@@ -168,6 +168,8 @@ $erken_cikan_personel_tutanak_tutulmayan= Array();
 $gec_gelen_personel_tutanak_tutulmayan  = Array();
 $izinli_personel_listesi                = Array();
 $gelip_cikan_personel_listesi           = Array();
+$erken_cikan_personel_listesi           = Array();
+
 
 $gec_giris_saatler                      = Array();
 $erken_cikis_saatler                    = Array();
