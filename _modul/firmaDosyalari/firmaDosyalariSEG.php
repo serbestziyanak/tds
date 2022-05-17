@@ -88,7 +88,7 @@ if ( $konu == 'dosya' ) {
         if(!mkdir($dizin, '0755', true)){
    			$sonuc["sonuc"] = "hata";
    			echo json_encode($sonuc);
-   			die();	
+   			die();
         }
     }
 
