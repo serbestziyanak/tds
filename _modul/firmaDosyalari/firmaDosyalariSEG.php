@@ -80,15 +80,15 @@ if ( $konu == 'dosya' ) {
 		die();
 	}
 
-	$dizin = '../../' . $dosyaTuru_id;
-	//$dizin		= "../../firmaDosyalari/".$dosyaTuru_id;
+	//$dizin = '../../' . $dosyaTuru_id;
+	$dizin		= "../../firmaDosyalari/".$dosyaTuru_id;
 	//mkdir($dizin);
 	//Dosya Turune göre klasörlendirmesi yapılacaktır. İd sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
 	if (!is_dir($dizin)) {
-        if(!mkdir($dizin, '0755')){
+        if(!mkdir($dizin, '755')){
    			$sonuc["sonuc"] = "hata";
    			echo json_encode($sonuc);
-   			die();
+   			die();	
         }
     }
 
