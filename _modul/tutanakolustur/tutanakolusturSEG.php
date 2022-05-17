@@ -136,11 +136,13 @@
 		die();
 	}
 
-	$dizin		= "../../tutanak/".$personel_id.'/';
+	$dizin		= "../../tutanak/".$personel_id;
 	//personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
-	if (!file_exists($dizin)) {
+	if (!is_dir($dizin)) {
         if(!mkdir($dizin, '0777', true)){
    			$sonuc["sonuc"] = "hata";
+        }else{	
+        	chmod($dizin, 0777);
         }
     }
 
@@ -156,7 +158,7 @@
 			foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 				if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 					$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
-					$hedef_yol	= $dizin.$dosya_adi;
+					$hedef_yol	= $dizin.'/'.$dosya_adi;
 					if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
 						$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi, $aciklama ) );
 						$sonuc["sonuc"] = 'ok';
@@ -195,7 +197,7 @@
 					foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 						if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 							$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
-							$hedef_yol	= $dizin.$dosya_adi;
+							$hedef_yol	= $dizin.'/'.$dosya_adi;
 							if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
 								$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi, $aciklama ) );
 								$sonuc["sonuc"] = 'ok';
@@ -214,7 +216,7 @@
 						foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 							if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 								$dosya_adi	= rand() ."_".$tarih."_".$tip."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
-								$hedef_yol	= $dizin.$dosya_adi;
+								$hedef_yol	= $dizin.'/'.$dosya_adi;
 								if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
 									$vt->insert( $SQL_dosya_kaydet, array( $tutanak_id, $dosya_adi, $aciklama ) );
 									$sonuc["sonuc"] = 'ok';
@@ -253,7 +255,7 @@
 		if ( count( $tutanak_dosyasi ) > 0 ) {
 			$vt->delete( $SQL_dosya_sil, array( $dosya_id ) );
 			//Sunucudan Dosyayı Siliyoruz.
-			unlink( $dizin.$tutanak_dosyasi [0] ["dosya"] );
+			unlink( $dizin.'/'.$tutanak_dosyasi [0] ["dosya"] );
 			$sonuc[ "sonuc" ]	= 'ok';
 
 			header( "Location:../../index.php?modul=personelOzlukDosyalari&personel_id=$personel_id" );

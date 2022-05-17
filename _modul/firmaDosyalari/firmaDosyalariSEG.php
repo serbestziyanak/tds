@@ -89,6 +89,8 @@ if ( $konu == 'dosya' ) {
    			$sonuc["sonuc"] = "hata";
    			echo json_encode($sonuc);
    			die();
+        }else{
+        	chmod($dizin, 0777);
         }
     }
 
@@ -119,7 +121,7 @@ if ( $konu == 'dosya' ) {
 				$vt->delete( $SQL_dosya_sil, array( $dosya_id ) );
 				
 				//Sunucudan Dosyayı Siliyoruz.
-				unlink($dizin.$tek_dosya_oku[ 0 ][ "dosya" ]);
+				unlink($dizin.'/'.$tek_dosya_oku[ 0 ][ "dosya" ]);
 
 			}
 			header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$dosyaTuru_id" );
