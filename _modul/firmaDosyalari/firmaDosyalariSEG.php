@@ -130,13 +130,14 @@ if ( $konu == 'dosya' ) {
 	switch ($islem) {
 		case 'ekle':
 			if ( $adi != '' ) {
-				$vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $adi ) );
+				$tur_ekle = $vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $adi ) );
+				$son_eklenen_id	= $tur_ekle[ 2 ]; 
 			}
 				
 			break;
 	}
 
-	header( "Location:../../index.php?modul=firmaDosyalari" );
+	header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$son_eklenen_id" );
 
 }
 
