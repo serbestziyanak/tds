@@ -80,10 +80,12 @@ if ( $konu == 'dosya' ) {
 		die();
 	}
 
-	$dizin		= "../../firmaDosyalari/".$dosyaTuru_id.'/';
+	//$dizin = '../../' . $dosyaTuru_id;
+	$dizin		= "../../firmaDosyalari/".$dosyaTuru_id;
+	//mkdir($dizin);
 	//Dosya Turune göre klasörlendirmesi yapılacaktır. İd sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
-	if (!file_exists($dizin)) {
-        if(!mkdir($dizin, '0777', true)){
+	if (!is_dir($dizin)) {
+        if(!mkdir($dizin, '0755')){
    			$sonuc["sonuc"] = "hata";
    			echo json_encode($sonuc);
    			die();
@@ -96,7 +98,7 @@ if ( $konu == 'dosya' ) {
 			foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 				if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 					$dosya_adi	= rand() ."_".$tekDosyaTuru[ 0 ] [ "adi" ] ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
-					$hedef_yol	= $dizin.$dosya_adi;
+					$hedef_yol	= $dizin . '/'.$dosya_adi;
 					if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
 						$vt->insert( $SQL_dosya_kaydet, array( $dosyaTuru_id, $dosya_adi, $aciklama ) );
 						$sonuc["sonuc"] = 'ok';
