@@ -85,7 +85,7 @@ if ( $konu == 'dosya' ) {
 	//mkdir($dizin);
 	//Dosya Turune göre klasörlendirmesi yapılacaktır. İd sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
 	if (!is_dir($dizin)) {
-        if(!mkdir($dizin, '0755', true)){
+        if(!mkdir($dizin, '0777', true)){
    			$sonuc["sonuc"] = "hata";
    			echo json_encode($sonuc);
    			die();
