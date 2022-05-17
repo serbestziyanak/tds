@@ -80,8 +80,8 @@ if ( $konu == 'dosya' ) {
 		die();
 	}
 
-	//$dizin = '../../' . $dosyaTuru_id;
-	$dizin		= "../../firmaDosyalari/".$dosyaTuru_id;
+	$dizin = '../../' . $dosyaTuru_id;
+	//$dizin		= "../../firmaDosyalari/".$dosyaTuru_id;
 	//mkdir($dizin);
 	//Dosya Turune göre klasörlendirmesi yapılacaktır. İd sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
 	if (!is_dir($dizin)) {
