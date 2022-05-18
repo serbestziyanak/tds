@@ -3,7 +3,7 @@
 	$vt		= new VeriTabani();
 	$fn		= new Fonksiyonlar();
 
-	$sonuc["sonuc"] ="hata";
+	$sonuc["sonuc"] ="hata - 1";
 	
 	$personel_id	= array_key_exists( 'personel_id'	, $_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
 	$tutanak_id		= array_key_exists( 'tutanak_id'	, $_REQUEST ) ? $_REQUEST[ 'tutanak_id' ]	: 0;
@@ -140,7 +140,7 @@
 	//personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
 	if (!is_dir($dizin)) {
         if(!mkdir($dizin, '0777', true)){
-   			$sonuc["sonuc"] = "hata";
+   			$sonuc["sonuc"] = "hata - 2";
         }else{	
         	chmod($dizin, 0777);
         }
@@ -231,7 +231,7 @@
 	    	case 'yazdirma':
 				if( count( $tutanak_varmi ) > 0 ){
 					if ($tutanak_varmi[ 0 ][ "yazdirma" ] == 1 ) {
-						$sonuc[ "sonuc" ] = 'hata';
+						$sonuc[ "sonuc" ] = 'hata - 3';
 					}else{
 						$tutanak_id 		= $tutanak_varmi[ 0 ][ "id" ];
 						$degerler 			= array( $tutanak_id );

@@ -9,18 +9,23 @@ $aciklama 		= array_key_exists( 'aciklama', $_REQUEST )	 		? $_REQUEST[ 'aciklam
 $dosyaTuru_id 	= array_key_exists( 'dosyaTuru_id', $_REQUEST )	 	? $_REQUEST[ 'dosyaTuru_id' ] 	: 0;
 $dosya_id 		= array_key_exists( 'dosya_id', $_REQUEST )	 		? $_REQUEST[ 'dosya_id' ] 		: 0;
 $adi 			= array_key_exists( 'adi', $_REQUEST )	 			? trim($_REQUEST[ 'adi' ]) 		: '';
+$tarih 			= array_key_exists( 'tarih', $_REQUEST )	 		? trim($_REQUEST[ 'tarih' ]) 	: '';
 
 
 $SQL_tum_firma_dosyalari_oku = <<< SQL
 SELECT
-*
+	*
 FROM
 	tb_firma_dosya_turleri
 SQL;
 
 $SQL_tek_dosya_turu_oku = <<< SQL
 SELECT
-	*
+	*,
+	(SELECT COUNT(tb_firma_dosyalari.id) 
+		FROM tb_firma_dosyalari 
+		WHERE tb_firma_dosyalari.dosya_turu_id = tb_firma_dosya_turleri.id 
+		) AS dosyaSayisi
 FROM
 	tb_firma_dosya_turleri
 WHERE
@@ -33,7 +38,8 @@ INSERT INTO
 	tb_firma_dosya_turleri
 SET
 	firma_id	= ?,
-	adi			= ?
+	adi			= ?,
+	tarih 		= ?
 SQL;
 
 
@@ -61,6 +67,13 @@ WHERE
 	fd.id = ?
 SQL;
 
+$SQL_dosya_turu_sil = <<< SQL
+DELETE FROM
+	tb_firma_dosya_turleri
+WHERE
+	id = ?
+SQL;
+
 $SQL_dosya_sil = <<< SQL
 DELETE FROM
 	tb_firma_dosyalari
@@ -68,13 +81,14 @@ WHERE
 	id = ?
 SQL;
 
+
 $tekDosyaTuru		= $vt->select( $SQL_tek_dosya_turu_oku, array( $dosyaTuru_id, $_SESSION['firma_id']) ) [ 2 ] ;
 
 
 if ( $konu == 'dosya' ) {
 	//Firmaya ait bir dosya turu yok ise işlemi durduruyoruz
 	if ( count($tekDosyaTuru) < 1 ){
-		$sonuc[ "sonuc" ] = 'hata';
+		$sonuc[ "sonuc" ] = 'hata - 5';
 		
 		echo json_encode($sonuc);
 		die();
@@ -96,24 +110,28 @@ if ( $konu == 'dosya' ) {
 
     switch( $islem ){
     	case 'ekle':
-    		//Gelen Dosyaları Yüklemesini Yapıyoruz
-			foreach ($_FILES['file']["tmp_name"] as $key => $value) {
-				if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
-					$dosya_adi	= rand() ."_".$tekDosyaTuru[ 0 ] [ "adi" ] ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
-					$hedef_yol	= $dizin . '/'.$dosya_adi;
-					if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
-						$vt->insert( $SQL_dosya_kaydet, array( $dosyaTuru_id, $dosya_adi, $aciklama ) );
-						$sonuc["sonuc"] = 'ok';
+    		$tek_dosya_turu_oku = $vt->select( $SQL_tek_dosya_turu_oku, array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ];
+    		if ( count( $tek_dosya_turu_oku ) > 0 ){
+    			//Gelen Dosyaları Yüklemesini Yapıyoruz
+				foreach ($_FILES['file']["tmp_name"] as $key => $value) {
+					if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
+						$dosya_adi	= rand() ."_".$tekDosyaTuru[ 0 ] [ "adi" ] ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
+						$hedef_yol	= $dizin . '/'.$dosya_adi;
+						if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
+							$vt->insert( $SQL_dosya_kaydet, array( $dosyaTuru_id, $dosya_adi, $aciklama ) );
+							$sonuc["sonuc"] = 'ok';
+						}
 					}
 				}
-			}
-			echo json_encode($sonuc);
-   			die();
-		
+				
+    		}else{
+    			$sonuc["sonuc"] = 'hata - 4';
+    		}
+    		echo json_encode($sonuc);
+	   		die();
 			break;
 
 		case 'sil':
-
 			//Silinecek dosyanın bilgileri aldık
 			$tek_dosya_oku = $vt->select( $SQL_tek_dosya_oku, array( $dosyaTuru_id, $_SESSION[ 'firma_id' ], $dosya_id ) ) [ 2 ];
 
@@ -134,14 +152,22 @@ if ( $konu == 'dosya' ) {
 	switch ($islem) {
 		case 'ekle':
 			if ( $adi != '' ) {
-				$tur_ekle = $vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $adi ) );
-				$son_eklenen_id	= $tur_ekle[ 2 ]; 
+				$tur_ekle = $vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $adi, $tarih ) );
+				$dosyaTuru_id	= $tur_ekle[ 2 ]; 
 			}
 				
 			break;
+
+		case 'sil':
+			$tek_dosya_turu_oku = $vt->select( $SQL_tek_dosya_turu_oku, array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ];
+
+			if ( $tek_dosya_turu_oku [0] [ "dosyaSayisi" ] < 1 ) {
+				$vt->delete( $SQL_dosya_turu_sil, array( $dosyaTuru_id ) );
+			}
+			break;
 	}
 
-	header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$son_eklenen_id" );
+	header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$dosyaTuru_id" );
 
 }
 

@@ -10,6 +10,7 @@ $SQL_tum_firma_dosyasi_oku = <<< SQL
 SELECT
 	tb_firma_dosya_turleri.id,
 	tb_firma_dosya_turleri.adi,
+	tb_firma_dosya_turleri.tarih,
 	(SELECT COUNT(tb_firma_dosyalari.id) 
 		FROM tb_firma_dosyalari 
 		WHERE tb_firma_dosyalari.dosya_turu_id = tb_firma_dosya_turleri.id 
@@ -85,7 +86,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class = "col-md-5">
+			<div class = "col-md-6">
 				<div class="card card-secondary">
 					<div class="card-header">
 						<h3 class="card-title">Firma Dosya Türleri</h3>
@@ -99,8 +100,10 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 								<tr>
 									<th style="width: 15px">#</th>
 									<th>Adı</th>
-									<th style="width: 60px">Dosya Sayısı</th>
+									<th style="width: 80px">Kalan G.S.</th>
+									<th style="width: 80px">Dosya Sayısı</th>
 									<th data-priority=" 1" style="width: 20px">Düzenle</th>
+									<th data-priority=" 1" style="width: 20px">Sil</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -108,11 +111,24 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 									<tr  <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo "class = '$satir_renk'";?>>
 										<td><?php echo $sayi++; ?></td>
 										<td><?php echo $dosyaTuru[ 'adi' ]; ?></td>
+										<td>
+											<?php
+												$suanki_tarih 		= date_create(date('Y-m-d'));
+												$hatirlanacak_tarih = date_create($dosyaTuru[ 'tarih' ]);
+												if ( $dosyaTuru[ 'tarih' ] != '0000-00-00' AND $suanki_tarih < $hatirlanacak_tarih ) {
+													$kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
+													echo $kalan_gun->format("%a Gün Kaldı");
+												}
+											?>
+										</td>
 										<td><?php echo $dosyaTuru[ 'dosyaSayisi' ]; ?></td>
 										<td align = "center">
 											<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
 												Evraklar
 											</a>
+										</td>
+										<td>
+											<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
 										</td>
 									</tr>
 								<?php } ?>
@@ -121,7 +137,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 					</div>
 				</div>
 			</div>
-			<div class = "col-md-7">
+			<div class = "col-md-6">
 				<div class="dropzonedosya" id="DosyaAlani" >
 		            <div class=" card card-info">
 		                <div class="card-header" id="CardHeader">
@@ -217,12 +233,19 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 							<label class="control-label">Başlık</label>
 							<input type="text" name="adi" placeholder="Başlık" class="form-control">
 						</div>
-
+						<div class="form-group">
+		                    <label>Evrak Yenileme Tarihi</label>
+		                    <div class="input-group date" id="tarih" data-target-input="nearest">
+		                      <input type="text" name="tarih" class="form-control datetimepicker-input" data-target="#tarih" value="<?php echo $giris_cikis["bitis_saat"]; ?>" data-target="#tarih" data-toggle="datetimepicker" placeholder = "Uyarı Tarihi"/>
+		                    </div>
+		                    <!-- /.input group -->
+		                </div>
+	              		<!-- /.form group -->
 					</div>
+						
 					<div class="modal-footer justify-content-between">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
 						<button type="submit" class="btn btn-success">Kaydet</button>
-
 					</div>
 				</form>
 			</div>
@@ -247,6 +270,20 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 			'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json'
 		}
 	});
+
+	$(function () {
+		$('#tarih').datetimepicker({
+			//defaultDate: simdi,
+			format: 'yyyy.MM.DD',
+			icons: {
+				time: "far fa-clock",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down"
+			}
+		});
+	});
+
 
 
 
