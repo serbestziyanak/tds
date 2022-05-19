@@ -148,13 +148,6 @@ WHERE
 ORDER BY baslangic_saat ASC 
 SQL;
 
-$tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
-$icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
-
-//tutanak dosyası oluşturulmayan personel listesi
-$gelmeyen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
-$gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
-$erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
 
 //Yazdırma İşlemi Yapılan Tutanaklar Listesi
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
@@ -174,65 +167,100 @@ $erken_cikan_personel_listesi           = Array();
 $gec_giris_saatler                      = Array();
 $erken_cikis_saatler                    = Array();
 
-foreach ($tum_personel as $personel) {
+//Giriş Çıkış Verileri Güncellendi mi Kontrol ediliyor
+$anasayfa_durum = array_key_exists( 'anasayfa_durum', $_SESSION ) ? trim($_SESSION[ 'anasayfa_durum' ] )    : 'guncelle';
+if ( $anasayfa_durum == 'guncelle' ) {
+    $tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
+    $icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
 
-    //Personel bugun giriş veya çıkış yapmış mı kontrolünü sağlıyoruz
-    $personel_giris_cikis_saatleri      = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
+    //tutanak dosyası oluşturulmayan personel listesi
+    $gelmeyen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
+    $gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
+    $erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
 
-    if (count($personel_giris_cikis_saatleri) < 1 ) {
-        //PErsonel Hiç Gelmemiş ise
-        $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-        $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gunluk'  ) ) [2];
-        //tutanak dosyaları eklenmisse 
-        if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
-            $gelmeyen_personel_tutanak_tutulmayan[]    = $personel;
-        }
-        
-        $gelmeyen_personel_sayisi[]       = $personel;
 
-    }else{
+    foreach ($tum_personel as $personel) {
 
-        $personel_giris_cikis_sayisi    = count($personel_giris_cikis_saatleri);
+        //Personel bugun giriş veya çıkış yapmış mı kontrolünü sağlıyoruz
+        $personel_giris_cikis_saatleri      = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
 
-        //Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
-        $son_cikis_index                = $personel_giris_cikis_sayisi - 1;
-        $ilk_islemtipi                  = $personel_giris_cikis_saatleri[0]['islem_tipi'];
-        $son_islemtipi                  = $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
-
-        $ilkGirisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
-
-        $SonCikisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
-
-        if ($ilkGirisSaat[0] > "08:00" AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
-            $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gecgelme", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-            $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gecgelme' )  ) [2];
-            if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0  ) {
-                $gec_gelen_personel_tutanak_tutulmayan[]   = $personel;
-                $gec_giris_saatler[$personel["id"]]         = $ilkGirisSaat[0];
-            }
-            
-        }
-
-        if ($SonCikisSaat[0] < "18:30" AND $SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
-            
-            $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-            $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'erkencikma' )  ) [2];
+        if (count($personel_giris_cikis_saatleri) < 1 ) {
+            //PErsonel Hiç Gelmemiş ise
+            $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+            $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gunluk'  ) ) [2];
+            //tutanak dosyaları eklenmisse 
             if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
-                $erken_cikan_personel_tutanak_tutulmayan[]  = $personel;
-                $erken_cikan_personel_listesi[]             = $personel;
+                $gelmeyen_personel_tutanak_tutulmayan[]  = $personel;
             }
             
-        }
+            $gelmeyen_personel_sayisi[]             = $personel;
 
-        if ( $personel_giris_cikis_sayisi == 1 AND  $ilk_islemtipi != "0"  ) {
-            $izinli_personel_listesi[]              = $personel; 
-        }
+        }else{
 
-        if ($SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
-            $gelip_cikan_personel_listesi[]         = $personel;
-        }
-    } 
+            $personel_giris_cikis_sayisi    = count($personel_giris_cikis_saatleri);
+
+            //Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
+            $son_cikis_index                = $personel_giris_cikis_sayisi - 1;
+            $ilk_islemtipi                  = $personel_giris_cikis_saatleri[0]['islem_tipi'];
+            $son_islemtipi                  = $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
+
+            $ilkGirisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
+
+            $SonCikisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
+
+            if ($ilkGirisSaat[0] > "08:00" AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
+                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gecgelme", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gecgelme' )  ) [2];
+                if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0  ) {
+                    $gec_gelen_personel_tutanak_tutulmayan[]   = $personel;
+                    $gec_giris_saatler[$personel["id"]]         = $ilkGirisSaat[0];
+                }
+                
+            }
+
+            if ($SonCikisSaat[0] < "18:30" AND $SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+                
+                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'erkencikma' )  ) [2];
+                if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
+                    $erken_cikan_personel_tutanak_tutulmayan[]  = $personel;
+                    $erken_cikan_personel_listesi[]             = $personel;
+                }
+                
+            }
+
+            if ( $personel_giris_cikis_sayisi == 1 AND  $ilk_islemtipi != "0"  ) {
+                $izinli_personel_listesi[]              = $personel; 
+            }
+
+            if ($SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+                $gelip_cikan_personel_listesi[]             = $personel;
+            }
+        } 
+    }
+    $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ]       = $gelmeyen_personel_tutanak_tutulmayan; 
+    $_SESSION[ 'gelmeyen_personel_sayisi' ]                   = $gelmeyen_personel_sayisi;
+    $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ]      = $gec_gelen_personel_tutanak_tutulmayan;
+    $_SESSION[ 'gec_giris_saatler' ]                          = $gec_giris_saatler;
+    $_SESSION[ 'erken_cikan_personel_listesi' ]               = $erken_cikan_personel_listesi;
+    $_SESSION[ 'erken_cikan_personel_tutanak_tutulmayan' ]    = $erken_cikan_personel_tutanak_tutulmayan;
+    $_SESSION[ 'izinli_personel_listesi' ]                    = $izinli_personel_listesi;
+    $_SESSION[ 'gelip_cikan_personel_listesi' ]               = $gelip_cikan_personel_listesi;
+    $_SESSION[ 'tum_personel' ]                               = $tum_personel;
+    $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
+}else if ( $anasayfa_durum == 'guncel' ){
+
+    $gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
+    $gelmeyen_personel_sayisi                                 = $_SESSION[ 'gelmeyen_personel_sayisi' ];
+    $gec_gelen_personel_tutanak_tutulmayan                    = $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ];
+    $gec_giris_saatler                                        = $_SESSION[ 'gec_giris_saatler' ];
+    $erken_cikan_personel_listesi                             = $_SESSION[ 'erken_cikan_personel_listesi' ];
+    $erken_cikan_personel_tutanak_tutulmayan                  = $_SESSION[ 'erken_cikan_personel_tutanak_tutulmayan' ];
+    $izinli_personel_listesi                                  = $_SESSION[ 'izinli_personel_listesi' ];
+    $gelip_cikan_personel_listesi                             = $_SESSION[ 'gelip_cikan_personel_listesi' ];
+    $tum_personel                                             = $_SESSION[ 'tum_personel' ];
 }
+
 
 ?>
 

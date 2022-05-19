@@ -176,6 +176,9 @@ switch( $islem ) {
 				array_pop($degerler);
 				array_pop($degerler);
 			}
+
+			$_SESSION['anasayfa_durum'] = 'guncelle';
+
 		}else{
 			$i = 1;
 			$degerler[] 		= $baslangicSaat[0]; // Tarih Alanına Deger Atıyoruz
@@ -187,6 +190,7 @@ switch( $islem ) {
 				$degerler[] 		= $baslangicSaat[0];
 				$i++;
 			}
+			$_SESSION['anasayfa_durum'] = 'guncelle';
 		}
 
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
@@ -209,10 +213,14 @@ switch( $islem ) {
 				array_pop($degerler); // bitis_saati array den cıkardık
 				array_pop($degerler); // Baslangic_saati array den  cıkardık
 
-			}	
+			}
+
+			$_SESSION['anasayfa_durum'] = 'guncelle';
+
 		}else{
 			$degerler[] = $personel_cikis_varmi[0]["id"];
 			$sonuc = $vt->update( $SQL_guncelle, $degerler );
+			$_SESSION['anasayfa_durum'] = 'guncelle';
 		}
 		
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
@@ -221,6 +229,7 @@ switch( $islem ) {
 		$giris_cikis_varmi = $vt->select( $SQL_giris_cikis_oku, array( $giriscikis_id, $personel_id ) );
 		if ( count( $giris_cikis_varmi ) > 0 ) {
 			$sonuc = $vt->delete( $SQL_sil, array( $_SESSION['kullanici_id'], $giriscikis_id ) );
+			$_SESSION['anasayfa_durum'] = 'guncelle';
 		}
 		
 	break;

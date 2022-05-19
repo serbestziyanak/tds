@@ -237,11 +237,13 @@
 						$degerler 			= array( $tutanak_id );
 						$tutanak_yazdirma 	= $vt->update( $SQL_yazdirma_guncelle, $degerler );
 						$sonuc[ "sonuc" ] 	= 'ok';
+						$_SESSION['anasayfa_durum'] = 'guncelle';
 					}
 				}else{
 					$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), 1 );
 					$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );
 					$sonuc[ "sonuc" ]	= 'ok';
+					$_SESSION['anasayfa_durum'] = 'guncelle';
 				}
 
 	    		break;
