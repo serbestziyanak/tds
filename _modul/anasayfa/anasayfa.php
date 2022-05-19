@@ -155,17 +155,17 @@ $yazdirilan_gecgelen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_o
 $yazdirilan_erkencikan_tutanak_listesi  = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
 
 
-$gelmeyen_personel_sayisi               = Array();
-$gelmeyen_personel_tutanak_tutulmayan   = Array();
-$erken_cikan_personel_tutanak_tutulmayan= Array();
-$gec_gelen_personel_tutanak_tutulmayan  = Array();
-$izinli_personel_listesi                = Array();
-$gelip_cikan_personel_listesi           = Array();
-$erken_cikan_personel_listesi           = Array();
+$gelmeyen_personel_sayisi                   = Array();
+$gelmeyen_personel_tutanak_tutulmayan       = Array();
+$erken_cikan_personel_tutanak_tutulmayan    = Array();
+$gec_gelen_personel_tutanak_tutulmayan      = Array();
+$izinli_personel_listesi                    = Array();
+$gelip_cikan_personel_listesi               = Array();
+$erken_cikan_personel_listesi               = Array();
 
 
-$gec_giris_saatler                      = Array();
-$erken_cikis_saatler                    = Array();
+$gec_giris_saatler                          = Array();
+$erken_cikis_saatler                        = Array();
 
 //Giriş Çıkış Verileri Güncellendi mi Kontrol ediliyor
 $anasayfa_durum = array_key_exists( 'anasayfa_durum', $_SESSION ) ? trim($_SESSION[ 'anasayfa_durum' ] )    : 'guncelle';
@@ -193,7 +193,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
                 $gelmeyen_personel_tutanak_tutulmayan[]  = $personel;
             }
             
-            $gelmeyen_personel_sayisi[]             = $personel;
+            $gelmeyen_personel_sayisi[]     = $personel;
 
         }else{
 
@@ -213,7 +213,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
                 $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gecgelme' )  ) [2];
                 if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0  ) {
                     $gec_gelen_personel_tutanak_tutulmayan[]   = $personel;
-                    $gec_giris_saatler[$personel["id"]]         = $ilkGirisSaat[0];
+                    $gec_giris_saatler[$personel["id"]]        = $ilkGirisSaat[0];
                 }
                 
             }
