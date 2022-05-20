@@ -110,7 +110,7 @@
 	UPDATE 
 		tb_tutanak
 	SET 
-		yazdirma 	= 1
+		yazdirma 	= ?
 	WHERE
 		id 			= ?  
 	SQL;
@@ -231,14 +231,15 @@
 	    	case 'yazdirma':
 				if( count( $tutanak_varmi ) > 0 ){
 					if ($tutanak_varmi[ 0 ][ "yazdirma" ] == 1 ) {
-						$sonuc[ "sonuc" ] = 'hata - 3';
+						$yazdirma = 0;
 					}else{
-						$tutanak_id 		= $tutanak_varmi[ 0 ][ "id" ];
-						$degerler 			= array( $tutanak_id );
-						$tutanak_yazdirma 	= $vt->update( $SQL_yazdirma_guncelle, $degerler );
-						$sonuc[ "sonuc" ] 	= 'ok';
-						$_SESSION['anasayfa_durum'] = 'guncelle';
+						$yazdirma = 1;
 					}
+					$tutanak_id 		= $tutanak_varmi[ 0 ][ "id" ];
+					$degerler 			= array( $yazdirma, $tutanak_id );
+					$tutanak_yazdirma 	= $vt->update( $SQL_yazdirma_guncelle, $degerler );
+					$sonuc[ "sonuc" ] 	= 'ok';
+					$_SESSION['anasayfa_durum'] = 'guncelle';
 				}else{
 					$degerler 		= array(  $_SESSION['firma_id'], $personel_id, $tarih, $saat, $tip, date("Y-m-d H:i:s"), 1 );
 					$tutanak_Ekle 	= $vt->insert( $SQL_tutanak_kaydet, $degerler );

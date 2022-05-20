@@ -700,7 +700,7 @@ $(".personel-Tr").bind("contextmenu", function(event) {
     $("<div class='custom-menu'>"+
     	"<a href='?modul=personelOzlukDosyalari&islem=guncelle&personel_id="+personel_id+"' ><i class='fas fa-file'></i>&nbsp; Personel Özlük Dosyası</a>"+
     	"<a href='?modul=giriscikis&personel_id="+personel_id+"' ><i class='fas fa-exchange-alt'></i>&nbsp; Personel Aylık Hareketi</a>"+
-    	"<a href='?modul=puantaj&personel_id="+personel_id+"' ><i class='fas fa-calendar'></i>&nbsp; Personel Puantajı</a>"+
+    	"<a href='?modul=puantaj&personel_id="+personel_id+"' ><i class='fas fa-calendar-alt'></i>&nbsp; Personel Puantajı</a>"+
     	"</div>").appendTo("body").css({
         top: event.pageY + "px",
         left: event.pageX + "px"
