@@ -664,7 +664,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 	}
 	.custom-menu a{
 		display: block;
-		padding: 10px 30px;
+		padding: 10px 30px 10px 10px;
 		border-bottom: 1px solid #ddd;
 		color: #000;
 	}
@@ -691,11 +691,16 @@ $(".personel-Tr").bind("contextmenu", function(event) {
    	// Genel Sağ Tık Menüsünü Kapat
     event.preventDefault(); 
 
+    $(".personel-Tr").each(function() {
+        $(this).removeClass("table-warning")
+    });
+    $(this).addClass("table-warning");
+
     //Açılacak Div İçeriği
     $("<div class='custom-menu'>"+
-    	"<a href='?modul=personelOzlukDosyalari&islem=guncelle&personel_id="+personel_id+"' >Personel Özlük Dosyası</a>"+
-    	"<a href='?modul=giriscikis&personel_id="+personel_id+"' >Personel Aylık Hareketi</a>"+
-    	"<a href='?modul=puantaj&personel_id="+personel_id+"' >Personel Puantajı</a>"+
+    	"<a href='?modul=personelOzlukDosyalari&islem=guncelle&personel_id="+personel_id+"' ><i class='fas fa-file'></i>&nbsp; Personel Özlük Dosyası</a>"+
+    	"<a href='?modul=giriscikis&personel_id="+personel_id+"' ><i class='fas fa-exchange-alt'></i>&nbsp; Personel Aylık Hareketi</a>"+
+    	"<a href='?modul=puantaj&personel_id="+personel_id+"' ><i class='fas fa-calendar'></i>&nbsp; Personel Puantajı</a>"+
     	"</div>").appendTo("body").css({
         top: event.pageY + "px",
         left: event.pageX + "px"
@@ -704,6 +709,9 @@ $(".personel-Tr").bind("contextmenu", function(event) {
     if (!$(event.target).is(".custom-menu")) {
         $("div.custom-menu").hide();
     }
+    $(".personel-Tr").each(function() {
+        $(this).removeClass("table-warning")
+    });
 });
 
 
