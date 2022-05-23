@@ -96,7 +96,8 @@ SELECT
 FROM
 	tb_mesai_turu
 WHERE
-	firma_id = ?
+	firma_id = ? AND
+	aktif = 1
 SQL;
 
 
