@@ -734,49 +734,49 @@ if ( $anasayfa_durum == 'guncelle' ) {
 <script type="text/javascript">
 
 
-    // $( "body" ).on('click', '.personel-Tr', function() {
+    $( "body" ).on('click', '.personel-Tr', function() {
 
-    //     $("#DosyaAlani").fadeToggle(250);
+        $("#DosyaAlani").fadeToggle(250);
 
-    //     var genislik            = document.getElementById("yazdirilanTutanaklar").offsetWidth;
-    //     var yukseklik           = document.getElementById("yazdirilanTutanaklar").offsetHeight;
+        var genislik            = document.getElementById("yazdirilanTutanaklar").offsetWidth;
+        var yukseklik           = document.getElementById("yazdirilanTutanaklar").offsetHeight;
         
-    //     //Dosya Yükleme Alanının Boyutları
-    //     var baslikyukseklik     = document.getElementById("CardHeader").offsetHeight;
-    //     var icerikyukseklik     = document.getElementById("CardBody").offsetHeight;
-    //     var dropzoneyukseklik   = document.getElementById("dropzone").offsetHeight;
+        //Dosya Yükleme Alanının Boyutları
+        var baslikyukseklik     = document.getElementById("CardHeader").offsetHeight;
+        var icerikyukseklik     = document.getElementById("CardBody").offsetHeight;
+        var dropzoneyukseklik   = document.getElementById("dropzone").offsetHeight;
 
-    //     //Yazıdırlmauan Tutanaklar genişliğini dosya yükleme alanına atıyoruz
-    //     document.getElementById("DosyaAlani").style.width = genislik+"px";
-    //     var dosyalani = baslikyukseklik + icerikyukseklik;
-    //     if (yukseklik > dosyalani){
-    //         var yukseklikfarki = yukseklik - dosyalani ;
-    //         document.getElementById("dropzone").style.height = yukseklikfarki+dropzoneyukseklik+"px";
-    //     }
+        //Yazıdırlmauan Tutanaklar genişliğini dosya yükleme alanına atıyoruz
+        document.getElementById("DosyaAlani").style.width = genislik+"px";
+        var dosyalani = baslikyukseklik + icerikyukseklik;
+        if (yukseklik > dosyalani){
+            var yukseklikfarki = yukseklik - dosyalani ;
+            document.getElementById("dropzone").style.height = yukseklikfarki+dropzoneyukseklik+"px";
+        }
 
-    //     //Tablodaki tüm satırları normale ceviriyoruzz  Tıklanan satırı arka planını warning yapıyoruz
-    //     $(".personel-Tr").each(function() {
-    //         $(this).removeClass("table-warning")
-    //     });
-    //     $(this).addClass("table-warning");
+        //Tablodaki tüm satırları normale ceviriyoruzz  Tıklanan satırı arka planını warning yapıyoruz
+        $(".personel-Tr").each(function() {
+            $(this).removeClass("table-warning")
+        });
+        $(this).addClass("table-warning");
 
-    //     //Satıra ait data verileri çekiyoruz
-    //     var personel_id = $( this ).data( "personel_id" );
-    //     var tutanak_id  = $( this ).data( "tutanak_id" );
-    //     var ad          = $( this ).data( "ad" ); 
-    //     var tip         = $( this ).data( "tip" ); 
-    //     var tarih       = $( this ).data( "tarih" ); 
-    //     var saat        = $( this ).data( "saat" );
+        //Satıra ait data verileri çekiyoruz
+        var personel_id = $( this ).data( "personel_id" );
+        var tutanak_id  = $( this ).data( "tutanak_id" );
+        var ad          = $( this ).data( "ad" ); 
+        var tip         = $( this ).data( "tip" ); 
+        var tarih       = $( this ).data( "tarih" ); 
+        var saat        = $( this ).data( "saat" );
 
-    //     //Gelen verileri forma atıyoruz
-    //     $( "#personel_id" ).val( personel_id );
-    //     $( "#tutanak_id" ).val( tutanak_id );
-    //     $( "#tip" ).val( tip );
-    //     $( "#tarih" ).val( tarih );
-    //     $( "#saat" ).val( saat );
-    //     $( "#baslik" ).html( '<b>'+ad+'</b> İçin Dosya Yüklenecektir' );
+        //Gelen verileri forma atıyoruz
+        $( "#personel_id" ).val( personel_id );
+        $( "#tutanak_id" ).val( tutanak_id );
+        $( "#tip" ).val( tip );
+        $( "#tarih" ).val( tarih );
+        $( "#saat" ).val( saat );
+        $( "#baslik" ).html( '<b>'+ad+'</b> İçin Dosya Yüklenecektir' );
         
-    // });
+    });
 
     $('.dropzoneKapat').click(function() {
         $(".dropzonedosya").fadeToggle(250);
