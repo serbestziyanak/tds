@@ -166,20 +166,12 @@ FROM
 	tb_ogrenim_duzeyleri
 SQL;
 
-
+$personeller					= $vt->select( $SQL_tum_personel_oku, array() );
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) )[ 2 ][ 0 ];
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
 
 //Personel listesini $_Session da tutuyoruz.
 $personel_durum = array_key_exists( 'personel_durum', $_SESSION ) ? trim($_SESSION[ 'personel_durum' ] ) : 'guncelle';
-
-if ( $personel_durum == 'guncelle' ) {
-	$personeller					= $vt->select( $SQL_tum_personel_oku, array() );
-	$_SESSION[ 'personeller' ]		= $personeller;
-	$_SESSION[ 'personel_durum' ]	= 'guncel';
-}else if ( $personel_durum == 'guncel' ) {
-	$personeller					= $_SESSION[ 'personeller' ];
-}
 
 /* Sabit tablolar içerik oku */
 $iller				= $vt->select( $SQL_iller				,array() )[ 2 ];
