@@ -273,6 +273,10 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 										<label class="control-label">Gün Dönümü</label>
 										<input required type="text" class="form-control" name ="gun_donumu" value = "<?php echo date( 'H:i', strtotime($tek_tarife[ "gun_donumu" ])); ?>" placeholder="06:59, 18:45 vs.">
 									</div>
+									<div class="form-group">
+										<label class="control-label">Çarpan</label>
+										<input required type="number" step = "0.01" class="form-control" name ="carpan" value = "<?php echo $tek_tarife[ "carpan" ]; ?>" placeholder = "1, 1.5, 2 vs." >
+									</div>
 									<div class="card-footer">
 										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
