@@ -44,6 +44,7 @@ INNER JOIN tb_gruplar AS g ON
 WHERE 
 	t.firma_id 	= ? AND
 	t.aktif 	= 1
+ORDER BY t.id ASC
 SQL;
 
 
@@ -276,6 +277,13 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 									<div class="form-group">
 										<label class="control-label">Çarpan</label>
 										<input required type="number" step = "0.01" class="form-control" name ="carpan" value = "<?php echo $tek_tarife[ "carpan" ]; ?>" placeholder = "1, 1.5, 2 vs." >
+									</div>
+
+									<label class="control-label">Mesai Durumu</label>
+									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+										<div class="bootstrap-switch-container" >
+											<input type="checkbox" name="tatil"  <?php echo $tek_tarife[ "tatil" ] == 1 ? 'checked': ''; ?>  data-bootstrap-switch="" data-off-color="danger" data-on-text="Tatil" data-off-text="Mesai" data-on-color="success">
+										</div>
 									</div>
 									<div class="card-footer">
 										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>

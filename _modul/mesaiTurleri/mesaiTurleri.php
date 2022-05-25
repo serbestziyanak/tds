@@ -60,6 +60,8 @@ SQL;
 $mesai_turleri		= $vt->select( $SQL_tum_mesai_turleri_oku, array($_SESSION['firma_id'] ) )[ 2 ];
 $tek_mesai_turu		= $vt->select( $SQL_tek_mesai_turu_oku, array( $mesai_turu_id, $_SESSION['firma_id'] ) )[ 2 ][ 0 ];
 
+$secili_gunler = explode( ",", $tek_mesai_turu[ "gunler" ] );
+
 ?>
 
 <div class="modal fade" id="sil_onay">
@@ -154,6 +156,18 @@ $tek_mesai_turu		= $vt->select( $SQL_tek_mesai_turu_oku, array( $mesai_turu_id, 
 									<div class="form-group">
 										<label class="control-label">Adı</label>
 										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_mesai_turu[ "adi" ]; ?>"  autocomplete="off">
+									</div>
+									<div class="form-group">
+										<label  class="control-label">Günler</label>
+										<select  class="form-control select2"  multiple="multiple" name = "gunler[]" required>
+											<option value=",Pazartesi," <?php echo in_array( "Pazartesi", $secili_gunler ) ? 'selected' : ''; ?>>Pazartesi</option>
+											<option value=",Salı," <?php echo in_array( "Salı", $secili_gunler ) ? 'selected' : ''; ?> >Salı</option>
+											<option value=",Çarşamba," <?php echo in_array( "Çarşamba", $secili_gunler ) ? 'selected' : ''; ?>>Çarşamba</option>
+											<option value=",Perşembe," <?php echo in_array( "Perşembe", $secili_gunler ) ? 'selected' : ''; ?>>Perşembe</option>
+											<option value=",Cuma," <?php echo in_array( "Cuma", $secili_gunler ) ? 'selected' : ''; ?>>Cuma</option>
+											<option value=",Cumartesi," <?php echo in_array( "Cumartesi", $secili_gunler ) ? 'selected' : ''; ?>>Cumartesi</option>
+											<option value=",Pazar," <?php echo in_array( "Pazar", $secili_gunler ) ? 'selected' : ''; ?>>Pazar</option>
+										</select>
 									</div>
 									<div class="card-footer">
 										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>

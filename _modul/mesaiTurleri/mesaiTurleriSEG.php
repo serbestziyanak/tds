@@ -17,7 +17,7 @@ $alanlar[]		= 'firma_id';
 $degerler[]		= $_SESSION['firma_id'];
 
 foreach( $_REQUEST as $alan => $deger ) {
-	if( $alan == 'islem' or $alan == 'mesai_turu_id' or  $alan == 'PHPSESSID' ) continue;
+	if( $alan == 'islem' or $alan == 'mesai_turu_id' or  $alan == 'PHPSESSID'  or  $alan == 'gunler' ) continue;
 
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
@@ -32,6 +32,9 @@ foreach( $_REQUEST as $alan => $deger ) {
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
 }
+
+$alanlar[]		= 'gunler';
+$degerler[]		= implode(",", $_REQUEST[ 'gunler' ]);
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
 

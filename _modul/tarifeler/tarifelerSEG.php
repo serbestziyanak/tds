@@ -29,8 +29,16 @@ foreach( $_REQUEST as $alan => $deger ) {
 		if( $deger == '' ) $deger = NULL;
 		else $deger	= date( 'Y-m-d', strtotime( $deger ) );
 	}
+	if ( $alan == 'tatil' ){
+		$deger = $deger == on ? 1 : 0;
+	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
+}
+
+if ( !array_key_exists("tatil", $_REQUEST) ){
+	$alanlar[]		= 'tatil';
+	$degerler[]		= 0;
 }
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
