@@ -9,6 +9,7 @@ SELECT
     id
     ,adi
     ,soyadi
+    ,grup_id
 FROM
     tb_personel AS p
 WHERE
@@ -147,6 +148,38 @@ WHERE
 ORDER BY baslangic_saat ASC 
 SQL;
 
+/*
+Bugunkü Tarifeye ait giriş cıkış saatlerini veya tatil durumunu getiriyor
+*/
+$SQL_giris_cikis_saat = <<< SQL
+SELECT 
+    t1.*
+from
+    tb_tarifeler AS t1
+LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
+
+WHERE 
+    t1.baslangic_tarih <= ? AND 
+    t1.bitis_tarih >= ? AND
+    mt.gunler LIKE ? AND 
+    t1.grup_id = ? AND 
+    t1.carpan   =   ( 
+        SELECT 
+            MAX(carpan) 
+        from
+            tb_tarifeler AS t
+        LEFT JOIN tb_mesai_turu AS mt ON  t.mesai_turu = mt.id
+        WHERE 
+            baslangic_tarih <= ? AND 
+            bitis_tarih >= ? AND 
+            mt.gunler LIKE ? AND 
+            t.firma_id = ? AND 
+            t.grup_id = ? AND 
+            t.aktif = 1
+    )
+            
+SQL;
+
 
 //Yazdırma İşlemi Yapılan Tutanaklar Listesi
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
@@ -170,7 +203,6 @@ $erken_cikis_saatler                        = Array();
 $anasayfa_durum = array_key_exists( 'anasayfa_durum', $_SESSION ) ? trim($_SESSION[ 'anasayfa_durum' ] )    : 'guncelle';
 
 if ( $anasayfa_durum == 'guncelle' ) {
-    echo 'guncelliyor';
     $tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
     $icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
 
@@ -182,20 +214,35 @@ if ( $anasayfa_durum == 'guncelle' ) {
 
     foreach ($tum_personel as $personel) {
 
+        $gun = $fn->gunVer( date("Y-m-d") );
+
+        $giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', $personel["grup_id"], date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', $_SESSION['firma_id'], $personel["grup_id"] ) ) [ 2 ][ 0 ];
+
+        //Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
+        $mesai_baslangic    = date("H:i", strtotime('+10 minutes', strtotime( $giris_cikis_saat_getir["mesai_baslangic"] ) ) );
+        //Personel 5 DK  erken çıkabilir
+        $mesai_bitis        = date("H:i", strtotime('-5 minutes',  strtotime( $giris_cikis_saat_getir["mesai_bitis"] ) ) );
+        //Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
+        $tatil = $giris_cikis_saat_getir["tatil"] == 1  ?  'evet' : 'hayir';
+
+
         //Personel bugun giriş veya çıkış yapmış mı kontrolünü sağlıyoruz
         $personel_giris_cikis_saatleri      = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
 
-        if (count($personel_giris_cikis_saatleri) < 1 ) {
-            //PErsonel Hiç Gelmemiş ise
-            $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-            $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gunluk'  ) ) [2];
-            //tutanak dosyaları eklenmisse 
-            if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
-                $gelmeyen_personel_tutanak_tutulmayan[]  = $personel;
-            }
-            
-            $gelmeyen_personel_sayisi[]     = $personel;
+        if ( count($personel_giris_cikis_saatleri) < 1 ) {
 
+            /*Bugun Tatil Degilse personelli gelmeyenler listesine al*/
+            if ( $tatil == 'hayir' ) {
+                //PErsonel Hiç Gelmemiş ise
+                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gunluk'  ) ) [2];
+                //tutanak dosyaları eklenmisse 
+                if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
+                    $gelmeyen_personel_tutanak_tutulmayan[]  = $personel;
+                }
+                
+                $gelmeyen_personel_sayisi[]     = $personel;
+            }
         }else{
 
             $personel_giris_cikis_sayisi    = count($personel_giris_cikis_saatleri);
@@ -209,7 +256,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
 
             $SonCikisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 
-            if ($ilkGirisSaat[0] > "08:00" AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
+            if ($ilkGirisSaat[0] > $mesai_baslangic AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
                 $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gecgelme", $personel[ 'id' ], date("Y-m-d") ) ) [2];
                 $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gecgelme' )  ) [2];
                 if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0  ) {
@@ -219,7 +266,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
                 
             }
 
-            if ($SonCikisSaat[0] < "18:30" AND $SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+            if ($SonCikisSaat[0] < $mesai_bitis AND $SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
                 
                 $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
                 $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'erkencikma' )  ) [2];
@@ -255,7 +302,6 @@ if ( $anasayfa_durum == 'guncelle' ) {
     $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
 
 }else if ( $anasayfa_durum == 'guncel' ){
-    echo 'eski veri<br>';
     $gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
     $gelmeyen_personel_sayisi                                 = $_SESSION[ 'gelmeyen_personel_sayisi' ];
     $gec_gelen_personel_tutanak_tutulmayan                    = $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ];
@@ -397,10 +443,10 @@ if ( $anasayfa_durum == 'guncelle' ) {
                                                 <input
                                                 type="checkbox"
                                                 data-personel_id     = "<?php echo $tutanak_personel[ 'personel_id' ]; ?>" 
-                                                data-tutanak_id      = ""
+                                                data-tutanak_id      = "<?php echo $tutanak_personel[ 'tutanak_id' ]; ?>"
                                                 data-tip             = "gunluk" 
                                                 data-ad              = "<?php echo $personel[ 'adi' ].' '.$personel["soyadi"]; ?>"
-                                                data-tarih           = "<?php echo date( 'Y-m-d' ); ?>"
+                                                data-tarih           = "<?php echo $tutanak_personel[ 'tarih' ]; ?>"
                                                 class                = "yazdirma"
                                                 id                   = "<?php echo $sayi.'-'.$tutanak_personel[ "personel_id" ]; ?>">
                                                 <label for="<?php echo $sayi.'-'.$tutanak_personel[ "personel_id" ]; ?>"></label>
@@ -733,10 +779,35 @@ if ( $anasayfa_durum == 'guncelle' ) {
 
 <script type="text/javascript">
 
+    $( "body" ).on('change', '.yazdirma', function() {
+        var personel_id = $( this ).data( "personel_id" );
+        var tutanak_id  = $( this ).data( "tutanak_id" );
+        var tip         = $( this ).data( "tip" ); 
+        var tarih       = $( this ).data( "tarih" ); 
+        var saat        = $( this ).data( "saat" ); 
+
+        var url         = '_modul/tutanakolustur/tutanakolusturSEG.php?islem=yazdirma';
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: 'personel_id=' + personel_id+'&tutanak_id=' + tutanak_id+'&tip=' + tip+'&tarih=' + tarih+'&saat=' + saat, 
+            cache: false,
+            success: function(response) {
+                var response = JSON.parse(response);
+                if ( response.sonuc == 'ok' ){
+                    const yenile = setTimeout(sayfa_yenile, 0);
+                    function sayfa_yenile() {
+                        location.reload();
+                    }
+                }
+            }
+
+        })
+    });
 
     $( "body" ).on('click', '.personel-Tr', function() {
 
-        $("#DosyaAlani").fadeToggle(250);
+        $("#DosyaAlani").fadeToggle(500);
 
         var genislik            = document.getElementById("yazdirilanTutanaklar").offsetWidth;
         var yukseklik           = document.getElementById("yazdirilanTutanaklar").offsetHeight;
@@ -781,36 +852,6 @@ if ( $anasayfa_durum == 'guncelle' ) {
     $('.dropzoneKapat').click(function() {
         $(".dropzonedosya").fadeToggle(250);
     }); 
-
-    $( "body" ).on('change', '.yazdirma', function() {
-        var personel_id = $( this ).data( "personel_id" );
-        var tutanak_id  = $( this ).data( "tutanak_id" );
-        var tip         = $( this ).data( "tip" ); 
-        var tarih       = $( this ).data( "tarih" ); 
-        var saat        = $( this ).data( "saat" ); 
-
-        var url         = '_modul/tutanakolustur/tutanakolusturSEG.php?islem=yazdirma';
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: 'personel_id=' + personel_id+'&tutanak_id=' + tutanak_id+'&tip=' + tip+'&tarih=' + tarih+'&saat=' + saat, 
-            cache: false,
-            success: function(response) {
-                var response = JSON.parse(response);
-                if ( response.sonuc == 'ok' ){
-                    const yenile = setTimeout(sayfa_yenile, 100);
-                    function sayfa_yenile() {
-                        location.reload();
-                    }
-                }
-            }
-
-        })
-    });
-    
-    //$(".urun_tr_"+$id).fadeOut(300, function(){ $(this).remove();});
-    // e.preventDefault();
-    // $(this).closest(".form-ici").remove();
 
     var tbl_erken_cikanlar = $( "#tbl_erken_cikanlar" ).DataTable( {
         "responsive": true, "lengthChange": true, "autoWidth": true,

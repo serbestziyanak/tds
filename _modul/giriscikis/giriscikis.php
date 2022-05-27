@@ -75,6 +75,7 @@ SQL;
 $SQL_gunluk_giris_cikis = <<< SQL
 SELECT 
 	p.id,
+	p.grup_id,
 	CONCAT(adi ," ",soyadi) AS adSoyad,
 	(select 
 		COUNT(tarih) 
@@ -147,6 +148,7 @@ WHERE
 	t1.baslangic_tarih <= ? AND 
 	t1.bitis_tarih >= ? AND
 	mt.gunler LIKE ? AND 
+	t1.grup_id = ? AND 
 	t1.carpan 	=	( 
 		SELECT 
 			MAX(carpan) 
@@ -158,18 +160,18 @@ WHERE
 			bitis_tarih >= ? AND 
 			mt.gunler LIKE ? AND 
 			t.firma_id = ? AND 
+			t.grup_id = ? AND 
 			t.aktif = 1
 	)
 			
 SQL;
-
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION[ 'firma_id' ] ) );
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION[ "firma_id" ] ) )[2];
 $giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy ) )[2];
 $gunluk_giris_cikislar		= $vt->select( $SQL_gunluk_giris_cikis, array($_SESSION[ 'firma_id' ] ) )[2];
-$tum_giris_cikis_tipleri	= $vt->select( $SQL_tum_giris_cikis_tipleri)[2];
+$tum_giris_cikis_tipleri		= $vt->select( $SQL_tum_giris_cikis_tipleri)[2];
 
 $satir_renk					= $personel_id > 0	? 'table-warning' : '';
 
@@ -187,7 +189,7 @@ if($detay == "gun" ){
 @$tarihSayisi = max($tarihSayisi);
 
 //Bir tarihe ait saat düzenleme butonuna tıklandığında personel bilgisini ve personelin yaptığı giriş çıkışlar listesini alıyoruz
-@$personel 					= $vt->select( $SQL_tek_personel_oku, array($personel_id,$_SESSION[ 'firma_id' ] ) )[2];
+@$tek_personel 			= $vt->select( $SQL_tek_personel_oku, array($personel_id,$_SESSION[ 'firma_id' ] ) )[ 2 ];
 if ($islem == "saatduzenle" AND count($personel)>0) {
 	$personel_giris_cikis 	= $vt->select( $SQL_belirli_tarihli_giris_cikis, array($personel_id,$listelenecekTarih,$_SESSION[ 'firma_id' ] ) )[2];
 
@@ -315,32 +317,34 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 								<?php 
 
 									//SECİLEN AYIN KAÇ GÜN ÇEKTİĞİ
-									$gunSayisi = $fn->ikiHaneliVer($ay ) == date( "m" ) ? date( "d" ) : date( "t",mktime(0,0,0,$ay,01,$yil));
+									$gunSayisi = $fn->ikiHaneliVer( $ay ) == date( "m" ) ? date( "d" ) : date( "t",mktime(0,0,0,$ay,01,$yil));
 									$sayi = 1; 
+
 									while( $sayi <= $gunSayisi ) { 
 
 										$gun = $fn->gunVer($tarih.'-'.$sayi);
 
-
-										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', $_SESSION['firma_id']) ) [ 2 ][ 0 ];
+										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', $tek_personel[ 0 ]["grup_id"], $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', $_SESSION['firma_id'], $tek_personel[ 0 ]["grup_id"] ) ) [ 2 ][ 0 ];
 
 										//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
 										$mesai_baslangic 	= date("H:i", strtotime('+10 minutes', strtotime( $giris_cikis_saat_getir["mesai_baslangic"] ) ) );
-
+										//Personel 5 DK  erken çıkabilir
+										$mesai_bitis 		= date("H:i", strtotime('-5 minutes',  strtotime( $giris_cikis_saat_getir["mesai_bitis"] ) ) );
 										//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
-										$giris_cikis_saat_getir["tatil"] == 1  ? $tatil = 'evet' : '';
+										$tatil = $giris_cikis_saat_getir["tatil"] == 1  ?  'evet' : 'hayir';
 										
 
-										//Personel 5 DK kala erken çıkabilir
-										$mesai_bitis 		= date("H:i", strtotime('-5 minutes',  strtotime( $giris_cikis_saat_getir["mesai_bitis"] ) ) );
+										
+										
 										$islemtipi = array();
 										$personel_giris_cikis_saatleri 	= $vt->select($SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih."-".$sayi,$_SESSION[ 'firma_id' ] ))[2];
 
 										$personel_giris_cikis_sayisi   	= count($personel_giris_cikis_saatleri);
 
-										// echo '<pre>';
-										// print_r($personel_giris_cikis_saatleri);
-										// die();
+										/*Perosnel Giriş Yapmış ise tatilden Satılmayacak Ek mesai oalrak hesaplanacaktır. */
+										if($personel_giris_cikis_sayisi > 0){
+											$tatil = 'hayir';
+										}
 
 										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
 										$son_cikis_index 	= $personel_giris_cikis_sayisi - 1;
@@ -499,7 +503,25 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1; foreach( $gunluk_giris_cikislar AS $giriscikis_personel ) { ?>
+								<?php 
+
+									$gun 	= $fn->gunVer($listelenecekgun1);
+									$tarih 	= $listelenecekgun1;
+									$sayi 	= 1; 
+
+									foreach( $gunluk_giris_cikislar AS $giriscikis_personel ) { 
+
+
+										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih, $tarih, '%,'.$gun.',%', $giriscikis_personel["grup_id"], $tarih, $tarih, '%,'.$gun.',%', $_SESSION['firma_id'], $giriscikis_personel["grup_id"] ) ) [ 2 ][ 0 ];
+
+										//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
+										$mesai_baslangic 	= date("H:i", strtotime('+10 minutes', strtotime( $giris_cikis_saat_getir["mesai_baslangic"] ) ) );
+										$mesai_bitis 		= date("H:i", strtotime('-5 minutes',  strtotime( $giris_cikis_saat_getir["mesai_bitis"] ) ) );
+										
+										//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
+										$tatil = $giris_cikis_saat_getir["tatil"] == 1  ?  'evet' : 'hayir';
+
+								?>
 								<tr>
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $giriscikis_personel[ 'adSoyad' ]; ?></td>
@@ -511,6 +533,11 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 										$personel_giris_cikis_saatleri 	= $vt->select($SQL_belirli_tarihli_giris_cikis,array( $giriscikis_personel[ 'id' ],$listelenecekgun1,$_SESSION[ 'firma_id' ] ) )[2];
 
 										$personel_giris_cikis_sayisi = count($personel_giris_cikis_saatleri);
+										
+										if( $personel_giris_cikis_sayisi > 0){
+											$tatil = 'hayir';
+										}
+
 										//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
 										$son_cikis_index 			= $personel_giris_cikis_sayisi - 1;
 										$ilk_islemtipi 			= $personel_giris_cikis_saatleri[0]['islem_tipi'];
@@ -520,10 +547,10 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 
 										$SonCikisSaat 			= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 										
-										if ($ilkGirisSaat[0] > "08:00" AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
+										if ($ilkGirisSaat[0] > $mesai_baslangic AND ( $ilk_islemtipi =="" or $ilk_islemtipi == "0" )  ) {
 											$islemtipi["gecgelme"] 	 = $ilkGirisSaat[0];
 										}
-										if ($SonCikisSaat[0] < "18:30" AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+										if ($SonCikisSaat[0] < $mesai_bitis AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
 											$islemtipi["erkencikma"] = $SonCikisSaat[0];
 										}
 
@@ -602,7 +629,11 @@ if ($islem == "saatduzenle" AND count($personel)>0) {
 									<td class="text-center" width="280px"> 
 										<?php 
 											//islemTipi Fonksiyonu personelin izin kullanıp kullanmadığını ise gelme durumunu gelmiş ise erken mi veya gecmi çkıkısını kontrol ediyorum
-											echo $fn->islemTipi( $islemtipi, $giriscikis_personel["id"], $tarih );
+											if ( $tatil == 'evet' ) {
+												echo '<b class="text-info">'.$giris_cikis_saat_getir[ 'adi' ].'</b>';
+											}else{
+												echo $fn->islemTipi( $islemtipi, $giriscikis_personel["id"], $tarih );
+											}
 										?>
 									</td>
 									

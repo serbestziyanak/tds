@@ -126,7 +126,7 @@
 	$personel 		= $vt->select( $SQL_tek_personel_oku, array($personel_id, $_SESSION['firma_id'] ) )[2];
 	$giriscikis 	= $vt->select( $SQL_personel_gun_giris_cikis, array($personel_id, $tarih) )[2];
 	$tutanak_oku 	= $vt->select( $SQL_tutanak_oku, array($personel_id,$tutanak_id, $_SESSION['firma_id'] ) )[2];
-	$tutanak_varmi 	= $vt->select( $SQL_tutanak_varmi, array( $_SESSION['firma_id'], $personel_id,$tarih, $tip  ) )[2];
+	$tutanak_varmi 	= $vt->select( $SQL_tutanak_varmi, array( $_SESSION['firma_id'], $personel_id,$tarih, $tip ) )[2];
 
 	if( count( $personel ) < 1 ){
 		echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
@@ -235,6 +235,7 @@
 					}else{
 						$yazdirma = 1;
 					}
+
 					$tutanak_id 		= $tutanak_varmi[ 0 ][ "id" ];
 					$degerler 			= array( $yazdirma, $tutanak_id );
 					$tutanak_yazdirma 	= $vt->update( $SQL_yazdirma_guncelle, $degerler );
