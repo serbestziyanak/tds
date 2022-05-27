@@ -1,4 +1,8 @@
 <?php 
+/*
+AYARLANACAK CRON JOP ZAAMANINA GÖRE FİRMANIN PERSONELİNİ KONTROL EDECEK VE O GUNGU TARİFEYE GÖRE GİRİŞ ÇIKIŞLARI KONTROL EDİP TUTANAKLARI KAYDEDECEKTİR
+*/
+
 include "../../_cekirdek/fonksiyonlar.php";
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
@@ -164,7 +168,7 @@ SET
     ,ekleme_tarihi  = ?
     ,yazdirma       = ?
 SQL;
-    
+
 
 $firmalar       = $vt->select( $SQL_tum_firmalar,array() ) [2];
     
