@@ -300,6 +300,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
     $_SESSION[ 'gecgelen_tutanak_listesi' ]                   = $gecgelen_tutanak_listesi;
     $_SESSION[ 'erkencikan_tutanak_listesi' ]                 = $erkencikan_tutanak_listesi;
     $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
+    $_SESSION[ 'icerde_olan_personel' ]                       = $icerde_olan_personel;
 
 }else if ( $anasayfa_durum == 'guncel' ){
     $gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
@@ -314,6 +315,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
     $gelmeyen_tutanak_listesi                                 = $_SESSION[ 'gelmeyen_tutanak_listesi' ];
     $gecgelen_tutanak_listesi                                 = $_SESSION[ 'gecgelen_tutanak_listesi' ];
     $erkencikan_tutanak_listesi                               = $_SESSION[ 'erkencikan_tutanak_listesi' ];
+    $icerde_olan_personel                                     = $_SESSION[ 'icerde_olan_personel' ];
 }
 
 ?>
