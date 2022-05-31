@@ -12,8 +12,8 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 }
 
 
-$islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
-$personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) ? $_REQUEST[ 'personel_id' ]	: 0;
+$islem			= array_key_exists( 'islem'			,$_REQUEST ) 	? $_REQUEST[ 'islem' ]			: 'ekle';
+$personel_id		= array_key_exists( 'personel_id'	,$_REQUEST ) 		? $_REQUEST[ 'personel_id' ]		: 0;
 //Personele Ait Listelenecek Hareket Ay
 @$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m");
  
@@ -104,11 +104,40 @@ FROM
 ORDER BY adi ASC
 SQL;
 
+//BELİRTİLEN TARİHLER ARASI EN YÜKSEK CARPANLI TARİFE 
+$SQL_giris_cikis_saat = <<< SQL
+SELECT 
+	t1.*
+from
+	tb_tarifeler AS t1
+LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
 
-$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) );
-$personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
+WHERE 
+	t1.baslangic_tarih <= ? AND 
+	t1.bitis_tarih >= ? AND
+	mt.gunler LIKE ? AND 
+	t1.grup_id = ? AND 
+	t1.carpan 	=	( 
+		SELECT 
+			MAX(carpan) 
+		from
+			tb_tarifeler AS t
+		LEFT JOIN tb_mesai_turu AS mt ON  t.mesai_turu = mt.id
+		WHERE 
+			baslangic_tarih <= ? AND 
+			bitis_tarih >= ? AND 
+			mt.gunler LIKE ? AND 
+			t.firma_id = ? AND 
+			t.grup_id = ? AND 
+			t.aktif = 1
+	)		
+SQL;
+
+$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
+$personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
-$giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
+$giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
+$tek_personel				= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
 
 
 //Bir günde en fazla kaç giriş çıkış yapıldığını bulma
@@ -124,6 +153,15 @@ foreach($giris_cikislar AS $giriscikis){
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
+				<div class="col-sm-2 float-left">
+					<div class="form-group">
+						<select class="form-control select2" name = "personel_id" onchange="personelpuantaj(this.value);">
+							<?php foreach( $personeller as $personel ) { ?>
+								<option value="<?php echo $personel[ 'id' ]; ?>" <?php if( $tek_personel[ 'id' ] == $personel[ 'id' ] ) echo 'selected'; ?>><?php echo $personel['adi'].' '.$personel['soyadi']; ?></option>
+							<?php } ?>
+						</select>
+					</div>
+				</div>
 				<div class="col-sm-2" style="float: right;display: flex;">
 					<div class="">
 						<div class="input-group date" id="datetimepickerAy" data-target-input="nearest">
@@ -142,7 +180,7 @@ foreach($giris_cikislar AS $giriscikis){
 			<div class="col-12">
 				<div class="card card-secondary" id = "card_giriscikislar">
 					<div class="card-header">
-						<h3 class="card-title">Resül EVİS Puantaj İşlemleri</h3>
+						<h3 class="card-title"><?php echo $tek_personel["adi"].' '.$tek_personel["soyadi"] ?> Puantaj İşlemleri</h3>
 						<div class = "card-tools">
 							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
 							<a id = "yeni_personel" data-toggle = "tooltip" title = "Yeni bir personel ekle" href = "?modul=personel&islem=ekle" class="btn btn-tool" ><i class="fas fa-user-plus fa-lg"></i></a>
@@ -187,10 +225,67 @@ foreach($giris_cikislar AS $giriscikis){
 									$sayi = 1; 
 
 									while( $sayi <= $gunSayisi ) { 
+										/*Tairhin hangi güne denk oldugunu getirdik*/
+										$gun = $fn->gunVer($tarih.'-'.$sayi);
+										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', $tek_personel["grup_id"], $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', $_SESSION['firma_id'], $tek_personel["grup_id"] ) ) [ 2 ][ 0 ];
+										//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
+										$mesai_baslangic 	= date("H:i",  strtotime( $giris_cikis_saat_getir["mesai_baslangic"] )  );
+
+										//Personel 5 DK  erken çıkabilir
+										$mesai_bitis 		= date("H:i", strtotime( $giris_cikis_saat_getir["mesai_bitis"] )  );
+										//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
+										$tatil = $giris_cikis_saat_getir["tatil"] == 1  ?  'evet' : 'hayir';
+
+
 									$personel_giris_cikis_saatleri = $vt->select($SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih.'-'.$sayi))[2];
 									$personel_giris_cikis_sayisi   = count($personel_giris_cikis_saatleri);
 									$rows = $personel_giris_cikis_sayisi == 0 ?  1 : $personel_giris_cikis_sayisi;
 
+									/*Perosnel Giriş Yapmış ise tatilden Satılmayacak Ek mesai oalrak hesaplanacaktır. */
+									if($personel_giris_cikis_sayisi > 0){
+										$tatil = 'hayir';
+									}
+
+									//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
+									$son_cikis_index 	= $personel_giris_cikis_sayisi - 1;
+									$ilk_islemtipi 	= $personel_giris_cikis_saatleri[0]['islem_tipi'];
+									$son_islemtipi 	= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
+
+									$ilkGirisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
+
+									$SonCikisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
+									
+									if ( $personel_giris_cikis_sayisi > 0){
+										if ($ilkGirisSaat[0] < $mesai_baslangic AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
+											
+										}else{
+											$gunluk_baslangic = $ilkGirisSaat[0];
+										}
+										if ($SonCikisSaat[0] > $mesai_bitis AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
+											
+										}else{
+											$gunluk_bitis	   = $SonCikisSaat[0];
+										}
+									}else{
+										$gunluk_baslangic = $mesai_baslangic;
+										$gunluk_bitis	   = $mesai_bitis;
+									}									
+
+									$baslangicSaati = strtotime($gunluk_baslangic);
+									//baslangicSaati => o zamana kadar geçen saniyesini buluyoruz.
+
+									$bitisSaati 	= strtotime($gunluk_bitis);
+									//bitisSaati => o zamana kadar geçen saniyesini buluyoruz.
+
+									$fark 		= $bitisSaati - $baslangicSaati;
+									
+									$dakika 		= $fark / 60;
+
+									$saat = $dakika / 60;
+									$dakika_farki = floor($dakika - (floor($saat) * 60));
+									$saat_farki = floor($saat - (floor($gun) * 24));
+									
+									
 								?>
 									<tr>
 										<td><?php echo $sayi; ?></td>
@@ -235,7 +330,7 @@ foreach($giris_cikislar AS $giriscikis){
 														$fark["mesai"] 	+= $ToplamDakika;
 													}else{
 														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-														$giriscikis["maas_kesintisi"] == 1 ? $fark["UcretsizIzin"]  += $ToplamDakika : $fark["UcretliIzin"]  += $ToplamDakika;
+														$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
 													}
 													
 													
@@ -260,7 +355,7 @@ foreach($giris_cikislar AS $giriscikis){
 													$fark["mesai"] 	+= $ToplamDakika;
 												}else{
 													//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-													$giriscikis["maas_kesintisi"] == 1 ? $fark["UcretsizIzin"]  += $ToplamDakika : $fark["UcretliIzin"]  += $ToplamDakika;
+													$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
 												}
 
 											}else{ //Gündee birden fazla giriş çıkış var ise 
@@ -288,7 +383,6 @@ foreach($giris_cikislar AS $giriscikis){
 														}
 														echo '<td class="text-center">'.$bitisSaat.'</td>';
 														
-														
 													}
 													$i++;
 													$baslangicSaati = strtotime($baslangicSaat);
@@ -299,16 +393,22 @@ foreach($giris_cikislar AS $giriscikis){
 														$fark["mesai"] 	+= $ToplamDakika;
 													}else{
 														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-														$giriscikis["maas_kesintisi"] == 1 ? $fark["UcretsizIzin"]  += $ToplamDakika : $fark["UcretliIzin"]  += $ToplamDakika;
+														$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
 													}
 												}
 											}
 										?>
 										
-										<td>
-											<?php 
-												echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
-												echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+										<td>	
+											<?php
+												/*Tatil olup olmadığını Kontrol Ediyoruz*/ 
+												if ( $tatil == 'evet' ){
+													echo '<b class="text-center text-info">Tatil</b>';
+												}else{
+													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+												}
+													
 											?>
 										</td>
 										<td>
@@ -324,7 +424,18 @@ foreach($giris_cikislar AS $giriscikis){
 										</td>
 										<td >-</td>
 										<td>-</td>
-										<td><?php echo $fn->gunVer($tarih.'-'.$sayi) == "Pazar" ? '7:30' : 0;?></td>
+										<td>
+											<?php 
+												if ( $tatil == 'evet' ){
+													
+												}else{
+													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+												}
+												echo $fn->gunVer($tarih.'-'.$sayi) == "Pazar" ? '7:30' : 0;
+											?>
+												
+											</td>
 										<td>
 											<?php 
 												if ($fark["UcretliIzin"]>0) {
@@ -365,7 +476,7 @@ foreach($giris_cikislar AS $giriscikis){
 										<td>-</td>
 										
 									</tr>
-								<?php $sayi++; } ?>
+								<?php $sayi++;} ?>
 							</tbody>
 						</table>
 					</div>
@@ -390,6 +501,34 @@ foreach($giris_cikislar AS $giriscikis){
 			}
 		});
 	});
+
+	function personelpuantaj(personel_id){
+		var tarih 		= $("#tarihSec").val();
+		var  url 			= window.location;
+		var origin		= url.origin;
+		var path			= url.pathname;
+		var search		= (new URL(document.location)).searchParams;
+		var modul   		= search.get('modul');
+		var personel_id  	= "&personel_id="+personel_id;
+		
+		window.location.replace(origin + path+'?modul='+modul+''+personel_id+'&tarih='+tarih);
+	}	
+	$(function () {
+		$(":input").inputmask();
+
+		//Initialize Select2 Elements
+		$('.select2').select2()
+
+		//Initialize Select2 Elements
+		$('.select2bs4').select2({
+		  theme: 'bootstrap4'
+		})
+
+
+		$("input[data-bootstrap-switch]").each(function(){
+			$(this).bootstrapSwitch('state', $(this).prop('checked'));
+		});
+	})
 
 	$("body").on('click', '#listeleBtn', function() {
 		var tarih 		= $("#tarihSec").val();
