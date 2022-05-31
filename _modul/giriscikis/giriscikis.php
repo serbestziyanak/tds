@@ -190,7 +190,7 @@ if($detay == "gun" ){
 
 //Bir tarihe ait saat düzenleme butonuna tıklandığında personel bilgisini ve personelin yaptığı giriş çıkışlar listesini alıyoruz
 @$tek_personel 			= $vt->select( $SQL_tek_personel_oku, array($personel_id,$_SESSION[ 'firma_id' ] ) )[ 2 ];
-if ($islem == "saatduzenle" AND count($personel)>0) {
+if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 	$personel_giris_cikis 	= $vt->select( $SQL_belirli_tarihli_giris_cikis, array($personel_id,$listelenecekTarih,$_SESSION[ 'firma_id' ] ) )[2];
 
 
