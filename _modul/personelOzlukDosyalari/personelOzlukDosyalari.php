@@ -80,7 +80,7 @@ SQL;
 
 $personeller					= $vt->select( $SQL_tum_personel_oku, array() );
 $personel_id					= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
-$tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) );
+$tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) )[ 2 ][ 0 ];
 $personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[2];
 $personel_tutanaklari			= $vt->select( $SQL_personel_tutanaklari, array( $_SESSION['firma_id'], $personel_id ) )[2];
 $personel_ozluk_dosya_turleri	= $vt->select( $SQL_personel_ozluk_dosya_turleri, array() );
@@ -160,12 +160,12 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 				<div class="card card-light">
 					<div class="card-header">
 						<h3 class="card-title">
-							<?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Özlük Dosyası Ekle
+							<?php echo $tek_personel[ 'adi' ] . " " . $tek_personel[ 'soyadi' ]; ?> - Özlük Dosyası Ekle
 						</h3>
 						<div class="card-tools">
 							<div class="icheck-success">
 								Personele Ait Dosyalar Tamamlandı &nbsp;
-								<input type="checkbox" <?php echo $tek_personel[ 2 ][ 0 ][ 'ozluk_dosya_durumu' ] == 1 ? 'checked' : ''; ?>  onclick="dosyaDurumu(this,<?php echo $personel_id; ?>);" id="dosyaDurumu" >
+								<input type="checkbox" <?php echo $tek_personel[ 'ozluk_dosya_durumu' ] == 1 ? 'checked' : ''; ?>  onclick="dosyaDurumu(this,<?php echo $personel_id; ?>);" id="dosyaDurumu" >
 								<label for="dosyaDurumu"  ></label>
 							</div>
 						</div>
@@ -203,7 +203,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 				</div>
 				<div class="card card-secondary">
 					<div class="card-header">
-						<h3 class="card-title"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Özlük Dosyaları</h3>
+						<h3 class="card-title"><?php echo $tek_personel[ 'adi' ] . " " . $tek_personel[ 'soyadi' ]; ?> - Özlük Dosyaları</h3>
 					</div>
 					<div class="card-body">
 						<div class="card card-default">
@@ -254,7 +254,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 				</div>
 				<div class="card card-warning">
 					<div class="card-header">
-						<h3 class="card-title"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Tutanakları</h3>
+						<h3 class="card-title"><?php echo $tek_personel[ 'adi' ] . " " . $tek_personel[ 'soyadi' ]; ?> - Tutanakları</h3>
 						<div class="card-tools">
 	                        <button type="button" class="btn btn-outline-dark personel-Tr" data-durum="yeni" data-personel_id ="<?php echo $personel_id; ?>">
 	                            <i class="fas fa-file"></i> &nbsp; Yeni Tutanak Ekle
@@ -336,7 +336,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content ">
 			<div class="modal-header">
-				<h4 class="modal-title" id="myModalLabel"><?php echo $tek_personel[ 2 ][ 0 ][ 'adi' ] . " " . $tek_personel[ 2 ][ 0 ][ 'soyadi' ]; ?> - Tutanak Dosya Yükleme</h4>
+				<h4 class="modal-title" id="myModalLabel"><?php echo $tek_personel[ 'adi' ] . " " . $tek_personel[ 'soyadi' ]; ?> - Tutanak Dosya Yükleme</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body">

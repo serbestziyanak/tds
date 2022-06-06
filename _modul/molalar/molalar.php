@@ -256,28 +256,7 @@ $tarifeyeAitmolaGetir = $vt->select( $SQL_mola_getir, array( $tarife_id ) )[ 2 ]
 		</div>
 	</div>
 </section>
-<div id="sagtikmenu" style="display: none;">asdasdasd</div>
-<style type="text/css">
-	.custom-menu {
-	    z-index:1000;
-	    position: absolute;
-	    background-color:#fff;
-	    border: 1px solid #000;
-	    padding: 2px;
-	    border-radius: 5px;
-	}
-	.custom-menu a{
-		display: block;
-		padding: 10px 30px 10px 10px;
-		border-bottom: 1px solid #ddd;
-		color: #000;
-	}
-	.custom-menu a:hover{
-		background-color: #ddd;
-		transition: initial;
-	}
-	
-</style>
+
 <script type="text/javascript">
 
 	var simdi = new Date(); 

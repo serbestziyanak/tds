@@ -14,6 +14,7 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 
 
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) ? $_REQUEST[ 'islem' ]			: 'ekle';
+$detay			= array_key_exists( 'detay'			,$_REQUEST ) ? $_REQUEST[ 'detay' ]			: 'genel';
 $tarife_id		= array_key_exists( 'tarife_id'		,$_REQUEST ) ? $_REQUEST[ 'tarife_id' ]		: 0;
 
 
@@ -29,12 +30,20 @@ SELECT
 	t.adi,
 	t.baslangic_tarih,
 	t.bitis_tarih,
-	t.mesai_baslangic,
-	t.mesai_bitis,
 	t.min_calisma_saati,
 	t.gun_donumu,
 	mt.adi AS mesai_adi,
-	g.adi AS grup_adi
+	g.adi AS grup_adi,
+	(select 
+		COUNT(id) 
+	FROM tb_molalar 
+	WHERE  
+		t.id = tb_molalar.tarife_id ) AS molaSayisi,
+	(select 
+		COUNT(id) 
+	FROM tb_tarife_saati
+	WHERE  
+		t.id = tb_tarife_saati.tarife_id ) AS saatSayisi
 FROM 
 	tb_tarifeler AS t
 INNER JOIN tb_mesai_turu AS mt ON 
@@ -101,12 +110,48 @@ WHERE
 	aktif = 1
 SQL;
 
+/*Tarifeye Ait Molaları Getirme*/
+$SQL_mola_getir = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_molalar
+WHERE 
+	tarife_id	= ? AND 
+	aktif 	   	= 1
+SQL;
+
+/*Tarifeye Ait Molaları Getirme*/
+$SQL_tarife_saat_getir = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_tarife_saati
+WHERE 
+	tarife_id	= ? AND 
+	aktif 	   	= 1
+SQL;
+
+
+
 
 
 $tarifeler					= $vt->select( $SQL_tum_tarife_oku, array($_SESSION['firma_id'] ) )[ 2 ];
 $tek_tarife					= $vt->select( $SQL_tek_tarife_oku, array( $tarife_id, $_SESSION['firma_id'] ) )[ 2 ][ 0 ];
 $gruplar					= $vt->select( $SQL_gruplar			,array() )[ 2 ];
 $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'] ) )[ 2 ];
+$tarifeyeAitmolaGetir 		= $vt->select( $SQL_mola_getir, array( $tarife_id ) )[ 2 ];
+$tarifeyeAitsaatGetir 		= $vt->select( $SQL_tarife_saat_getir, array( $tarife_id ) )[ 2 ];
+
+//Günlük En fazla Mola Sayısı
+foreach($tarifeler AS $mola){
+	$molaSayisi[] = $mola[ "molaSayisi" ]; 
+	$saatSayisi[] = $mola[ "saatSayisi" ]; 
+}
+$molaSayisi = max($molaSayisi);
+$saatSayisi = max($molaSayisi);
+
+
 
 
 ?>
@@ -159,8 +204,6 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 									<th>Mesai Türü</th>
 									<th>Baş. Tar.</th>
 									<th>Bit. Tar.</th>
-									<th>Mesai Baş.</th>
-									<th>Mesai Bit.</th>
 									<th>min. Çal. S.</th>
 									<th>Gün Dön.</th>
 									<th data-priority="1" style="width: 20px">Düzenle</th>
@@ -176,8 +219,6 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 									<td><?php echo $tarife[ 'mesai_adi' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'baslangic_tarih' ] ); ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'bitis_tarih' ] ); ?></td>
-									<td><?php echo date( 'H:i', strtotime( $tarife[ 'mesai_baslangic' ] ) ); ?></td>
-									<td><?php echo date( 'H:i', strtotime( $tarife[ 'mesai_bitis' ] ) );  ?></td>
 									<td><?php echo $tarife[ 'min_calisma_saati' ].' dk'; ?></td>
 									<td><?php echo date( 'H:i', strtotime( $tarife[ 'gun_donumu' ] ) );  ?></td>
 									
@@ -201,7 +242,15 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 					<div class="card-header p-2">
 						<ul class="nav nav-pills tab-container">
 							<?php if( $tarife_id > 0 ) { ?>
-								<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Tarife Düzenle</h6>
+								<li class="nav-item" style="width: 33%;">
+									<a class="nav-link <?php echo $detay == 'genel' ? 'active' : ''; ?>" href="#_genel" id="tab_genel" data-toggle="tab">Genel</a>
+								</li>
+								<li class="nav-item" style="width: 33%;">
+									<a class="nav-link <?php echo $detay == 'saat' ? 'active' : ''; ?>" href="#_saat" id="tab_nufus" data-toggle="tab" disabled>Mesai Saatleri</a>
+								</li>
+								<li class="nav-item" style="width: 33%;">
+									<a class="nav-link <?php echo $detay == 'mola' ? 'active' : ''; ?>" href="#_mola" id="tab_adres" data-toggle="tab">Mola Saatleri</a>
+								</li>
 							<?php } else {
 								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Tarife Ekle</h6>";
 								}
@@ -212,7 +261,7 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 					<div class="card-body">
 						<div class="tab-content">
 							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane active" id="_genel">
+							<div class="tab-pane <?php echo $detay == 'genel' ? 'active' : ''; ?>" id="_genel">
 								<form class="form-horizontal" action = "_modul/tarifeler/tarifelerSEG.php" method = "POST" enctype="multipart/form-data">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "tarife_id" value = "<?php echo $tarife_id; ?>">
@@ -222,9 +271,8 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_tarife[ "adi" ]; ?>"  autocomplete="off">
 									</div>
 									<div class="form-group">
-										<label class="control-label">Grubu</label>
-										<select class="form-control" name = "grup_id" required>
-											<option value="">Seçiniz</option>
+										<label  class="control-label">Günler</label>
+										<select  class="form-control select2"  multiple="multiple" name = "gunler[]" required>
 											<?php foreach( $gruplar as $grup ) { ?>
 												<option value = "<?php echo $grup[ 'id' ]; ?>" <?php if( $tek_tarife[ 'grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
 											<?php } ?>
@@ -258,15 +306,6 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="control-label">Mesai Başlangıc Saati</label>
-										<input type="text" class="form-control" name ="mesai_baslangic" value = "<?php echo date( 'H:i', strtotime($tek_tarife[ "mesai_baslangic" ] ) ); ?>" required placeholder="Örk: 08:00 ">
-									</div>
-									
-									<div class="form-group">
-										<label class="control-label">Mesai Bitis Saati</label>
-										<input type="text" class="form-control" name ="mesai_bitis" value = "<?php echo date( 'H:i', strtotime( $tek_tarife[ "mesai_bitis" ] ) ); ?>" required placeholder="Örk: 18:30 ">
-									</div>
-									<div class="form-group">
 										<label class="control-label">Minimum Çalışma</label>
 										<input required type="text" class="form-control" name ="min_calisma_saati" value = "<?php echo $tek_tarife[ "min_calisma_saati" ]; ?>" placeholder="25, 30, 40, 60, 120 vs.">
 									</div>
@@ -274,11 +313,6 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 										<label class="control-label">Gün Dönümü</label>
 										<input required type="text" class="form-control" name ="gun_donumu" value = "<?php echo date( 'H:i', strtotime($tek_tarife[ "gun_donumu" ])); ?>" placeholder="06:59, 18:45 vs.">
 									</div>
-									<div class="form-group">
-										<label class="control-label">Çarpan</label>
-										<input required type="number" step = "0.01" class="form-control" name ="carpan" value = "<?php echo $tek_tarife[ "carpan" ]; ?>" placeholder = "1, 1.5, 2 vs." >
-									</div>
-
 									<label class="control-label">Mesai Durumu</label>
 									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
 										<div class="bootstrap-switch-container" >
@@ -287,6 +321,178 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 									</div>
 									<div class="card-footer">
 										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+									</div>
+								</form>
+							</div>
+
+							<!--SAATLER -->
+							<div class="tab-pane <?php echo $detay == 'saat' ? 'active' : ''; ?>" id="_saat">
+								<form class="form-horizontal" action = "_modul/tarifeler/saatlerSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+									<input type = "hidden" name = "tarife_id" value = "<?php echo $tarife_id; ?>">
+									<div class="saatSatirlari">
+									<?php 
+										$saatSay = 1;
+										if ( count( $tarifeyeAitsaatGetir ) > 0 ){
+											foreach ($tarifeyeAitsaatGetir as $saat) {
+												echo '<input type="hidden" name="id[]" value="'.$saat[ 'id' ].'">';
+												echo '<div class="row saat">
+														<div class="col-sm-1">
+															<div class="form-group">
+																<label class="control-label">#</label><br>
+																<span href="" class="btn btn-default">'.$saatSay.'</span>
+															</div>
+														</div>
+														<div class="col-sm-4">
+															<div class="form-group">
+																<label class="control-label">Başlangıç Saati</label>
+																<input type="text" class="form-control" name ="baslangic[]" value = "'.date( "H:i", strtotime($saat[ "baslangic" ] ) ).'" required placeholder="Örk: 08:00 ">
+															</div>
+														</div>
+														<div class="col-sm-4">
+															<div class="form-group">
+																<label class="control-label">Bitiş Saati</label>
+																<input type="text" class="form-control" name ="bitis[]" value = "'.date( "H:i", strtotime( $saat[ "bitis" ] ) ).'" required placeholder="Örk: 18:30 ">
+															</div>
+														</div>
+														<div class="col-sm-2">
+															<div class="form-group">
+																<label class="control-label">Çarpan</label>
+																<input type="number" step="0.01" class="form-control" name ="carpan[]"  required value="'.$saat["carpan"].'">
+															</div>
+														</div>
+														<div class="col-sm-1">
+															<div class="form-group">
+																<label class="control-label">Sil</label><br>
+																<a modul= "molalar" yetki_islem="sil" class="btn btn-danger" data-href="_modul/tarifeler/saatlerSEG.php?islem=sil&tarife_id='.$tarife_id.'&saat_id='.$saat[ 'id' ].'" data-toggle="modal" data-target="#sil_onay"><i class="fas fa-trash"></i></a>
+															</div>
+														</div>
+													</div>';
+												$saatSay++;
+											}
+											$sonSaat = count($tarifeyeAitsaatGetir);
+
+										}else{
+											echo '<div class="row saat">
+													<div class="col-sm-1">
+														<div class="form-group">
+															<label class="control-label">#</label><br>
+															<span href="" class="btn btn-default">1</span>
+														</div>
+													</div>
+													<div class="col-sm-4">
+														<div class="form-group">
+															<label class="control-label">Başlangıç Saati</label>
+															<input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 ">
+														</div>
+													</div>
+													<div class="col-sm-4">
+														<div class="form-group">
+															<label class="control-label">Bitiş Saati</label>
+															<input type="text" class="form-control" name ="bitis[]"  required placeholder="Örk: 18:30 ">
+														</div>
+													</div>
+													<div class="col-sm-2">
+														<div class="form-group">
+															<label class="control-label">Çarpan</label>
+															<input type="number" step="0.01" class="form-control" name ="carpan[]"  required placeholder="Örk: 1, 1,5, 2">
+														</div>
+													</div>
+													<div class="col-sm-1">
+														<div class="form-group">
+															<label class="control-label">Sil</label><br>
+															<span class="btn btn-danger yenisil" data-tur="saat"  id="yenisilsaat"><i class="fas fa-trash"></i></span>
+														</div>
+													</div>
+												</div>';
+												$sonSaat = $saatSayisi;
+										}
+
+									?>
+									</div>
+									<div class="card-footer">
+										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<span class=" btn btn-info float-right saatSatirEkle" data-tur="saat" id="saatSatirEkle" data-sayi="<?php echo $sonSaat; ?>">Mesai Ekle</span>
+									</div>
+								</form>
+							</div>
+
+							<!--MOLALAR -->
+							<div class="tab-pane <?php echo $detay == 'mola' ? 'active' : ''; ?>" id="_mola">
+								<form class="form-horizontal" action = "_modul/molalar/molalarSEG.php" method = "POST" enctype="multipart/form-data">
+									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+									<input type = "hidden" name = "tarife_id" value = "<?php echo $tarife_id; ?>">
+									<div class="molaSatirlari">
+									<?php 
+										$molaSay = 1;
+										if ( count( $tarifeyeAitmolaGetir ) > 0 ){
+											foreach ($tarifeyeAitmolaGetir as $mola) {
+												echo '<input type="hidden" name="id[]" value="'.$mola[ "id" ].'">';
+												echo '<div class="row mola">
+														<div class="col-sm-1">
+															<div class="form-group">
+																<label class="control-label">#</label><br>
+																<span href="" class="btn btn-default">'.$molaSay.'</span>
+															</div>
+														</div>
+														<div class="col-sm-5">
+															<div class="form-group">
+																<label class="control-label">Başlangıç Saati</label>
+																<input type="text" class="form-control" name ="baslangic[]" value = "'.date( "H:i", strtotime($mola[ "baslangic" ] ) ).'" required placeholder="Örk: 08:00 ">
+															</div>
+														</div>
+														<div class="col-sm-5">
+															<div class="form-group">
+																<label class="control-label">Bitiş Saati</label>
+																<input type="text" class="form-control" name ="bitis[]" value = "'.date( "H:i", strtotime( $mola[ "bitis" ] ) ).'" required placeholder="Örk: 18:30 ">
+															</div>
+														</div>
+														<div class="col-sm-1">
+															<div class="form-group">
+																<label class="control-label">Sil</label><br>
+																<a modul= "molalar" yetki_islem="sil" class="btn btn-danger" data-href="_modul/molalar/molalarSEG.php?islem=sil&tarife_id='.$tarife_id.'&mola_id='.$mola[ 'id' ].'" data-toggle="modal" data-target="#sil_onay"><i class="fas fa-trash"></i></a>
+															</div>
+														</div>
+													</div>';
+												$molaSay++;
+											}
+											$sonMola = count($tarifeyeAitmolaGetir);
+
+										}else{
+											echo '<div class="row mola">
+													<div class="col-sm-1">
+														<div class="form-group">
+															<label class="control-label">#</label><br>
+															<span href="" class="btn btn-default">1</span>
+														</div>
+													</div>
+													<div class="col-sm-5">
+														<div class="form-group">
+															<label class="control-label">Başlangıç Saati</label>
+															<input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 ">
+														</div>
+													</div>
+													<div class="col-sm-5">
+														<div class="form-group">
+															<label class="control-label">Bitiş Saati</label>
+															<input type="text" class="form-control" name ="bitis[]"  required placeholder="Örk: 18:30 ">
+														</div>
+													</div>
+													<div class="col-sm-1">
+														<div class="form-group">
+															<label class="control-label">Sil</label><br>
+															<span class="btn btn-danger yenisil" data-tur="mola" id="yenisilmola"><i class="fas fa-trash"></i></span>
+														</div>
+													</div>
+												</div>';
+												$sonMola = $molaSayisi;
+										}
+
+									?>
+									</div>
+									<div class="card-footer">
+										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<span class=" btn btn-info float-right SatirEkle" data-tur="mola" id="molaSatirEkle" data-sayi="<?php echo $sonMola; ?>">Mola Ekle</span>
 									</div>
 								</form>
 							</div>
@@ -320,21 +526,47 @@ $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'
 	
 </style>
 <script type="text/javascript">
-//Adı sıyadını büyük harf yap
-String.prototype.turkishToUpper = function(){
-	var string = this;
-	var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
-	string = string.replace(/(([iışğüçö]))/g, function(letter){ return letters[letter]; })
-	return string.toUpperCase();
-}
 
-// ESC tuşuna basınca formu temizle
-document.addEventListener( 'keydown', function( event ) {
-	if( event.key === "Escape" ) {
-		document.getElementById( 'yeni_personel' ).click();
-	}
+
+$( "body" ).on('click', '.SatirEkle', function() {
+	var tur = $(this).data("tur");
+	var satirSay = 0;
+	$("."+tur).each(function() {
+      	satirSay = satirSay + 1;
+    });
+    satirSay = satirSay + 1;
+
+	var ekleneceksatir = '<div class="row '+tur+'"><div class="col-sm-1"><div class="form-group"><label class="control-label">#</label><br><span href="" class="btn btn-default">'+satirSay+'</span></div></div><div class="col-sm-5"><div class="form-group"><label class="control-label">Başlangıç Saati</label><input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 "></div></div><div class="col-sm-5"><div class="form-group"><label class="control-label">Bitiş Saati</label><input type="text" class="form-control" name ="bitis[]" required placeholder="Örk: 18:30 "></div></div><div class="col-sm-1"><div class="form-group"><label class="control-label">Sil</label><br><span class="btn btn-danger yenisil" data-tur="'+tur+'" id="yenisil'+tur+'"><i class="fas fa-trash"></i></span></div></div></div>';
+	
+	document.getElementById(tur+"SatirEkle").removeAttribute("data-sayi");
+	document.getElementById(tur+"SatirEkle").setAttribute("data-sayi", satirSay); 
+	$("."+tur+"Satirlari").append(ekleneceksatir);
+})
+
+$( "body" ).on('click', '.saatSatirEkle', function() {
+	var tur = $(this).data("tur");
+	var satirSay = 0;
+	$("."+tur).each(function() {
+      	satirSay = satirSay + 1;
+    });
+    satirSay = satirSay + 1;
+
+	var ekleneceksatir = '<div class="row '+tur+'"><div class="col-sm-1"><div class="form-group"><label class="control-label">#</label><br><span href="" class="btn btn-default">'+satirSay+'</span></div></div><div class="col-sm-4"><div class="form-group"><label class="control-label">Başlangıç Saati</label><input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 "></div></div><div class="col-sm-4"><div class="form-group"><label class="control-label">Bitiş Saati</label><input type="text" class="form-control" name ="bitis[]" required placeholder="Örk: 18:30 "></div></div><div class="col-sm-2"><div class="form-group"><label class="control-label">Çarpan</label><input type="number" step="0.01" class="form-control" name ="carpan[]"  required placeholder="Örk: 1, 1,5, 2"></div></div><div class="col-sm-1"><div class="form-group"><label class="control-label">Sil</label><br><span class="btn btn-danger yenisil" data-tur="'+tur+'" id="yenisil'+tur+'"><i class="fas fa-trash"></i></span></div></div></div>';
+	
+	document.getElementById(tur+"SatirEkle").removeAttribute("data-sayi");
+	document.getElementById(tur+"SatirEkle").setAttribute("data-sayi", satirSay); 
+	$("."+tur+"Satirlari").append(ekleneceksatir);
+})
+
+
+
+/*Tıklanan Mola Satırı Siliyoruz*/
+$('.row').on("click", ".yenisil", function (e) {
+	var tur = $(this).data("tur");
+    e.preventDefault();
+    $(this).closest("."+tur).remove();
+
 });
-
 var simdi = new Date(); 
 //var simdi="11/25/2015 15:58";
 $(function () {
