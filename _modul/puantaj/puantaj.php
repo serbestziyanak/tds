@@ -107,18 +107,31 @@ SQL;
 //BELİRTİLEN TARİHLER ARASI EN YÜKSEK CARPANLI TARİFE 
 $SQL_giris_cikis_saat = <<< SQL
 SELECT 
-	t.*
+	t1.*
 from
-	tb_tarifeler AS t
-LEFT JOIN tb_mesai_turu AS mt ON  t.mesai_turu = mt.id
+	tb_tarifeler AS t1
+LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
 
 WHERE 
-	t.baslangic_tarih 	<= ? AND 
-	t.bitis_tarih 	>= ? AND
+	t1.baslangic_tarih <= ? AND 
+	t1.bitis_tarih >= ? AND
 	mt.gunler LIKE ? AND 
-	t.grup_id 		=? AND 
-	t.aktif = ?	
-ORDER BY t.mesai_baslangic ASC
+	t1.grup_id LIKE ? AND
+	t1.aktif = 1
+ORDER BY t1.id DESC
+LIMIT 1
+SQL;
+
+//TARİFEYE AİT SAAT LİSTESİ
+$SQL_tarife_saati = <<< SQL
+SELECT 
+	*
+from
+	tb_tarife_saati AS s
+WHERE 
+	tarife_id = ? AND 
+	aktif = 1
+ORDER BY baslangic ASC
 SQL;
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
@@ -233,19 +246,21 @@ foreach($giris_cikislar AS $giriscikis){
 									$SonCikisSaat 		= $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 
 									/*Tairhin hangi güne denk oldugunu getirdik*/
-									$gun = $fn->gunVer("2022-05-31");
-									$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( "2022-05-31", "2022-05-31", '%,'.$gun.',%', $tek_personel["grup_id"],$ilkGirisSaat[0]) ) [ 2 ];
+									$gun = $fn->gunVer($tarih.'-'.$sayi);
+									$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih.'-'.$sayi, $tarih.'-'.$sayi, '%,'.$gun.',%', '%,'.$tek_personel["grup_id"].',%' ) ) [ 2 ];
 									//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
-									$mesai_baslangic 	= date("H:i",  strtotime( $giris_cikis_saat_getir["mesai_baslangic"] )  );
+
+									/*tarifeye ait mesai saatleri */
+									$saatler = $vt->select( $SQL_tarife_saati, array( $giris_cikis_saat_getir[ 'id' ] ) )[ 2 ];
+									
+									$mesai_baslangic 	= date("H:i",  strtotime( $saatler[ 0 ]["baslangic"] )  );
 
 									//Personel 5 DK  erken çıkabilir
-									$mesai_bitis 		= date("H:i", strtotime( $giris_cikis_saat_getir["mesai_bitis"] )  );
+									$mesai_bitis 		= date("H:i", strtotime( $$saatler[ 0 ]["bitis"] )  );
 									//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
-									$tatil = $giris_cikis_saat_getir["tatil"] == 1  ?  'evet' : 'hayir';
+									$tatil = $giris_cikis_saat_getir[ 0 ]["tatil"] == 1  ?  'evet' : 'hayir';
 
-									echo '<pre>';
-									print_r($giris_cikis_saat_getir);
-									die();
+									
 									if ( $personel_giris_cikis_sayisi > 0){
 										if ($ilkGirisSaat[0] < $mesai_baslangic AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
 											
@@ -423,7 +438,6 @@ foreach($giris_cikislar AS $giriscikis){
 													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
 													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
 												}
-												echo $fn->gunVer($tarih.'-'.$sayi) == "Pazar" ? '7:30' : 0;
 											?>
 												
 											</td>

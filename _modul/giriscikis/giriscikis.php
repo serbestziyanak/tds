@@ -325,7 +325,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 
 										$gun = $fn->gunVer($tarih.'-'.$sayi);
 
-										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$tek_personel[ 0 ]["grup_id"].'%,' ) ) [ 2 ][ 0 ];
+										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$tek_personel[ 0 ]["grup_id"].',%' ) ) [ 2 ][ 0 ];
 
 										/*tarifeye ait mesai saatleri */
 
