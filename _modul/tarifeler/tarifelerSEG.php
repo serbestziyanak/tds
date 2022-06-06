@@ -32,6 +32,9 @@ foreach( $_REQUEST as $alan => $deger ) {
 	if ( $alan == 'tatil' ){
 		$deger = $deger == on ? 1 : 0;
 	}
+	if ( $alan == 'grup_id') {
+		$deger = implode(",", $deger);
+	}
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
 }
@@ -46,20 +49,19 @@ $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
 $SQL_guncelle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
 $SQL_guncelle	.= " WHERE id = ?";
 
+echo $SQL_guncelle;
+
 if( $islem == 'guncelle' ) $degerler[] = $tarife_id;
 
 
 $SQL_tek_tarife_oku = <<< SQL
 SELECT 
 	t.*,
-	mt.adi AS mesai_adi,
-	g.adi AS grup_adi
+	mt.adi AS mesai_adi
 FROM 
 	tb_tarifeler AS t
 INNER JOIN tb_mesai_turu AS mt ON 
 	mt.id 	= t.mesai_turu
-INNER JOIN tb_gruplar AS g ON 
-	g.id 	= t.grup_id
 WHERE 
 	t.id 		= ? AND
 	t.firma_id 	= ? AND
@@ -76,6 +78,11 @@ WHERE
 	id = ?
 SQL;
 
+// echo '<pre>';
+// print_r($alanlar);
+// echo '<br>';
+// print_r($degerler);
+// die();
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
 switch( $islem ) {

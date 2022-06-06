@@ -33,7 +33,6 @@ SELECT
 	t.min_calisma_saati,
 	t.gun_donumu,
 	mt.adi AS mesai_adi,
-	g.adi AS grup_adi,
 	(select 
 		COUNT(id) 
 	FROM tb_molalar 
@@ -48,8 +47,6 @@ FROM
 	tb_tarifeler AS t
 INNER JOIN tb_mesai_turu AS mt ON 
 	mt.id = t.mesai_turu
-INNER JOIN tb_gruplar AS g ON 
-	g.id = t.grup_id
 WHERE 
 	t.firma_id 	= ? AND
 	t.aktif 	= 1
@@ -60,14 +57,11 @@ SQL;
 $SQL_tek_tarife_oku = <<< SQL
 SELECT 
 	t.*,
-	mt.adi AS mesai_adi,
-	g.adi AS grup_adi
+	mt.adi AS mesai_adi
 FROM 
 	tb_tarifeler AS t
 INNER JOIN tb_mesai_turu AS mt ON 
 	mt.id 	= t.mesai_turu
-INNER JOIN tb_gruplar AS g ON 
-	g.id 	= t.grup_id
 WHERE 
 	t.id 		= ? AND
 	t.firma_id 	= ? AND
@@ -151,7 +145,7 @@ foreach($tarifeler AS $mola){
 $molaSayisi = max($molaSayisi);
 $saatSayisi = max($molaSayisi);
 
-
+$secili_gruplar   = explode(",", $tek_tarife["grup_id"]);
 
 
 ?>
@@ -215,7 +209,7 @@ $saatSayisi = max($molaSayisi);
 								<tr oncontextmenu="fun();" class ="personel-Tr <?php if( $tarife[ 'id' ] == $tarife_id ) echo $satir_renk; ?>" data-id="<?php echo $tarife[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $tarife[ 'adi' ]; ?></td>
-									<td><?php echo $tarife[ 'grup_adi' ]; ?></td>
+									<td>Gruplar</td>
 									<td><?php echo $tarife[ 'mesai_adi' ]; ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'baslangic_tarih' ] ); ?></td>
 									<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'bitis_tarih' ] ); ?></td>
@@ -271,10 +265,10 @@ $saatSayisi = max($molaSayisi);
 										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_tarife[ "adi" ]; ?>"  autocomplete="off">
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Günler</label>
-										<select  class="form-control select2"  multiple="multiple" name = "gunler[]" required>
+										<label  class="control-label">Gruplar</label>
+										<select  class="form-control select2"  multiple="multiple" name = "grup_id[]" required>
 											<?php foreach( $gruplar as $grup ) { ?>
-												<option value = "<?php echo $grup[ 'id' ]; ?>" <?php if( $tek_tarife[ 'grup_id' ] == $grup[ 'id' ] ) echo 'selected'; ?>><?php echo $grup['adi']; ?></option>
+												<option value = ",<?php echo $grup[ 'id' ]; ?>," <?php echo in_array($grup[ 'id' ], $secili_gruplar) ? 'selected' : ''; ?>><?php echo $grup['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -373,39 +367,7 @@ $saatSayisi = max($molaSayisi);
 											$sonSaat = count($tarifeyeAitsaatGetir);
 
 										}else{
-											echo '<div class="row saat">
-													<div class="col-sm-1">
-														<div class="form-group">
-															<label class="control-label">#</label><br>
-															<span href="" class="btn btn-default">1</span>
-														</div>
-													</div>
-													<div class="col-sm-4">
-														<div class="form-group">
-															<label class="control-label">Başlangıç Saati</label>
-															<input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 ">
-														</div>
-													</div>
-													<div class="col-sm-4">
-														<div class="form-group">
-															<label class="control-label">Bitiş Saati</label>
-															<input type="text" class="form-control" name ="bitis[]"  required placeholder="Örk: 18:30 ">
-														</div>
-													</div>
-													<div class="col-sm-2">
-														<div class="form-group">
-															<label class="control-label">Çarpan</label>
-															<input type="number" step="0.01" class="form-control" name ="carpan[]"  required placeholder="Örk: 1, 1,5, 2">
-														</div>
-													</div>
-													<div class="col-sm-1">
-														<div class="form-group">
-															<label class="control-label">Sil</label><br>
-															<span class="btn btn-danger yenisil" data-tur="saat"  id="yenisilsaat"><i class="fas fa-trash"></i></span>
-														</div>
-													</div>
-												</div>';
-												$sonSaat = $saatSayisi;
+											$sonSaat = $saatSayisi;
 										}
 
 									?>
@@ -459,33 +421,7 @@ $saatSayisi = max($molaSayisi);
 											$sonMola = count($tarifeyeAitmolaGetir);
 
 										}else{
-											echo '<div class="row mola">
-													<div class="col-sm-1">
-														<div class="form-group">
-															<label class="control-label">#</label><br>
-															<span href="" class="btn btn-default">1</span>
-														</div>
-													</div>
-													<div class="col-sm-5">
-														<div class="form-group">
-															<label class="control-label">Başlangıç Saati</label>
-															<input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 ">
-														</div>
-													</div>
-													<div class="col-sm-5">
-														<div class="form-group">
-															<label class="control-label">Bitiş Saati</label>
-															<input type="text" class="form-control" name ="bitis[]"  required placeholder="Örk: 18:30 ">
-														</div>
-													</div>
-													<div class="col-sm-1">
-														<div class="form-group">
-															<label class="control-label">Sil</label><br>
-															<span class="btn btn-danger yenisil" data-tur="mola" id="yenisilmola"><i class="fas fa-trash"></i></span>
-														</div>
-													</div>
-												</div>';
-												$sonMola = $molaSayisi;
+											$sonMola = $molaSayisi;
 										}
 
 									?>

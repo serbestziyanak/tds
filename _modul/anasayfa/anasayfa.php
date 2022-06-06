@@ -162,22 +162,10 @@ WHERE
     t1.baslangic_tarih <= ? AND 
     t1.bitis_tarih >= ? AND
     mt.gunler LIKE ? AND 
-    t1.grup_id = ? AND 
-    t1.carpan   =   ( 
-        SELECT 
-            MAX(carpan) 
-        from
-            tb_tarifeler AS t
-        LEFT JOIN tb_mesai_turu AS mt ON  t.mesai_turu = mt.id
-        WHERE 
-            baslangic_tarih <= ? AND 
-            bitis_tarih >= ? AND 
-            mt.gunler LIKE ? AND 
-            t.firma_id = ? AND 
-            t.grup_id = ? AND 
-            t.aktif = 1
-    )
-            
+    t1.grup_id LIKE ? AND
+    t1.aktif = 1
+ORDER BY t1.id DESC
+LIMIT 1      
 SQL;
 
 
@@ -216,12 +204,15 @@ if ( $anasayfa_durum == 'guncelle' ) {
 
         $gun = $fn->gunVer( date("Y-m-d") );
 
-        $giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', $personel["grup_id"], date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', $_SESSION['firma_id'], $personel["grup_id"] ) ) [ 2 ][ 0 ];
+        $giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', '%,'.$personel["grup_id"].',%' ) ) [ 2 ][ 0 ];
+
+        $saatler = $vt->select( $SQL_tarife_saati, array( $giris_cikis_saat_getir[ 'id' ] ) )[ 2 ];
 
         //Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
-        $mesai_baslangic    = date("H:i", strtotime('+10 minutes', strtotime( $giris_cikis_saat_getir["mesai_baslangic"] ) ) );
+        $mesai_baslangic    = date("H:i", strtotime('+10 minutes', strtotime( $saatler[ 0 ]["baslangic"] ) ) );
         //Personel 5 DK  erken çıkabilir
-        $mesai_bitis        = date("H:i", strtotime('-5 minutes',  strtotime( $giris_cikis_saat_getir["mesai_bitis"] ) ) );
+        $mesai_bitis        = date("H:i", strtotime('-5 minutes',  strtotime( $saatler[ 0 ]["bitis"] ) ) );
+        
         //Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
         $tatil = $giris_cikis_saat_getir["tatil"] == 1  ?  'evet' : 'hayir';
 
