@@ -601,4 +601,18 @@ SQL;
 
 		return $sonuc;
 	}
+
+	public function saatfarkiver( $baslangic, $bitis ) {
+		//baslangicSaati => o zamana kadar geçen saniyesini buluyoruz.
+		$baslangicSaati = strtotime($baslangic);
+		
+		//bitisSaati => o zamana kadar geçen saniyesini buluyoruz.
+		$bitisSaati = strtotime($bitis);
+		
+		//Aradaki saniye farkını bulduk.
+		$fark = $bitisSaati - $baslangicSaati;
+
+		$dakika = floor($fark / 60);
+		return $dakika;
+	}
 }
