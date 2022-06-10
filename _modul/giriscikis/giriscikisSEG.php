@@ -210,28 +210,45 @@ switch( $islem ) {
 
 				$giriscikis = $vt->select($SQL_personel_giris_cikis, array($_REQUEST["giriscikis_id"][$alan]))[2];
 
+				/*Başlangıc DEgerini değiştirdik*/
 				$degerler[] = date( 'H:i', strtotime( $_REQUEST["baslangic_saat"][$alan] )); 
-				if ( date( 'H:i', strtotime($giriscikis[0]["baslangic_saat_guncellenen"])) == $_REQUEST["baslangic_saat"][$alan] ){
-					$degerler[] = '';
-				}else{
-					if (date( 'H:i', strtotime($giriscikis[0]["baslangic_saat"])) == $_REQUEST["baslangic_saat"][$alan]) {
+
+				/*Başlangıc saatinin guncellenip guncellenmediğini kontrol ediyoruz */
+				if ( date( 'H:i', strtotime($giriscikis[0]["baslangic_saat"])) == $_REQUEST["baslangic_saat"][$alan] ){
+
+					if ($giriscikis[0]["baslangic_saat_guncellenen"] == '' OR $giriscikis[0]["baslangic_saat_guncellenen"] == '00:00:00' OR date( 'H:i', strtotime($giriscikis[0]["baslangic_saat_guncellenen"])) == $_REQUEST["baslangic_saat"][$alan] ) {
 						$degerler[] = '';
 					}else{
+						$degerler[] = $giriscikis[0]["baslangic_saat_guncellenen"];
+					}
+
+				}else{
+					if ($giriscikis[0]["baslangic_saat_guncellenen"] == '' OR $giriscikis[0]["baslangic_saat_guncellenen"] == '00:00:00' ) {
 						$degerler[] = $giriscikis[0]["baslangic_saat"];
+					}else{
+						$degerler[] = '';
 					}
-					
 				}
+				/*Bitiş Saatinin degerini degiştirdik*/
 				$degerler[] = date( 'H:i', strtotime($_REQUEST["bitis_saat"][$alan])); 
-				if ( date( 'H:i', strtotime($giriscikis[0]["bitis_saat_guncellenen"])) == $_REQUEST["bitis_saat"][$alan] ){
-					$degerler[] = '';
-				}else{
-					if (date( 'H:i', strtotime($giriscikis[0]["bitis_saat"])) == $_REQUEST["bitis_saat"][$alan]) {
+
+				/*Bitiş Saatinin guncellenip guncellenmediğini kontrol ediyoruz*/
+				if ( date( 'H:i', strtotime($giriscikis[0]["bitis_saat"])) == $_REQUEST["bitis_saat"][$alan] ){
+
+					if ($giriscikis[0]["bitis_saat_guncellenen"] == '' OR $giriscikis[0]["bitis_saat_guncellenen"] == '00:00:00' OR date( 'H:i', strtotime($giriscikis[0]["bitis_saat_guncellenen"])) == $_REQUEST["bitis_saat"][$alan] ) {
 						$degerler[] = '';
 					}else{
-						$degerler[] = $giriscikis[0]["bitis_saat"];
+						$degerler[] = $giriscikis[0]["bitis_saat_guncellenen"];
 					}
-					
-				} 
+
+				}else{
+					if ($giriscikis[0]["bitis_saat_guncellenen"] == '' OR $giriscikis[0]["bitis_saat_guncellenen"] == '00:00:00' ) {
+						$degerler[] = $giriscikis[0]["bitis_saat"];
+					}else{
+						$degerler[] = '';
+					}
+				}
+				
 				$degerler[] = $_REQUEST["giriscikis_id"][$alan];
 
 				$sonuc = $vt->update( $SQL_guncelle, $degerler );
