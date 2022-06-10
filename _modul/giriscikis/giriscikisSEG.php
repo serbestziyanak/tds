@@ -113,7 +113,9 @@ if($ikiTarihArasindakFark == 1){
 if ($islem == "saatguncelle") {
 	$alanlar 			= array();
 	$alanlar[] 			= 'islem_yapan_personel';
+	$alanlar[] 			= 'baslangic_saat';
 	$alanlar[] 			= 'baslangic_saat_guncellenen';
+	$alanlar[] 			= 'bitis_saat';
 	$alanlar[] 			= 'bitis_saat_guncellenen';
 
 	$degerler			= array();
@@ -199,19 +201,46 @@ switch( $islem ) {
 	case 'guncelle':
 
 		if ( $islem_turu == "saat_guncelle" ) {
+
+			
 			foreach ($_REQUEST["giriscikis_id"] as $alan => $deger) {
 				//DEgısen girişe ait kayıtları getirip katşılaştırmasını yapıyoruz
+
+				/*alanlar =>  işlem yapan id, baslanngic saat, baslangic saat guncellenen bitis saat bitis saat guncellenen  */
+
 				$giriscikis = $vt->select($SQL_personel_giris_cikis, array($_REQUEST["giriscikis_id"][$alan]))[2];
-				
-				$degerler[] = date( 'H:i', strtotime($giriscikis[0]["baslangic_saat"])) == $_REQUEST["baslangic_saat"][$alan] ? '' : $_REQUEST["baslangic_saat"][$alan]; 
-				$degerler[] = date( 'H:i', strtotime($giriscikis[0]["bitis_saat"]))     == $_REQUEST["bitis_saat"][$alan] ?     '' : $_REQUEST["bitis_saat"][$alan]; 
+
+				$degerler[] = date( 'H:i', strtotime( $_REQUEST["baslangic_saat"][$alan] )); 
+				if ( date( 'H:i', strtotime($giriscikis[0]["baslangic_saat_guncellenen"])) == $_REQUEST["baslangic_saat"][$alan] ){
+					$degerler[] = '';
+				}else{
+					if (date( 'H:i', strtotime($giriscikis[0]["baslangic_saat"])) == $_REQUEST["baslangic_saat"][$alan]) {
+						$degerler[] = '';
+					}else{
+						$degerler[] = $giriscikis[0]["baslangic_saat"];
+					}
+					
+				}
+				$degerler[] = date( 'H:i', strtotime($_REQUEST["bitis_saat"][$alan])); 
+				if ( date( 'H:i', strtotime($giriscikis[0]["bitis_saat_guncellenen"])) == $_REQUEST["bitis_saat"][$alan] ){
+					$degerler[] = '';
+				}else{
+					if (date( 'H:i', strtotime($giriscikis[0]["bitis_saat"])) == $_REQUEST["bitis_saat"][$alan]) {
+						$degerler[] = '';
+					}else{
+						$degerler[] = $giriscikis[0]["bitis_saat"];
+					}
+					
+				} 
 				$degerler[] = $_REQUEST["giriscikis_id"][$alan];
 
 				$sonuc = $vt->update( $SQL_guncelle, $degerler );
 
 				array_pop($degerler); // Id yı array den  cıkardık
-				array_pop($degerler); // bitis_saati array den cıkardık
-				array_pop($degerler); // Baslangic_saati array den  cıkardık
+				array_pop($degerler); // bitis_saat_guncellenen array den cıkardık
+				array_pop($degerler); // bitis_saat array den  cıkardık
+				array_pop($degerler); // Baslangic_saat_guncellenen array den  cıkardık
+				array_pop($degerler); // Baslangic_saat array den  cıkardık
 
 			}
 

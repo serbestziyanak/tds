@@ -541,7 +541,7 @@ SQL;
 			
 		}else{
 			$saat[] = $kayitliSaat == '' ? ' - ' : date("H:i",strtotime($guncellenenSaat));
-			$saat[] = $kayitliSaat == '' ? ' - ' : '<b class="text-danger">'.date("H:i",strtotime($guncellenenSaat)).'</b>';
+			$saat[] = $kayitliSaat == '' ? ' - ' : '<b class="text-danger">'.date("H:i",strtotime($kayitliSaat)).'</b>';
 		}
 		return $saat;
 	}
