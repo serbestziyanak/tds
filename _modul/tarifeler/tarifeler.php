@@ -313,6 +313,13 @@ $secili_gruplar   = explode(",", $tek_tarife["grup_id"]);
 											<input type="checkbox" name="tatil"  <?php echo $tek_tarife[ "tatil" ] == 1 ? 'checked': ''; ?>  data-bootstrap-switch="" data-off-color="danger" data-on-text="Tatil" data-off-text="Mesai" data-on-color="success">
 										</div>
 									</div>
+									<div class="clearfix"></div>
+									<label class="control-label">Tatil Günlerinde Ucret Yatsın mı?</label>
+									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+										<div class="bootstrap-switch-container" >
+											<input type="checkbox" name="maasa_etki_edilsin"  <?php echo $tek_tarife[ "maasa_etki_edilsin" ] == 1 ? 'checked': ''; ?>  data-bootstrap-switch="" data-off-color="danger" data-on-text="Evet" data-off-text="Hayır" data-on-color="success">
+										</div>
+									</div>
 									<div class="card-footer">
 										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>

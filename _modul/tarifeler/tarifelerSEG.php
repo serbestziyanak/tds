@@ -32,6 +32,10 @@ foreach( $_REQUEST as $alan => $deger ) {
 	if ( $alan == 'tatil' ){
 		$deger = $deger == on ? 1 : 0;
 	}
+	if ( $alan == 'maasa_etki_edilsin' ){
+		$deger = $deger == on ? 1 : 0;
+	}
+	
 	if ( $alan == 'grup_id') {
 		$deger = implode(",", $deger);
 	}
@@ -41,6 +45,10 @@ foreach( $_REQUEST as $alan => $deger ) {
 
 if ( !array_key_exists("tatil", $_REQUEST) ){
 	$alanlar[]		= 'tatil';
+	$degerler[]		= 0;
+}
+if ( !array_key_exists("maasa_etki_edilsin", $_REQUEST) ){
+	$alanlar[]		= 'maasa_etki_edilsin';
 	$degerler[]		= 0;
 }
 

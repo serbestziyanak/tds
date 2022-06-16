@@ -38,4 +38,7 @@ div.dt-button-collection div.dropdown-menu {
 .tab-container .nav-link.active {
     border: none;
 }
-
+.layout-fixed .personel-bilgileri-kapsa{
+    width: 300px;
+    transition: right 0.3s ease-in-out, display 0.3s ease-in-out;
+}

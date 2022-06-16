@@ -612,7 +612,12 @@ SQL;
 		//Aradaki saniye farkını bulduk.
 		$fark = $bitisSaati - $baslangicSaati;
 
-		$dakika = floor($fark / 60);
+		$dakika = $fark / 60;
 		return $dakika;
+	}
+
+	/* 1000,2546 sekindeki parayı 1,000.25 şeklinde vermektedir sayı virgülden sonra kaç basamak oluşturacağını belirler*/
+	public function parabirimi($tutar,$sayi=2){
+	    return number_format($tutar,$sayi,",",".");
 	}
 }

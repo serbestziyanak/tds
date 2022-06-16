@@ -40,8 +40,22 @@ SQL;
 $SQL_tek_personel_oku = <<< SQL
 SELECT
 	 p.*
+	,g.adi AS grup_adi
+	,s.adi AS sube_adi
+	,b.adi AS bolum_adi
+	,ok1.adi AS ozel_kod1
+	,ok2.adi AS ozel_kod2
+	,u.adi AS uyruk_adi
+	,od.adi AS ogrenim_duzeyi_adi
 FROM
 	tb_personel AS p
+LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
+LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
+LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
+LEFT JOIN tb_ozel_kod AS ok1 ON p.ozel_kod1_id = ok1.id
+LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
+LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
+LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
 WHERE
 	p.id = ? AND p.aktif = 1
 SQL;
@@ -182,7 +196,7 @@ foreach($giris_cikislar AS $giriscikis){
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
 				<div class="col-sm-2 float-left">
 					<div class="form-group">
-						<select class="form-control select2" name = "personel_id" onchange="personelpuantaj(this.value);">
+						<select class="form-control select2" id="personelAra" name = "personel_id" onchange="personelpuantaj(this.value);">
 							<?php foreach( $personeller as $personel ) { ?>
 								<option value="<?php echo $personel[ 'id' ]; ?>" <?php if( $tek_personel[ 'id' ] == $personel[ 'id' ] ) echo 'selected'; ?>><?php echo $personel['adi'].' '.$personel['soyadi']; ?></option>
 							<?php } ?>
@@ -263,7 +277,7 @@ foreach($giris_cikislar AS $giriscikis){
 										$asilkullanilanMolalar		= array(); //Personelin Kullandığı molalar
 										$calismasiGerekenToplamDakika = array(); //Calışması gereken toplam dakika
 										$calisilanToplamDakika 		= array(); //Personelin çalıştığı toplam dakika
-										$kullanilanToplamMola		= array(); 
+										$kullanilanToplamMola		= array(); //Asil Molaların Toplamı
 										$kullanilmayanMolaToplami	= array(); 
 										$islenenSaatler			= array(); 
 										$izin[ "ucretli" ]			= 0; 
@@ -305,7 +319,8 @@ foreach($giris_cikislar AS $giriscikis){
 										//Personel 5 DK  erken çıkabilir
 										$mesai_bitis 		= date("H:i", strtotime( $$saatler[ 0 ]["bitis"] )  );
 										//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
-										$tatil = $giris_cikis_saat_getir[ 0 ]["tatil"] == 1  ?  'evet' : 'hayir';
+										$tatil 			= $giris_cikis_saat_getir[ 0 ]["tatil"] == 1  ?  'evet' : 'hayir';
+										$maasa_etki_edilsin = $giris_cikis_saat_getir[ 0 ]["maasa_etki_edilsin"] == 1  ?  'evet' : 'hayir';
 										
 										/*Personelin Hangi saat dilimler,nde maasın hesaplanacağını kontrol ediyoruz*/			
 										foreach ( $saatler as $alan => $saat ) {
@@ -314,11 +329,12 @@ foreach($giris_cikislar AS $giriscikis){
 											}
 										}
 
-										
+										/*Personelin HaNGİ saat dilimine kadar çalışmiş ise o zaman dilimlerini siziye aktarıyoruz*/
 										while ($saatSay <= $saySaat ) {
 											$KullanilanSaatler[] = $saatler[ $saatSay ];
 											$saatSay++;
 										}
+										/*Personelin il mesai basşalngı ve son çıkış saatini alıyoruz*/
 										if ( $personel_giris_cikis_sayisi > 0){
 											if ($ilkGirisSaat[0] < $mesai_baslangic AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
 												
@@ -335,6 +351,7 @@ foreach($giris_cikislar AS $giriscikis){
 											$gunluk_bitis	   = $mesai_bitis;
 										}
 
+										/*Personelin Çalıştığı saat dilimleri arasında kullandığı mola saatlerinizi alıyoruz*/
 										foreach ( $molalar as $mola ) {
 											foreach ( $KullanilanSaatler as $key => $saat ) {
 												if ( $saat[ "baslangic" ] <= $mola[ "baslangic" ] AND $mola[ "bitis" ] <= $saat[ "bitis" ] ){
@@ -343,6 +360,7 @@ foreach($giris_cikislar AS $giriscikis){
 											}
 										}
 
+										/*Personelin tarifeye ait saat dilimleri arasında kaç saat çalışması gerektigini kotrol ediyoruz*/
 									 	foreach ( $KullanilanSaatler as $saatkey => $saat ) {
 									 		$calismasiGerekenToplamDakika[ $saat[ "carpan" ] ] += $fn->saatfarkiver( $saat[ "baslangic" ], $saat[ "bitis" ] );
 									 	}
@@ -392,7 +410,7 @@ foreach($giris_cikislar AS $giriscikis){
 									 		}
 									 	}
 
-
+									 	/*Personel giriş çıkış yapmış ise çıkış giriş arasında kullanmadığı molaları hesaplıyoruz*/
 									 	foreach ( $kullanilmayanMolalar as $molakey => $molalar ) {
 									 		foreach ($molalar as  $mola) {
 									 			$kullanilmayanMolaToplami[ $molakey ] += $fn->saatfarkiver( $mola[ "baslangic" ], $mola[ "bitis" ] ); 
@@ -424,27 +442,27 @@ foreach($giris_cikislar AS $giriscikis){
 										 			if ( $kullanildi == 0 ) {
 
 										 				if ( $giris["bitis_saat"] > $saat["bitis"] ){
-										 					$fark = $fn->saatfarkiver($saat["bitis"], $giris["bitis_saat"]);
-										 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver($ilkGirisSaat[0], $giris["bitis_saat"] )- $fark;
+										 					$fark = $fn->saatfarkiver( date("H:i",strtotime($saat[ "bitis" ])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) );;
+										 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver( date("H:i",strtotime($ilkGirisSaat[0])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) ) - $fark;
 										 				}else{
-										 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver($ilkGirisSaat[0], $giris["bitis_saat"] );
+										 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver( date("H:i",strtotime($ilkGirisSaat[0])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) );
 										 				}
 										 				
 										 				$kullanildi = 1;
 
 										 			}else if( $giris["bitis_saat" ] < $saat["bitis"] and $kullanildi == 1  and $giris["bitis_saat" ] >= $saat["baslangic"]  ){
 
-										 				$fark = $fn->saatfarkiver($giris["baslangic_saat"], $saat["baslangic"]);
+										 				$fark = $fn->saatfarkiver( date("H:i",strtotime($giris[ "baslangic_saat" ])), date("H:i",strtotime($saat[ "baslangic" ] ) ) );;
 										 				if ( $giris[ "islemTipi" ]  == '' ){
 										 					if( $fark > 0 ){
-											 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver($giris["baslangic_saat"], $giris["bitis_saat"] ) - $fark;
+											 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver( date("H:i",strtotime($giris[ "baslangic_saat" ])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) ) - $fark;
 											 					if ( $girisKey != 0 ) {
 											 						$calisilanToplamDakika[ $KullanilanSaatler[$i - 1]["carpan"] ] += $fark;
 											 					}
 											 					
 											 					
 											 				}else{
-											 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver($giris["baslangic_saat"], $giris["bitis_saat"] );
+											 					$calisilanToplamDakika[ $saat["carpan"] ] += $fn->saatfarkiver( date("H:i",strtotime($giris[ "baslangic_saat" ])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) );
 											 				}
 										 				}
 											 				
@@ -459,14 +477,12 @@ foreach($giris_cikislar AS $giriscikis){
 									 		}
 										 		
 									 		if( $giris[ "maas_kesintisi" ]  == 0 AND $giris[ "islemTipi" ]  != ''  ){	
-								 				$izin[ "ucretli" ] += $fn->saatfarkiver( $giris[ "baslangic_saat" ], $giris[ "bitis_saat" ]);
+								 				$izin[ "ucretli" ] += $fn->saatfarkiver( date("H:i",strtotime($giris[ "baslangic_saat" ])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) );
 								 			}else if( $giris[ "maas_kesintisi" ]  == 1 ) {
-								 				$izin[ "ucretsiz" ] += $fn->saatfarkiver( $giris[ "baslangic_saat" ], $giris[ "bitis_saat" ]);
+								 				$izin[ "ucretsiz" ] += $fn->saatfarkiver( date("H:i",strtotime($giris[ "baslangic_saat" ])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) );
 								 			}
 									 	}
 
-									 	
-									 	$calisilanToplamDakika[ $ilkUygulanacakSaat ] = $calisilanToplamDakika[ $ilkUygulanacakSaat ]; 
 
 									 	/*tarifeye ait molaların hangilerinin kullandığını kontrol edip toplam kaç dakika mola kullanılmış kontrol sağlıyoruz*/
 										foreach ($KullanilanSaatler as $saatkey => $saat) {
@@ -477,20 +493,23 @@ foreach($giris_cikislar AS $giriscikis){
 											}
 										}
 
-										;
 										/*Tüm Günlerin calışma sürelerini carpani ile birlikte dizide topluyoruz*/
 										foreach ($calisilanToplamDakika as $carpan => $dakika) {
-											$genelCalismaSuresiToplami[ $carpan ] += $dakika;
+											if ( $dakika > 0 )
+												$genelCalismaSuresiToplami[ $carpan ] += $dakika;
 										}
 										/*Tatil Günlerinin Toplam Saatini Topla*/
 										if ($tatil == 'evet' AND $personel_giris_cikis_sayisi == 0 ) {
-											$tatilGunleriToplamDakika += 450; 
+											if ( $maasa_etki_edilsin == 'evet' ) {
+												$tatilGunleriToplamDakika += 450;
+											}
+											 
 										}
 
 										foreach ($kullanilacakMolalar[ $ilkUygulanacakSaat ] as $molakey => $mola) {
 											$kullanilmasiGerekenToplamMola += $fn->saatfarkiver($mola[ "baslangic" ], $mola[ "bitis" ]);
 										}
-										
+
 										
 									?>
 									<tr>
@@ -629,8 +648,14 @@ foreach($giris_cikislar AS $giriscikis){
 										<td>
 											<?php 
 												if ( $tatil == 'evet' and $personel_giris_cikis_sayisi == 0 ){
-													$toplamTatilSayisi += 450; 
-													echo '07:30';
+
+													if ( $maasa_etki_edilsin == 'evet' ) {
+														$toplamTatilSayisi += 450; 
+														echo '07:30';
+													}else{
+														echo '-';
+													}
+													
 												}else{
 													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
 													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
