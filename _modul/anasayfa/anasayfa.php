@@ -168,6 +168,18 @@ ORDER BY t1.id DESC
 LIMIT 1      
 SQL;
 
+//TARİFEYE AİT SAAT LİSTESİ
+$SQL_tarife_saati = <<< SQL
+SELECT 
+    *
+from
+    tb_tarife_saati 
+WHERE 
+    tarife_id = ? AND 
+    aktif = 1
+ORDER BY baslangic ASC
+SQL;
+
 
 //Yazdırma İşlemi Yapılan Tutanaklar Listesi
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
@@ -187,10 +199,6 @@ $erken_cikan_personel_listesi               = Array();
 $gec_giris_saatler                          = Array();
 $erken_cikis_saatler                        = Array();
 
-//Giriş Çıkış Verileri Güncellendi mi Kontrol ediliyor
-$anasayfa_durum = array_key_exists( 'anasayfa_durum', $_SESSION ) ? trim($_SESSION[ 'anasayfa_durum' ] )    : 'guncelle';
-
-if ( $anasayfa_durum == 'guncelle' ) {
     $tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
     $icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
 
@@ -268,7 +276,7 @@ if ( $anasayfa_durum == 'guncelle' ) {
                 
             }
 
-            if ( $personel_giris_cikis_sayisi == 1 AND  $ilk_islemtipi != "0"  ) {
+            if ( $personel_giris_cikis_sayisi == 1 AND  $ilk_islemtipi != "0" AND $SonCikisSaat[0] != " - "  ) {
                 $izinli_personel_listesi[]              = $personel; 
             }
 
@@ -277,37 +285,6 @@ if ( $anasayfa_durum == 'guncelle' ) {
             }
         } 
     }
-                        
-    $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ]       = $gelmeyen_personel_tutanak_tutulmayan; 
-    $_SESSION[ 'gelmeyen_personel_sayisi' ]                   = $gelmeyen_personel_sayisi;
-    $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ]      = $gec_gelen_personel_tutanak_tutulmayan;
-    $_SESSION[ 'gec_giris_saatler' ]                          = $gec_giris_saatler;
-    $_SESSION[ 'erken_cikan_personel_listesi' ]               = $erken_cikan_personel_listesi;
-    $_SESSION[ 'erken_cikan_personel_tutanak_tutulmayan' ]    = $erken_cikan_personel_tutanak_tutulmayan;
-    $_SESSION[ 'izinli_personel_listesi' ]                    = $izinli_personel_listesi;
-    $_SESSION[ 'gelip_cikan_personel_listesi' ]               = $gelip_cikan_personel_listesi;
-    $_SESSION[ 'tum_personel' ]                               = $tum_personel;
-    $_SESSION[ 'gelmeyen_tutanak_listesi' ]                   = $gelmeyen_tutanak_listesi;
-    $_SESSION[ 'gecgelen_tutanak_listesi' ]                   = $gecgelen_tutanak_listesi;
-    $_SESSION[ 'erkencikan_tutanak_listesi' ]                 = $erkencikan_tutanak_listesi;
-    $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
-    $_SESSION[ 'icerde_olan_personel' ]                       = $icerde_olan_personel;
-
-}else if ( $anasayfa_durum == 'guncel' ){
-    $gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
-    $gelmeyen_personel_sayisi                                 = $_SESSION[ 'gelmeyen_personel_sayisi' ];
-    $gec_gelen_personel_tutanak_tutulmayan                    = $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ];
-    $gec_giris_saatler                                        = $_SESSION[ 'gec_giris_saatler' ];
-    $erken_cikan_personel_listesi                             = $_SESSION[ 'erken_cikan_personel_listesi' ];
-    $erken_cikan_personel_tutanak_tutulmayan                  = $_SESSION[ 'erken_cikan_personel_tutanak_tutulmayan' ];
-    $izinli_personel_listesi                                  = $_SESSION[ 'izinli_personel_listesi' ];
-    $gelip_cikan_personel_listesi                             = $_SESSION[ 'gelip_cikan_personel_listesi' ];
-    $tum_personel                                             = $_SESSION[ 'tum_personel' ];
-    $gelmeyen_tutanak_listesi                                 = $_SESSION[ 'gelmeyen_tutanak_listesi' ];
-    $gecgelen_tutanak_listesi                                 = $_SESSION[ 'gecgelen_tutanak_listesi' ];
-    $erkencikan_tutanak_listesi                               = $_SESSION[ 'erkencikan_tutanak_listesi' ];
-    $icerde_olan_personel                                     = $_SESSION[ 'icerde_olan_personel' ];
-}
 
 ?>
 
