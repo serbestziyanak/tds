@@ -173,6 +173,20 @@ GROUP BY carpan
 ORDER BY carpan ASC
 SQL;
 
+/*AVANS KAZANÇ KESİNTİ TOPLAM TUTARI GETİRME*/
+$SQL_toplam_avans_kesinti = <<< SQL
+SELECT 
+	SUM(tutar) AS toplamTutar
+FROM 
+	tb_avans_kesinti AS a
+INNER JOIN tb_avans_kesinti_tipi AS t ON a.islem_tipi = t.id
+WHERE 
+	DATE_FORMAT(a.verilis_tarihi,'%Y-%m') 	= ?  AND 
+	a.personel_id 						= ? AND
+	t.maas_kesintisi 					= ? AND 
+	a.aktif
+SQL;
+
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
@@ -180,6 +194,13 @@ $giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$liste
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
 $carpan_listesi			= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"]) )[ 2 ];
 
+/*
+Seçili ay için AVANS KESNİNTİ ÜZERİNDEN EKLENECEK ÖDEMELER VAR İSE ÜCRETE EKLEMESİ YAPILACAKTIR
+MAAŞ KESİNTİ DEGERİ 0 OLURSA MAAŞA EKLEMESİ YAPILACAKTIR 1 OLMASI HALİNDE MAASTAN DÜŞÜM YAPILACAKTIR
+*/
+
+$kazanilan 				= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 0 ) ) [ 2 ][ 0 ];
+$kesinti 					= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 1 ) ) [ 2 ][ 0 ];
 
 //Bir günde en fazla kaç giriş çıkış yapıldığını bulma
 foreach($giris_cikislar AS $giriscikis){
@@ -498,13 +519,6 @@ foreach($giris_cikislar AS $giriscikis){
 											if ( $dakika > 0 )
 												$genelCalismaSuresiToplami[ $carpan ] += $dakika;
 										}
-										/*Tatil Günlerinin Toplam Saatini Topla*/
-										if ($tatil == 'evet' AND $personel_giris_cikis_sayisi == 0 ) {
-											if ( $maasa_etki_edilsin == 'evet' ) {
-												$tatilGunleriToplamDakika += 450;
-											}
-											 
-										}
 
 										foreach ($kullanilacakMolalar[ $ilkUygulanacakSaat ] as $molakey => $mola) {
 											$kullanilmasiGerekenToplamMola += $fn->saatfarkiver($mola[ "baslangic" ], $mola[ "bitis" ]);
@@ -518,7 +532,10 @@ foreach($giris_cikislar AS $giriscikis){
 										<?php 
 											$i = 1;
 											$islemtipi = array();
-											if ($personel_giris_cikis_sayisi == 0) {
+											if ($personel_giris_cikis_sayisi == 0 ) {
+												if ($tatil == "hayir") {
+													$haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] += 1;
+												}
 												$col = ($tarihSayisi*2);
 												$col = $col == 0 ? 2 : $col;
 												$i = 1;
@@ -649,8 +666,8 @@ foreach($giris_cikislar AS $giriscikis){
 											<?php 
 												if ( $tatil == 'evet' and $personel_giris_cikis_sayisi == 0 ){
 
-													if ( $maasa_etki_edilsin == 'evet' ) {
-														$toplamTatilSayisi += 450; 
+													if ( $maasa_etki_edilsin == 'evet' AND $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] < 1 ) {
+														$tatilGunleriToplamDakika += 450; 
 														echo '07:30';
 													}else{
 														echo '-';
@@ -721,7 +738,8 @@ foreach($giris_cikislar AS $giriscikis){
 							<tfoot>
 								<?php 
 									/*Giriş Çıkış Sayısının 2 katı kadar sütun oluşşturuyoruz ve sabit 3 tane sutun ile birleştiriyoruz */
-									$birlestirilecekSutunSayisi = 3 + ( $tarihSayisi * 2 );
+									$tarihSayisi = $tarihSayisi == 0 ? 1 : $tarihSayisi; 
+									$birlestirilecekSutunSayisi = 3 + ( $tarihSayisi  * 2 );
 								?>
 
 								<th colspan=" <?php echo $birlestirilecekSutunSayisi; ?> "> Toplam:</th>

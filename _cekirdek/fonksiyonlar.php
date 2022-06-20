@@ -620,4 +620,12 @@ SQL;
 	public function parabirimi($tutar,$sayi=2){
 	    return number_format($tutar,$sayi,",",".");
 	}
+
+	/* Belirli bir tarihin yılın kacıncı haftası olduğunu sorgular Tarih formatı tarih içindeki karekter " - (kısacizgi) " veya  " . (nokta) " olmalı */
+	public function kacinciHafta( $tarih ){
+	    $tarih = new DateTime( $tarih );
+		$hafta = $tarih->format("W");
+		return $hafta;
+	}
+	
 }

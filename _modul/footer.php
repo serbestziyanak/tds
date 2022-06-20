@@ -16,8 +16,17 @@
             /* -- Maaş Hesaplasması == ( personelin aylık ucreti / 225 / 60 ) * carpan --*/
             $aylikTutar  += ( $tek_personel[ "ucret" ] / 225 / 60 ) * $carpan * $dakika;
         }
+        /*Ücreti odenen tatil günlerinin maaşa ekledik.*/
+        $aylikTutar +=  ( $tek_personel[ "ucret" ] / 225 / 60 ) * 1 * $tatilGunleriToplamDakika;
 
-        $aylikTutar +=  ( $tek_personel[ "ucret" ] / 255 / 60 ) * 1 * $tatilGunleriToplamDakika;
+        /*Alınan ücretli izinleri maasa eklendi. */
+        $aylikTutar +=  ( $tek_personel[ "ucret" ] / 225 / 60 ) * 1 * $ucretliIzinGenelToplam;
+
+        /*Kazanılan ödemleri ücret üzerine eklemelerini yapıyyoruz*/
+        $aylikTutar +=  $kazanilan[ "toplamTutar" ];
+
+        /*Yapılan kesintileri ücret ücretten çıkarıyoruz*/
+        $aylikTutar -=  $kesinti[ "toplamTutar" ];
 
 ?>
 <!-- Control Sidebar -->
@@ -25,6 +34,7 @@
         <div class="card card-outline">
             <h2 class="text-danger" style="margin-top: 10px;"><center>Net Ücret</center></h2>
             <h3 class=""><center><?php echo $fn->parabirimi($aylikTutar); ?>TL</center></h3>
+            <center>Kazanç ve kesintiler dahildir.</center>
             <div class="card-body box-profile">
                 <div class="text-center">
                     <img class="profile-user-img img-fluid img-circle" src="personel_resimler/<?php echo $tek_personel[ 'resim' ] . '?_dc = ' . time(); ?>" id = "personel_resim" alt="User profile picture">
@@ -68,4 +78,5 @@
         }
     });
 </script>
+
  <?php } ?>
