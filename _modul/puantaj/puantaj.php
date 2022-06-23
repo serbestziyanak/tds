@@ -184,7 +184,7 @@ WHERE
 	DATE_FORMAT(a.verilis_tarihi,'%Y-%m') 	= ?  AND 
 	a.personel_id 						= ? AND
 	t.maas_kesintisi 					= ? AND 
-	a.aktif
+	a.aktif 							= 1 
 SQL;
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
@@ -713,7 +713,7 @@ foreach($giris_cikislar AS $giriscikis){
 
 												//Toplam Calısılması gereken - calıstığı süre - izin süresi - Mola
 												$ToplamKesintiSaati = $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzın  - $cikarilacakMola;
-												if($tatil == 'evet' AND $personel_giris_cikis_sayisi == 0){
+												if($tatil == 'evet'){
 													echo '-';
 												}else{
 													$molaSuresi = 0;
