@@ -30,19 +30,35 @@
         <a href="#" class="nav-link">Contact</a>
       </li-->
     </ul>
-
-    <!-- SEARCH FORM -->
-    <form class="form-inline ml-3" action = "?modul=aracListesi" method = "POST">
+    <span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
+    <!--Dönem KAPAT-->
+    <form class="form-inline" action = "_modul/puantaj/donemKapat.php" method = "POST">
       <div class="input-group input-group-sm">
-	    <input type = "hidden" name = "islem" value = "arama">
-        <input class="form-control form-control-navbar" name="arama_arac_no" type="search" placeholder="Araç no" aria-label="Search">
-        <div class="input-group-append">
-          <button class="btn btn-navbar" type="submit">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
+        <span class="nav-link">Dönem Kapat</span>
+        <select name="yil" class="form-control">
+          <option value="2021" <?php echo date("Y") == "2021" ? "selected" : null; ?>>2021</option>
+          <option value="2022" <?php echo date("Y") == "2022" ? "selected" : null; ?>>2022</option>
+        </select>&nbsp;
+        
+        <?php $ay = date("m"); settype( $ay,"integer");?>
+        <select name="ay" class="form-control">
+          <option value="1" <?php echo $ay   == "1"  ? "selected" : null; ?>>Ocak</option>
+          <option value="2" <?php echo $ay   == "2"  ? "selected" : null; ?>>Şubat</option>
+          <option value="3" <?php echo $ay   == "3"  ? "selected" : null; ?>>Mart</option>
+          <option value="4" <?php echo $ay   == "4"  ? "selected" : null; ?>>Nisan</option>
+          <option value="5" <?php echo $ay   == "5"  ? "selected" : null; ?>>Mayıs</option>
+          <option value="6" <?php echo $ay   == "6"  ? "selected" : null; ?>>Haziran</option>
+          <option value="7" <?php echo $ay   == "7"  ? "selected" : null; ?>>Temmuz</option>
+          <option value="8" <?php echo $ay   == "8"  ? "selected" : null; ?>>Ağustos</option>
+          <option value="9" <?php echo $ay   == "9"  ? "selected" : null; ?>>Eylül</option>
+          <option value="10" <?php echo $ay  == "10" ? "selected" : null; ?>>Ekim</option>
+          <option value="11" <?php echo $ay  == "11" ? "selected" : null; ?>>Kasım</option>
+          <option value="12" <?php echo $ay  == "12" ? "selected" : null; ?>>Aralık</option>
+        </select>&nbsp;
+        <button type="submit" class="form-control btn btn-info">Kapat</button>
       </div>
     </form>
+    
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">

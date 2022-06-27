@@ -1,6 +1,14 @@
 <?php 
 echo !defined("ADMIN") ? die("Görüntüleme Yetkiniz Bulunmamaktadır.") : null;  
 
+/* SEG dosyalarından gelen mesaj */
+if( array_key_exists( 'sonuclar', $_SESSION ) ) {
+    $mesaj                              = $_SESSION[ 'sonuclar' ][ 'mesaj' ];
+    $mesaj_turu                         = $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
+    unset( $_SESSION[ 'sonuclar' ] );
+    echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
+}
+
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
 
@@ -141,6 +149,7 @@ FROM
     tb_giris_cikis AS gc
 LEFT JOIN tb_personel AS p ON gc.personel_id =  p.id
 WHERE
+    gc.baslangic_saat  IS NOT NULL AND 
     gc.personel_id  = ? AND 
     gc.tarih        = ? AND
     p.firma_id      = ? AND 

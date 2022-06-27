@@ -6,16 +6,15 @@ $vt = new VeriTabani();
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
 	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
-	$_REQUEST[ 'personel_id' ]			= $_SESSION[ 'sonuclar' ][ 'id' ];
+	$_REQUEST[ 'personel_id' ]				= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
-
 $islem			= array_key_exists( 'islem'			,$_REQUEST ) 	? $_REQUEST[ 'islem' ]			: 'ekle';
 $personel_id		= array_key_exists( 'personel_id'	,$_REQUEST ) 		? $_REQUEST[ 'personel_id' ]		: 0;
 //Personele Ait Listelenecek Hareket Ay
-@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) ? $_REQUEST[ 'tarih' ]	: date("Y-m");
+@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) 			? $_REQUEST[ 'tarih' ]			: date("Y-m");
  
 $tarih = $listelenecekAy;
 
@@ -88,7 +87,10 @@ FROM
 LEFT JOIN tb_giris_cikis_tipi ON tb_giris_cikis_tipi.id =  tb_giris_cikis.islem_tipi
 LEFT JOIN tb_giris_cikis_tipleri ON tb_giris_cikis_tipleri.id =  tb_giris_cikis_tipi.tip_id
 WHERE
-	personel_id = ? AND tarih =? AND aktif = 1
+	baslangic_saat  IS NOT NULL AND 
+	personel_id 	= ? AND 
+	tarih 		=? AND 
+	aktif 		= 1
 ORDER BY baslangic_saat ASC 
 SQL;
 
@@ -187,12 +189,30 @@ WHERE
 	a.aktif 							= 1 
 SQL;
 
+/*Donem Kontrolu Kapatılıp Kapatılmadığı kontrol edilecek*/
+$SQL_donum_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_donem
+WHERE 
+	firma_id 	= ?  AND 
+	yil 		= ? AND
+	ay 		= ? AND 
+	aktif 	= 1 
+SQL;
+
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
 $giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
 $carpan_listesi			= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"]) )[ 2 ];
+$donem					= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
+
+if ( $donem > 0 ) {
+	echo 'Donem Kapatılmış';
+}
 
 /*
 Seçili ay için AVANS KESNİNTİ ÜZERİNDEN EKLENECEK ÖDEMELER VAR İSE ÜCRETE EKLEMESİ YAPILACAKTIR
