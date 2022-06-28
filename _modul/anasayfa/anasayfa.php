@@ -189,6 +189,18 @@ WHERE
 ORDER BY baslangic ASC
 SQL;
 
+//TARİFEYE AİT SAAT LİSTESİ
+$SQL_genel_ayarlar = <<< SQL
+SELECT 
+    *
+from
+    tb_genel_ayarlar
+WHERE 
+    firma_id = ?
+SQL;
+
+
+$genel_ayarlar                          = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ "firma_id" ] ) ) [ 2 ][ 0 ];
 
 //Yazdırma İşlemi Yapılan Tutanaklar Listesi
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
@@ -215,7 +227,6 @@ $erken_cikis_saatler                        = Array();
     $gelmeyen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
     $gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
     $erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
-
 
     foreach ($tum_personel as $personel) {
 
@@ -359,6 +370,9 @@ $erken_cikis_saatler                        = Array();
     </div>
     <!-- ./col -->
 </div>
+
+<!-- GENEL AYARLARDAN GİRİŞ ÇIKIŞ LİSTERİ GÖSTER EVET OLARAK İŞARETLENMİŞ İSE LİSTELER GORUNTULENECEK -->
+<?php if ( $genel_ayarlar[ "giris_cikis_liste_goster" ] == 1 ) { ?>
 <div class="row">
     <div class="col-12 col-sm-6">
         <div class="card  card-tabs">
@@ -408,7 +422,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="<?php echo $sayi.'-'.$personel[ "id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
 
@@ -431,7 +449,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="<?php echo $sayi.'-'.$tutanak_personel[ "personel_id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
                             </tbody>
@@ -467,7 +489,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="gecgelme-<?php echo $sayi.'-'.$personel[ "id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=gecgelme&saat=<?php echo $gec_giris_saatler[ $personel[ 'id' ] ] ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?> 
+                                                <a trget="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=gecgelme&saat=<?php echo $gec_giris_saatler[ $personel[ 'id' ] ] ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
 
@@ -491,7 +517,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="gecgelme-<?php echo $sayi.'-'.$gecgelen_personel[ "personel_id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
                                 
@@ -528,7 +558,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="erkencikma-<?php echo $sayi.'-'.$personel[ "id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=erkencikma&saat=<?php echo $gec_giris_saatler[ $personel[ 'id' ] ] ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=erkencikma&saat=<?php echo $gec_giris_saatler[ $personel[ 'id' ] ] ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
 
@@ -552,7 +586,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="<?php echo $sayi.'-'.$erkencikan_personel[ "personel_id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
                             </tbody>
@@ -618,7 +656,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="<?php echo $sayi.'-'.$tutanak_personel[ "personel_id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
                             </tbody>
@@ -661,7 +703,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="<?php echo $sayi.'-'.$gecgelen_personel[ "personel_id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
                             </tbody>
@@ -704,7 +750,11 @@ $erken_cikis_saatler                        = Array();
                                                 <label for="<?php echo $sayi.'-'.$erkencikan_personel[ "personel_id" ]; ?>"></label>
                                             </div>
                                         </td>
-                                        <td width="80"><a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                 <?php $sayi++; } ?>
                             </tbody>
@@ -746,10 +796,8 @@ $erken_cikis_saatler                        = Array();
             </div>
         </div> 
     </div>
-    
-
-            
 </div>
+<?php } ?>
 <style type="text/css">
     .tab-container .nav-link.active{
         border: 1px solid transparent;
@@ -832,80 +880,82 @@ $erken_cikis_saatler                        = Array();
         $(".dropzonedosya").fadeToggle(250);
     }); 
 
-    var tbl_erken_cikanlar = $( "#tbl_erken_cikanlar" ).DataTable( {
-        "responsive": true, "lengthChange": true, "autoWidth": true,
-        "stateSave": true,
-        "language": {
-            "decimal"           : "",
-            "emptyTable"        : "Gösterilecek kayıt yok!",
-            "info"              : "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
-            "infoEmpty"         : "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
-            "infoFiltered"      : "",
-            "infoPostFix"       : "",
-            "thousands"         : ",",
-            "lengthMenu"        : "Show _MENU_ entries",
-            "loadingRecords"    : "Yükleniyor...",
-            "processing"        : "İşleniyor...",
-            "search"            : "Ara:",
-            "zeroRecords"       : "Eşleşen kayıt bulunamadı!",
-            "paginate"          : {
-                "first"     : "İlk",
-                "last"      : "Son",
-                "next"      : "Sonraki",
-                "previous"  : "Önceki"
+    <?php if ( $genel_ayarlar[ "giris_cikis_liste_goster" ] == 1 ) { ?>
+        var tbl_erken_cikanlar = $( "#tbl_erken_cikanlar" ).DataTable( {
+            "responsive": true, "lengthChange": true, "autoWidth": true,
+            "stateSave": true,
+            "language": {
+                "decimal"           : "",
+                "emptyTable"        : "Gösterilecek kayıt yok!",
+                "info"              : "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
+                "infoEmpty"         : "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
+                "infoFiltered"      : "",
+                "infoPostFix"       : "",
+                "thousands"         : ",",
+                "lengthMenu"        : "Show _MENU_ entries",
+                "loadingRecords"    : "Yükleniyor...",
+                "processing"        : "İşleniyor...",
+                "search"            : "Ara:",
+                "zeroRecords"       : "Eşleşen kayıt bulunamadı!",
+                "paginate"          : {
+                    "first"     : "İlk",
+                    "last"      : "Son",
+                    "next"      : "Sonraki",
+                    "previous"  : "Önceki"
+                }
             }
-        }
-    } );
+        } );
 
-    var tbl_gec_gelenler = $( "#tbl_gec_gelenler" ).DataTable( {
-        "responsive": true, "lengthChange": true, "autoWidth": true,
-        "stateSave": true,
-        "language": {
-            "decimal"           : "",
-            "emptyTable"        : "Gösterilecek kayıt yok!",
-            "info"              : "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
-            "infoEmpty"         : "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
-            "infoFiltered"      : "",
-            "infoPostFix"       : "",
-            "thousands"         : ",",
-            "lengthMenu"        : "Show _MENU_ entries",
-            "loadingRecords"    : "Yükleniyor...",
-            "processing"        : "İşleniyor...",
-            "search"            : "Ara:",
-            "zeroRecords"       : "Eşleşen kayıt bulunamadı!",
-            "paginate"          : {
-                "first"     : "İlk",
-                "last"      : "Son",
-                "next"      : "Sonraki",
-                "previous"  : "Önceki"
+        var tbl_gec_gelenler = $( "#tbl_gec_gelenler" ).DataTable( {
+            "responsive": true, "lengthChange": true, "autoWidth": true,
+            "stateSave": true,
+            "language": {
+                "decimal"           : "",
+                "emptyTable"        : "Gösterilecek kayıt yok!",
+                "info"              : "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
+                "infoEmpty"         : "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
+                "infoFiltered"      : "",
+                "infoPostFix"       : "",
+                "thousands"         : ",",
+                "lengthMenu"        : "Show _MENU_ entries",
+                "loadingRecords"    : "Yükleniyor...",
+                "processing"        : "İşleniyor...",
+                "search"            : "Ara:",
+                "zeroRecords"       : "Eşleşen kayıt bulunamadı!",
+                "paginate"          : {
+                    "first"     : "İlk",
+                    "last"      : "Son",
+                    "next"      : "Sonraki",
+                    "previous"  : "Önceki"
+                }
             }
-        }
-    } );
-    
-    var tbl_gelmeyenler = $( "#tbl_gelmeyenler" ).DataTable( {
-        "responsive": true, "lengthChange": true, "autoWidth": true,
-        "stateSave": true,
-        "language": {
-            "decimal"           : "",
-            "emptyTable"        : "Gösterilecek kayıt yok!",
-            "info"              : "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
-            "infoEmpty"         : "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
-            "infoFiltered"      : "",
-            "infoPostFix"       : "",
-            "thousands"         : ",",
-            "lengthMenu"        : "Show _MENU_ entries",
-            "loadingRecords"    : "Yükleniyor...",
-            "processing"        : "İşleniyor...",
-            "search"            : "Ara:",
-            "zeroRecords"       : "Eşleşen kayıt bulunamadı!",
-            "paginate"          : {
-                "first"     : "İlk",
-                "last"      : "Son",
-                "next"      : "Sonraki",
-                "previous"  : "Önceki"
+        } );
+        
+        var tbl_gelmeyenler = $( "#tbl_gelmeyenler" ).DataTable( {
+            "responsive": true, "lengthChange": true, "autoWidth": true,
+            "stateSave": true,
+            "language": {
+                "decimal"           : "",
+                "emptyTable"        : "Gösterilecek kayıt yok!",
+                "info"              : "Toplam _TOTAL_ kayıttan _START_ ve _END_ arası gösteriliyor",
+                "infoEmpty"         : "Toplam 0 kayıttan 0 ve 0 arası gösteriliyor",
+                "infoFiltered"      : "",
+                "infoPostFix"       : "",
+                "thousands"         : ",",
+                "lengthMenu"        : "Show _MENU_ entries",
+                "loadingRecords"    : "Yükleniyor...",
+                "processing"        : "İşleniyor...",
+                "search"            : "Ara:",
+                "zeroRecords"       : "Eşleşen kayıt bulunamadı!",
+                "paginate"          : {
+                    "first"     : "İlk",
+                    "last"      : "Son",
+                    "next"      : "Sonraki",
+                    "previous"  : "Önceki"
+                }
             }
-        }
-    } );
+        } );
+    <?php } ?>
 
 
     
