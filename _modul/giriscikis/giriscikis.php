@@ -104,7 +104,11 @@ LEFT JOIN tb_giris_cikis_tipi AS ftp ON ftp.id =  gc.islem_tipi
 LEFT JOIN tb_giris_cikis_tipleri AS tp ON tp.id =  ftp.tip_id
 LEFT JOIN tb_personel AS p ON gc.personel_id =  p.id
 WHERE
-	gc.personel_id = ? AND gc.tarih =? AND p.firma_id = ? AND gc.aktif = 1
+	gc.baslangic_saat IS NOT NULL
+	gc.personel_id = ? AND 
+	gc.tarih 		= ? AND 
+	p.firma_id 	= ? AND 
+	gc.aktif 		= 1
 ORDER BY baslangic_saat ASC 
 SQL;
 
