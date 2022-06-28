@@ -75,19 +75,33 @@ GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
 
+/*Personel Maaş*/
+$SQL_personel_maas = <<< SQL
+SELECT
+	tb_kapatilan_maas.maas
+FROM
+	tb_giris_cikis
+INNER JOIN tb_kapatilan_maas ON tb_kapatilan_maas.id = tb_giris_cikis.maas
+WHERE
+	personel_id = ? AND DATE_FORMAT(tarih,'%Y-%m') = ?  AND tb_giris_cikis.aktif = 1
+GROUP BY tb_giris_cikis.maas
+LIMIT 1
+SQL;
+
+
 //Belirli tarihe göre giriş çıkış yapılan saatler 
 $SQL_belirli_tarihli_giris_cikis = <<< SQL
 SELECT
      baslangic_saat
     ,bitis_saat
     ,maas_kesintisi
+    ,tarife
 	,adi AS islemTipi
 FROM
 	tb_giris_cikis
 LEFT JOIN tb_giris_cikis_tipi ON tb_giris_cikis_tipi.id =  tb_giris_cikis.islem_tipi
 LEFT JOIN tb_giris_cikis_tipleri ON tb_giris_cikis_tipleri.id =  tb_giris_cikis_tipi.tip_id
 WHERE
-	baslangic_saat  IS NOT NULL AND 
 	personel_id 	= ? AND 
 	tarih 		=? AND 
 	aktif 		= 1
@@ -125,17 +139,9 @@ $SQL_giris_cikis_saat = <<< SQL
 SELECT 
 	t1.*
 from
-	tb_tarifeler AS t1
-LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
-
+	tb_kapatilan_tarifeler AS t1
 WHERE 
-	t1.baslangic_tarih <= ? AND 
-	t1.bitis_tarih >= ? AND
-	mt.gunler LIKE ? AND 
-	t1.grup_id LIKE ? AND
-	t1.aktif = 1
-ORDER BY t1.id DESC
-LIMIT 1
+	id = ?
 SQL;
 
 //TARİFEYE AİT SAAT LİSTESİ
@@ -143,7 +149,7 @@ $SQL_tarife_saati = <<< SQL
 SELECT 
 	*
 from
-	tb_tarife_saati 
+	tb_kapatilan_tarife_saati 
 WHERE 
 	tarife_id = ? AND 
 	aktif = 1
@@ -155,7 +161,7 @@ $SQL_mola_saati = <<< SQL
 SELECT 
 	*
 from
-	tb_molalar
+	tb_kapatilan_molalar
 WHERE 
 	tarife_id = ? AND 
 	aktif = 1
@@ -165,10 +171,10 @@ SQL;
 //TÜM ÇARPANLARIN LİSTESİ
 $SQL_carpan_oku = <<< SQL
 SELECT 
-	tb_tarife_saati.* 
+	tb_kapatilan_tarife_saati.* 
 FROM 
-	tb_tarife_saati
-INNER JOIN tb_tarifeler ON tb_tarifeler.id = tb_tarife_saati.tarife_id
+	tb_kapatilan_tarife_saati
+INNER JOIN tb_kapatilan_tarifeler ON tb_kapatilan_tarifeler.id = tb_kapatilan_tarife_saati.tarife_id
 WHERE 
 	firma_id = ?
 GROUP BY carpan
@@ -202,36 +208,10 @@ WHERE
 	aktif 	= 1 
 SQL;
 
-/*Genel Ayarlar*/
-$SQL_genel_ayarlar = <<< SQL
-SELECT 
-	*
-FROM 
-	tb_genel_ayarlar
-WHERE 
-	firma_id 	= ?
-SQL;
+$donem					= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 2 ];
 
-/*Personel Maaş*/
-$SQL_personel_maas = <<< SQL
-SELECT
-	tb_kapatilan_maas.maas
-FROM
-	tb_giris_cikis
-INNER JOIN tb_kapatilan_maas ON tb_kapatilan_maas.id = tb_giris_cikis.maas
-WHERE
-	personel_id = ? AND DATE_FORMAT(tarih,'%Y-%m') = ?  AND tb_giris_cikis.aktif = 1
-GROUP BY tb_giris_cikis.maas
-LIMIT 1
-SQL;
-
-$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
-$personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
-
-$donem					= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
-
-if ( $donem > 0 ) {
-	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=kapatilmisDonem&personel_id='.$personel_id.'&tarih='.$tarih.'">';
+if ( count( $donem ) == 0 ) {
+	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=puantaj&personel_id='.$personel_id.'&tarih='.$tarih.'">';
 	die();
 }
 
@@ -239,9 +219,9 @@ $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
 $giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
+$personel_ucret			= $vt->select( $SQL_personel_maas, array($personel_id,$listelenecekAy) )[2][ 0 ];
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
 $carpan_listesi			= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"]) )[ 2 ];
-$genel_ayarlar				= $vt->select( $SQL_genel_ayarlar, array( $_SESSION["firma_id"] ) )[ 2 ];
 
 /*
 Seçili ay için AVANS KESNİNTİ ÜZERİNDEN EKLENECEK ÖDEMELER VAR İSE ÜCRETE EKLEMESİ YAPILACAKTIR
@@ -258,9 +238,10 @@ foreach($giris_cikislar AS $giriscikis){
 
 @$tarihSayisi = max($tarihSayisi); 
 
-$aylik_calisma_saati		= $genel_ayarlar[ 0 ][ 'aylik_calisma_saati' ];
-$pazar_kesinti_sayisi		= $genel_ayarlar[ 0 ][ 'pazar_kesinti_sayisi' ];
-$personel_maas 			= $tek_personel[ 'ucret' ];
+$aylik_calisma_saati 		= $donem[ 0 ][ 'aylik_calisma_saati' ];
+$pazar_kesinti_sayisi		= $donem[ 0 ][ 'pazar_kesinti_sayisi' ];
+$personel_maas 			= $personel_ucret[ 'maas' ];
+
 ?>
 
 <section class="content">
@@ -338,7 +319,6 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 								<?php 
 
 									$gunSayisi = $fn->ikiHaneliVer($ay) == date("m") ? date("d") : date("t",mktime(0,0,0,$ay,01,$yil));	
-
 									/*Günlerin Saymak için*/
 									$sayi = 1; 
 									$genelCalismaSuresiToplami = array();
@@ -362,7 +342,7 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 										$rows = $personel_giris_cikis_sayisi == 0 ?  1 : $personel_giris_cikis_sayisi;
 
 										/*Perosnel Giriş Yapmış ise tatilden Satılmayacak Ek mesai oalrak hesaplanacaktır. */
-										if($personel_giris_cikis_sayisi > 0) {
+										if($personel_giris_cikis_sayisi > 0 AND $personel_giris_cikis_saatleri[0][ 'baslangic_saat' ] != "" ){
 											$tatil = 'hayir';
 										}
 
@@ -377,15 +357,16 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 
 										/*Tairhin hangi güne denk oldugunu getirdik*/
 										$gun = $fn->gunVer($tarih."-".$sayi);
-										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$tek_personel["grup_id"].',%' ) ) [ 2 ];
+
+										/*Tarifeyi getirme */
+										$giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $personel_giris_cikis_saatleri[ 0 ][ 'tarife' ] ) ) [ 2 ];
 										//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
 
 										/*tarifeye ait mesai saatleri */
 										$saatler = $vt->select( $SQL_tarife_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
-
+										
 										/*tarifeye ait mola saatleri */
 										$molalar = $vt->select( $SQL_mola_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
-										
 
 										$mesai_baslangic 	= date("H:i",  strtotime( $saatler[ 0 ]["baslangic"] )  );
 
@@ -576,7 +557,6 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 											$kullanilmasiGerekenToplamMola += $fn->saatfarkiver($mola[ "baslangic" ], $mola[ "bitis" ]);
 										}
 
-										
 									?>
 									<tr>
 										<td><?php echo $sayi; ?></td>
@@ -584,16 +564,9 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 										<?php 
 											$i = 1;
 											$islemtipi = array();
-											if ($personel_giris_cikis_sayisi == 0 ) {
+											if ($personel_giris_cikis_sayisi == 1 AND $personel_giris_cikis_saatleri[0][ 'baslangic_saat' ] == "" ) {
 												if ($tatil == "hayir") {
 													$haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] += 1;
-												}
-												$col = ($tarihSayisi*2);
-												$col = $col == 0 ? 2 : $col;
-												$i = 1;
-												while ($i <= $col) { 
-													echo '<td class="text-center" >-</td>';
-													$i++;
 												}
 												$islemtipi["gelmedi"] = "Gelmedi"; 
 											}
@@ -696,7 +669,7 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 										<td>	
 											<?php
 												/*Tatil olup olmadığını Kontrol Ediyoruz*/ 
-												if ( $tatil == 'evet' ){
+												if ( $tatil == 'evet'  ){
 													echo '<b class="text-center text-info">Tatil</b>';
 												}else{
 													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
@@ -716,9 +689,9 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 										?>
 										<td>
 											<?php 
-												if ( $tatil == 'evet' and $personel_giris_cikis_sayisi == 0 ){
+												if ( $tatil == 'evet' AND $personel_giris_cikis_saatleri[0][ 'baslangic_saat' ] == ""  ){
 
-													if ( $maasa_etki_edilsin == 'evet' AND $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] < 1 ) {
+													if ( $maasa_etki_edilsin == 'evet' AND $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] < $pazar_kesinti_sayisi ) {
 														$tatilGunleriToplamDakika += 450; 
 														echo '07:30';
 													}else{

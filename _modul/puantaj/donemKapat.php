@@ -116,6 +116,17 @@ WHERE
 GROUP BY ucret 
 SQL;
 
+/*Kapatılan maaşlar tablosunda olmayan maaşları cekiyoruz*/
+$SQL_genel_ayarlar = <<< SQL
+SELECT 
+    *
+FROM 
+    tb_genel_ayarlar
+WHERE 
+    firma_id = ?
+SQL;
+
+
 /*Dönem Kapatma giriş çıkış saatlerine */
 $SQL_tarife_ekle = <<< SQL
 UPDATE 
@@ -144,6 +155,7 @@ $SQL_kapatilan_tarife_ekle = <<< SQL
 INSERT INTO 
     tb_kapatilan_tarifeler
 SET 
+    firma_id            = ?,
     min_calisma_saati   = ?,
     gun_donumu          = ?,
     tatil               = ?,
@@ -174,9 +186,12 @@ $SQL_donem_ekle = <<< SQL
 INSERT INTO 
     tb_donem
 SET 
-    firma_id    = ?,
-    yil         = ?,
-    ay          = ?
+    firma_id                = ?,
+    yil                     = ?,
+    ay                      = ?,
+    aylik_calisma_saati     = ?,
+    haftalik_calisma_saati  = ?,
+    pazar_kesinti_sayisi    = ?
 SQL;
 
 /*Kapatılan Maaşlara veri ekleme*/
@@ -188,8 +203,12 @@ SET
     maas        = ?
 SQL;
 
+
     $olmayan_maaslar            = $vt->select( $SQL_olmayan_maaslar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
     $tum_personel               = $vt->select( $SQL_tum_personel, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
+    $genel_ayarlar              = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ][ 0 ];
+
+    
 
     $kapanacakAy        = $_REQUEST[ 'ay' ];
     $kapanacakYil       = $_REQUEST[ 'yil' ];
@@ -209,7 +228,7 @@ SQL;
     }
 
     /*Gelecek olan ayı kapatmak isterse izin verilmiyor*/
-    if( $kapanacakAy >= $suankiAy ){
+    if( $kapanacakAy > $suankiAy ){
 
         $___islem_sonuc = array( 'hata' => true, 'mesaj' => 'Belirtmiş Oldugunuz ay için Dönem suan için kapatılmaz.' ); 
 
@@ -260,7 +279,7 @@ SQL;
 
                 if ( !array_key_exists($tarife[ "id" ], $eklenenTarifeler) ) {
                     /*Tarifeyi kapatılan tarifeler saatler ve molaları kapatılan tablolara eklıyoruz*/
-                    $tarife_ekle = $vt->insert( $SQL_kapatilan_tarife_ekle, array( $tarife[ "min_calisma_saati" ],$tarife[ "gun_donumu" ],$tarife[ "tatil" ],$tarife[ "maasa_etki_edilsin" ] ) );
+                    $tarife_ekle = $vt->insert( $SQL_kapatilan_tarife_ekle, array( $_SESSION[ 'firma_id' ], $tarife[ "min_calisma_saati" ],$tarife[ "gun_donumu" ],$tarife[ "tatil" ],$tarife[ "maasa_etki_edilsin" ] ) );
                     
                     $eklenenTarifeler[ $tarife["id"] ]  = $tarife_ekle[ 2 ];
                     $eklenenTarifeId                    = $eklenenTarifeler[ $tarife[ "id" ] ]; 
@@ -274,15 +293,16 @@ SQL;
                     }
                 }
 
-                $eklenenTarifeId                    = $eklenenTarifeler[ $tarife[ "id" ] ]; 
-
+                $eklenenTarifeId  = $eklenenTarifeler[ $tarife[ "id" ] ]; 
+                /*Personelin yaptığı giriş çıkışlara tarifeyi ekliyoruz*/
                 $vt->update( $SQL_tarife_ekle, array( $eklenenTarifeId, $grup[ "grup_id" ], $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi ) );
 
             }
             $sayi++;
         }
-        if ( $eklenenTarifeId > 0) 
-            $vt->insert( $SQL_donem_ekle, array($_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy ) );
+        if ( count( $eklenenTarifeler ) > 0) 
+            /*Kapatılan donemi genel ayarlardan verileri ekliyoruz*/
+            $vt->insert( $SQL_donem_ekle, array( $_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy, $genel_ayarlar[ "aylik_calisma_saati" ], $genel_ayarlar[ "haftalik_calisma_saati" ], $genel_ayarlar[ "pazar_kesinti_sayisi" ] ) );
 
         $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'Belirtmiş Oldugunuz ay kapatıldı.' ); 
 

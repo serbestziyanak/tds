@@ -107,7 +107,7 @@ SQL;
 echo '<pre>';
 $firmalar       		= $vt->select( $SQL_tum_firmalar,array() ) [2];
    
-$gun = $fn->gunVer( date("Y-m-d") );
+$gun = $fn->gunVer( date( "Y-m-d" ) );
 
 foreach ($firmalar as $firma) {
 	$genel_ayarlar 		= $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ "firma_id" ] ) )[ 2 ][ 0 ];
@@ -118,27 +118,25 @@ foreach ($firmalar as $firma) {
 	$puantaj_hesaplama_grubu 	= array_filter( explode( ",", $genel_ayarlar[ "puantaj_hesaplama_grubu" ] ) );
 	$devamli_gelen_personel 	= array_filter( explode( ",", $genel_ayarlar[ "devamli_gelen" ] ) );
 
-    print_r($genel_ayarlar);
-
     foreach ($tum_personel as $personel) {
     	
-    	$personel_giris_cikis_saatleri  = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
+    	$personel_giris_cikis_saatleri  = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date( "Y-m-d" ),$_SESSION[ 'firma_id' ] ) )[2];
     	
-    	$tarife_getir = $vt->select( $SQL_tarife, array( date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', '%,'.$personel["grup_id"].',%',$_SESSION[ 'firma_id' ] ) ) [ 2 ];
+    	$tarife_getir = $vt->select( $SQL_tarife, array( date( "Y-m-d" ), date( "Y-m-d" ), '%,'.$gun.',%', '%,'.$personel["grup_id"].',%',$_SESSION[ 'firma_id' ] ) ) [ 2 ];
 
     	if ( count( $tarife_getir ) > 0 AND count( $personel_giris_cikis_saatleri ) > 0  ){
     		/*Personele ait tarife varsa ve personel giriş yapmış ise grubu girise kaydet */
-    		$vt->update($SQL_grup_guncelle, array( $personel[ "grup_id" ], $personel[ "id" ], date("Y-m-d") ) );
+    		$vt->update($SQL_grup_guncelle, array( $personel[ "grup_id" ], $personel[ "id" ], date( "Y-m-d" ) ) );
 
     	}else if ( count( $tarife_getir ) > 0 AND $tarife_getir[0][ "tatil"] == 1 AND  count( $personel_giris_cikis_saatleri ) < 1  ){
     		/*  Belirtilen gün tatil ise giriş çıkışa veri ekle*/
-    		$vt->select($SQL_giris_cikis_ekle, array( $personel[ "id" ],$personel[ "grup_id" ], date("Y-m-d") ) );
+    		$vt->select($SQL_giris_cikis_ekle, array( $personel[ "id" ],$personel[ "grup_id" ], date( "Y-m-d" ) ) );
 
     	}else if ( count( $tarife_getir ) > 0 AND $tarife_getir[0][ "tatil"] == 0 AND  count( $personel_giris_cikis_saatleri ) < 1  ){
-    		$vt->select( $SQL_giris_cikis_ekle, array( $personel[ "id" ],$personel[ "grup_id" ], date("Y-m-d") ) );
+    		$vt->select( $SQL_giris_cikis_ekle, array( $personel[ "id" ],$personel[ "grup_id" ], date( "Y-m-d" ) ) );
 
     	}else if ( count( $tarife_getir ) < 1 AND count( $personel_giris_cikis_saatleri ) < 1 ){
-    		$vt->select( $SQL_giris_cikis_ekle, array( $personel[ "id" ],$personel[ "grup_id" ], date("Y-m-d") ) );
+    		$vt->select( $SQL_giris_cikis_ekle, array( $personel[ "id" ],$personel[ "grup_id" ], date( "Y-m-d" ) ) );
     	}
     }
 }

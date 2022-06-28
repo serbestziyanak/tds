@@ -8,19 +8,19 @@
 
 <?php 
 
-    if ( $_REQUEST['modul'] == "puantaj" ) { 
+    if ( $_REQUEST['modul'] == "puantaj" OR $_REQUEST['modul'] == "kapatilmisDonem"  ) { 
 
         /*Personelin Kazandığı toplam tutar Maas Hesaplaması*/
         
         foreach ( $genelCalismaSuresiToplami as $carpan => $dakika ) {
             /* -- Maaş Hesaplasması == ( personelin aylık ucreti / 225 / 60 ) * carpan --*/
-            $aylikTutar  += ( $tek_personel[ "ucret" ] / 225 / 60 ) * $carpan * $dakika;
+            $aylikTutar  += ( $personel_maas / $aylik_calisma_saati / 60 ) * $carpan * $dakika;
         }
         /*Ücreti odenen tatil günlerinin maaşa ekledik.*/
-        $aylikTutar +=  ( $tek_personel[ "ucret" ] / 225 / 60 ) * 1 * $tatilGunleriToplamDakika;
+        $aylikTutar +=  ( $personel_maas / $aylik_calisma_saati / 60 ) * 1 * $tatilGunleriToplamDakika;
 
         /*Alınan ücretli izinleri maasa eklendi. */
-        $aylikTutar +=  ( $tek_personel[ "ucret" ] / 225 / 60 ) * 1 * $ucretliIzinGenelToplam;
+        $aylikTutar +=  ( $personel_maas / $aylik_calisma_saati / 60 ) * 1 * $ucretliIzinGenelToplam;
 
         /*Kazanılan ödemleri ücret üzerine eklemelerini yapıyyoruz*/
         $aylikTutar +=  $kazanilan[ "toplamTutar" ];
