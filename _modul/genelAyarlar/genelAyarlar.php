@@ -106,7 +106,21 @@ $devamli_gelen_personel 	= array_filter( explode( ",", $ayar[ "devamli_gelen" ] 
 										</select>
 									</div>
 
-									<label class="control-label">Tutanak Oluştur Butonu Oluşturulsun mu? </label>
+									<label class="control-label col-sm-6">Giriş Çıkış Listeleri Gösterilsin Mi? ( Anasayfada Bulunan Gelmeyenler, Geç Gelenler ve Erken  Çıkanlar Listesi )</label>
+									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+										<div class="bootstrap-switch-container" >
+											<input type="checkbox" name="giris_cikis_liste_goster"  <?php echo $ayar[ "giris_cikis_liste_goster" ] == 1 ? 'checked': ''; ?>  data-bootstrap-switch="" data-off-color="danger" data-on-text="Evet" data-off-text="Hayır" data-on-color="success">
+										</div>
+									</div>
+									<div class="clearfix"></div>
+									<label class="control-label col-sm-6">Giriş Çıkış Listeleri Tutanak  Kaydedilsin Mi?</label>
+									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+										<div class="bootstrap-switch-container" >
+											<input type="checkbox" name="giris_cikis_tutanak_kaydet"  <?php echo $ayar[ "giris_cikis_tutanak_kaydet" ] == 1 ? 'checked': ''; ?>  data-bootstrap-switch="" data-off-color="danger" data-on-text="Evet" data-off-text="Hayır" data-on-color="success">
+										</div>
+									</div>
+									<div class="clearfix"></div>
+									<label class="control-label col-sm-6">Tutanak Oluştur Butonu Oluşturulsun mu? </label>
 									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
 										<div class="bootstrap-switch-container" >
 											<input type="checkbox" name="tutanak_olustur"  <?php echo $ayar[ "tutanak_olustur" ] == 1 ? 'checked': ''; ?>  data-bootstrap-switch="" data-off-color="danger" data-on-text="Evet" data-off-text="Hayır" data-on-color="success">

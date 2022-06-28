@@ -23,6 +23,13 @@ foreach( $_REQUEST as $alan => $deger ) {
 	if ( $alan == 'tutanak_olustur' ){
 		$deger = $deger == on ? 1 : 0;
 	}
+	if ( $alan == 'giris_cikis_tutanak_kaydet' ){
+		$deger = $deger == on ? 1 : 0;
+	}
+	if ( $alan == 'giris_cikis_liste_goster' ){
+		$deger = $deger == on ? 1 : 0;
+	}
+	
 
 	$alanlar[]		= $alan;
 	$degerler[]		= $deger;
@@ -31,6 +38,16 @@ if ( !array_key_exists("tutanak_olustur", $_REQUEST) ){
 	$alanlar[]		= 'tutanak_olustur';
 	$degerler[]		= 0;
 }
+if ( !array_key_exists("giris_cikis_tutanak_kaydet", $_REQUEST) ){
+	$alanlar[]		= 'giris_cikis_tutanak_kaydet';
+	$degerler[]		= 0;
+}
+if ( !array_key_exists("giris_cikis_liste_goster", $_REQUEST) ){
+	$alanlar[]		= 'giris_cikis_liste_goster';
+	$degerler[]		= 0;
+}
+
+
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
