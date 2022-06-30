@@ -49,7 +49,7 @@ $gruplar					= $vt->select( $SQL_gruplar, array( $_SESSION[ 'firma_id' ] ) )[ 2 
 
 $giris_cikis_denetimi_grubu = array_filter( explode( ",", $ayar[ "giris_cikis_denetimi_grubu" ] ) );
 $puantaj_hesaplama_grubu 	= array_filter( explode( ",", $ayar[ "puantaj_hesaplama_grubu" ] ) );
-$devamli_gelen_personel 	= array_filter( explode( ",", $ayar[ "devamli_gelen" ] ) );
+$beyaz_yakali_personel 		= $ayar[ "beyaz_yakali_personel" ];
 
 ?>
 
@@ -98,10 +98,10 @@ $devamli_gelen_personel 	= array_filter( explode( ",", $ayar[ "devamli_gelen" ] 
 										</select>
 									</div>
 									<div class="form-group">
-										<label  class="control-label">Devamlı Gelen Personel Grubu</label>
-										<select  class="form-control select2"  multiple="multiple" name = "devamli_gelen[]" required>
+										<label  class="control-label">Beyaz Yakalı Personel Grubu</label>
+										<select  class="form-control select2"   name = "beyaz_yakali_personel" required>
 											<?php foreach( $gruplar as $grup ) { ?>
-												<option value = ",<?php echo $grup[ 'id' ]; ?>," <?php echo in_array($grup[ 'id' ], $devamli_gelen_personel ) ? 'selected' : ''; ?>><?php echo $grup['adi']; ?></option>
+												<option value = "<?php echo $grup[ 'id' ]; ?>" <?php echo $grup[ 'id' ] == $beyaz_yakali_personel  ? 'selected' : ''; ?>><?php echo $grup['adi']; ?></option>
 											<?php } ?>
 										</select>
 									</div>

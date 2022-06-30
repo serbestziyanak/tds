@@ -191,7 +191,8 @@ SET
     ay                      = ?,
     aylik_calisma_saati     = ?,
     haftalik_calisma_saati  = ?,
-    pazar_kesinti_sayisi    = ?
+    pazar_kesinti_sayisi    = ?,
+    beyaz_yakali_personel   = ?
 SQL;
 
 /*Kapatılan Maaşlara veri ekleme*/
@@ -302,7 +303,7 @@ SQL;
         }
         if ( count( $eklenenTarifeler ) > 0) 
             /*Kapatılan donemi genel ayarlardan verileri ekliyoruz*/
-            $vt->insert( $SQL_donem_ekle, array( $_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy, $genel_ayarlar[ "aylik_calisma_saati" ], $genel_ayarlar[ "haftalik_calisma_saati" ], $genel_ayarlar[ "pazar_kesinti_sayisi" ] ) );
+            $vt->insert( $SQL_donem_ekle, array( $_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy, $genel_ayarlar[ "aylik_calisma_saati" ], $genel_ayarlar[ "haftalik_calisma_saati" ], $genel_ayarlar[ "pazar_kesinti_sayisi" ],$genel_ayarlar[ "beyaz_yakali_personel" ] ) );
 
         $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'Belirtmiş Oldugunuz ay kapatıldı.' ); 
 

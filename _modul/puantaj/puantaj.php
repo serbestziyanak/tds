@@ -70,7 +70,10 @@ SELECT
 FROM
 	tb_giris_cikis
 WHERE
-	personel_id = ? AND DATE_FORMAT(tarih,'%Y-%m') =?  AND aktif = 1
+	baslangic_saat  IS NOT NULL AND 
+	personel_id 				= ? AND 
+	DATE_FORMAT(tarih,'%Y-%m') 	=?  AND 
+	aktif 					= 1
 GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
@@ -261,6 +264,10 @@ foreach($giris_cikislar AS $giriscikis){
 $aylik_calisma_saati		= $genel_ayarlar[ 0 ][ 'aylik_calisma_saati' ];
 $pazar_kesinti_sayisi		= $genel_ayarlar[ 0 ][ 'pazar_kesinti_sayisi' ];
 $personel_maas 			= $tek_personel[ 'ucret' ];
+$beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
+if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
+	$beyaz_yakali = "evet";
+}
 ?>
 
 <section class="content">
@@ -699,7 +706,16 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 												if ( $tatil == 'evet' ){
 													echo '<b class="text-center text-info">Tatil</b>';
 												}else{
-													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+
+													if ( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali != "evet" ) {
+														echo '<b class="text-center text-danger">Gelmedi</b>';
+													}else if( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali == "evet" ){
+
+														echo '<b class="text-center text-success">Mesaide</b>';
+
+													}else{
+														echo '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+													}
 													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
 												}
 													
@@ -726,8 +742,7 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 													}
 													
 												}else{
-													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
-													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+													echo '<b class="text-center">-</b>';
 												}
 											?>
 												
@@ -777,8 +792,6 @@ $personel_maas 			= $tek_personel[ 'ucret' ];
 														echo '-';
 													}
 												}
-
-												
 
 											?>
 										</td>

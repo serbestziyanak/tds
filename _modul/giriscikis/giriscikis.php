@@ -64,6 +64,7 @@ SELECT
 FROM
 	tb_giris_cikis
 WHERE
+	baslangic_saat  IS NOT NULL AND 
 	personel_id 			  = ? AND 
 	DATE_FORMAT(tarih,'%Y-%m') =? AND
 	aktif 				  = 1

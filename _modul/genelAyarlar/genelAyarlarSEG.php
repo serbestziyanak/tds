@@ -16,7 +16,7 @@ $SQL_guncelle 	= "UPDATE tb_genel_ayarlar SET ";
 foreach( $_REQUEST as $alan => $deger ) {
 	if( $alan == 'islem' or  $alan == 'PHPSESSID' ) continue;
 
-	if ( $alan == 'giris_cikis_denetimi_grubu' or $alan == 'puantaj_hesaplama_grubu' or $alan == 'devamli_gelen' ) {
+	if ( $alan == 'giris_cikis_denetimi_grubu' or $alan == 'puantaj_hesaplama_grubu' ) {
 		$deger = implode("", $deger);
 	}
 

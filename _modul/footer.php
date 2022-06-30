@@ -10,17 +10,24 @@
 
     if ( $_REQUEST['modul'] == "puantaj" OR $_REQUEST['modul'] == "kapatilmisDonem"  ) { 
 
-        /*Personelin Kazandığı toplam tutar Maas Hesaplaması*/
-        
-        foreach ( $genelCalismaSuresiToplami as $carpan => $dakika ) {
-            /* -- Maaş Hesaplasması == ( personelin aylık ucreti / 225 / 60 ) * carpan --*/
-            $aylikTutar  += ( $personel_maas / $aylik_calisma_saati / 60 ) * $carpan * $dakika;
-        }
-        /*Ücreti odenen tatil günlerinin maaşa ekledik.*/
-        $aylikTutar +=  ( $personel_maas / $aylik_calisma_saati / 60 ) * 1 * $tatilGunleriToplamDakika;
+        /*Personel Beyaz Yakalı Personel İse Maaş hesaplaması yapılmayıp aldığı ucret yazılacaktır.*/
 
-        /*Alınan ücretli izinleri maasa eklendi. */
-        $aylikTutar +=  ( $personel_maas / $aylik_calisma_saati / 60 ) * 1 * $ucretliIzinGenelToplam;
+        if ( $tek_personel[ 'grup_id' ] == $beyaz_yakali_personel ) {
+            $aylikTutar = $personel_maas;
+        }else{
+
+            /*Personelin Kazandığı toplam tutar Maas Hesaplaması*/
+            foreach ( $genelCalismaSuresiToplami as $carpan => $dakika ) {
+                /* -- Maaş Hesaplasması == ( personelin aylık ucreti / 225 / 60 ) * carpan --*/
+                $aylikTutar  += ( $personel_maas / $aylik_calisma_saati / 60 ) * $carpan * $dakika;
+            }
+            /*Ücreti odenen tatil günlerinin maaşa ekledik.*/
+            $aylikTutar +=  ( $personel_maas / $aylik_calisma_saati / 60 ) * 1 * $tatilGunleriToplamDakika;
+
+            /*Alınan ücretli izinleri maasa eklendi. */
+            $aylikTutar +=  ( $personel_maas / $aylik_calisma_saati / 60 ) * 1 * $ucretliIzinGenelToplam;
+
+        }
 
         /*Kazanılan ödemleri ücret üzerine eklemelerini yapıyyoruz*/
         $aylikTutar +=  $kazanilan[ "toplamTutar" ];

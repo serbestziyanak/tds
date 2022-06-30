@@ -70,7 +70,10 @@ SELECT
 FROM
 	tb_giris_cikis
 WHERE
-	personel_id = ? AND DATE_FORMAT(tarih,'%Y-%m') =?  AND aktif = 1
+	baslangic_saat  IS NOT NULL AND 
+	personel_id 				= ? AND 
+	DATE_FORMAT(tarih,'%Y-%m') 	=?  AND 
+	aktif 					= 1
 GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
@@ -137,9 +140,9 @@ SQL;
 //BELİRTİLEN TARİHLER ARASI EN YÜKSEK CARPANLI TARİFE 
 $SQL_giris_cikis_saat = <<< SQL
 SELECT 
-	t1.*
+	*
 from
-	tb_kapatilan_tarifeler AS t1
+	tb_kapatilan_tarifeler
 WHERE 
 	id = ?
 SQL;
@@ -241,6 +244,10 @@ foreach($giris_cikislar AS $giriscikis){
 $aylik_calisma_saati 		= $donem[ 0 ][ 'aylik_calisma_saati' ];
 $pazar_kesinti_sayisi		= $donem[ 0 ][ 'pazar_kesinti_sayisi' ];
 $personel_maas 			= $personel_ucret[ 'maas' ];
+$beyaz_yakali_personel 		= $donem[ 0 ][ "beyaz_yakali_personel" ];
+if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
+	$beyaz_yakali = "evet";
+}
 
 ?>
 
@@ -580,7 +587,7 @@ $personel_maas 			= $personel_ucret[ 'maas' ];
 											$fark["UcretsizIzin"] 	= 0;
 											$fark["mesai"] 		= 0;
 											//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
-											if ($personel_giris_cikis_sayisi ==$tarihSayisi ) {
+											if ($personel_giris_cikis_sayisi == $tarihSayisi ) {
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
 													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
 													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
@@ -625,43 +632,55 @@ $personel_maas 			= $personel_ucret[ 'maas' ];
 													$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
 												}
 
-											}else{ //Gündee birden fazla giriş çıkış var ise 
+											}else if( $personel_giris_cikis_sayisi > 1){ //Gündee birden fazla giriş çıkış var ise 
 												$i = 1;
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
 													
-													if($i < $personel_giris_cikis_sayisi){
+													if( $giriscikis[ 'baslangic_saat' ] != "" ){
+														if($i < $personel_giris_cikis_sayisi){
 
-														$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-														$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
-														echo '
-															<td class="text-center">'.$baslangicSaat.'</td>
-															<td class="text-center">'.$bitisSaat.'</td>';
-													}else{
-														$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-														$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
-														echo '<td  class="text-center">'.$baslangicSaat.'</td>';
-														$j = 1;
-														while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+															$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+															$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
 															echo '
-																<td class="text-center"> - </td>
-																<td class="text-center"> - </td>	
-															';
-															$j++;
+																<td class="text-center">'.$baslangicSaat.'</td>
+																<td class="text-center">'.$bitisSaat.'</td>';
+														}else{
+															$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+															$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+															echo '<td  class="text-center">'.$baslangicSaat.'</td>';
+															$j = 1;
+															while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+																echo '
+																	<td class="text-center"> - </td>
+																	<td class="text-center"> - </td>	
+																';
+																$j++;
+															}
+															echo '<td class="text-center">'.$bitisSaat.'</td>';
+															
 														}
-														echo '<td class="text-center">'.$bitisSaat.'</td>';
-														
-													}
-													$i++;
-													$baslangicSaati = strtotime($baslangicSaat );
-													$bitisSaati 	= strtotime($bitisSaat );
-													$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
+														$i++;
+														$baslangicSaati = strtotime($baslangicSaat );
+														$bitisSaati 	= strtotime($bitisSaat );
+														$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
 
-													if ($giriscikis["islemTipi"] == "") {
-														$fark["mesai"] 	+= $ToplamDakika;
-													}else{
-														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-														$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
+														if ($giriscikis["islemTipi"] == "") {
+															$fark["mesai"] 	+= $ToplamDakika;
+														}else{
+															//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
+															$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
+														}
 													}
+													
+												}
+											}else{
+												$i = 1;
+												while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+													echo '
+														<td class="text-center"> - </td>
+														<td class="text-center"> - </td>	
+													';
+													$i++;
 												}
 											}
 
@@ -672,7 +691,15 @@ $personel_maas 			= $personel_ucret[ 'maas' ];
 												if ( $tatil == 'evet'  ){
 													echo '<b class="text-center text-info">Tatil</b>';
 												}else{
-													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+													if ( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali != "evet" ) {
+														echo '<b class="text-center text-danger">Gelmedi</b>';
+													}else if( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali == "evet" ){
+
+														echo '<b class="text-center text-success">Mesaide</b>';
+
+													}else{
+														echo '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+													}
 													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
 												}
 													
@@ -699,8 +726,7 @@ $personel_maas 			= $personel_ucret[ 'maas' ];
 													}
 													
 												}else{
-													echo array_key_exists("gelmedi", $islemtipi) ? '<b class="text-center text-danger">Gelmedi</b>' : '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
-													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+													echo '<b class="text-center">-</b>';
 												}
 											?>
 												

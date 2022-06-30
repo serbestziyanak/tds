@@ -116,7 +116,7 @@ foreach ($firmalar as $firma) {
     /*Genel ayarlardan grupla ile ilgileri verileri diziye çevirdik*/
     $giris_cikis_denetimi_grubu = array_filter( explode( ",", $genel_ayarlar[ "giris_cikis_denetimi_grubu" ] ) );
 	$puantaj_hesaplama_grubu 	= array_filter( explode( ",", $genel_ayarlar[ "puantaj_hesaplama_grubu" ] ) );
-	$devamli_gelen_personel 	= array_filter( explode( ",", $genel_ayarlar[ "devamli_gelen" ] ) );
+	$devamli_gelen_personel 	= array_filter( explode( ",", $genel_ayarlar[ "beyaz_yakali_personel" ] ) );
 
     foreach ($tum_personel as $personel) {
     	
