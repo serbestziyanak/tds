@@ -10,6 +10,7 @@ $dosyaTuru_id 	= array_key_exists( 'dosyaTuru_id', $_REQUEST )	 	? $_REQUEST[ 'd
 $dosya_id 		= array_key_exists( 'dosya_id', $_REQUEST )	 		? $_REQUEST[ 'dosya_id' ] 		: 0;
 $adi 			= array_key_exists( 'adi', $_REQUEST )	 			? trim($_REQUEST[ 'adi' ]) 		: '';
 $tarih 			= array_key_exists( 'tarih', $_REQUEST )	 		? trim($_REQUEST[ 'tarih' ]) 	: '';
+$kategori 		= array_key_exists( 'kategori', $_REQUEST )	 		? trim($_REQUEST[ 'kategori' ]) : '';
 
 
 $SQL_tum_firma_dosyalari_oku = <<< SQL
@@ -38,6 +39,7 @@ INSERT INTO
 	tb_firma_dosya_turleri
 SET
 	firma_id	= ?,
+	kategori	= ?,
 	adi			= ?,
 	tarih 		= ?
 SQL;
@@ -152,7 +154,7 @@ if ( $konu == 'dosya' ) {
 	switch ($islem) {
 		case 'ekle':
 			if ( $adi != '' ) {
-				$tur_ekle = $vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $adi, $tarih ) );
+				$tur_ekle = $vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $kategori ,$adi, $tarih ) );
 				$dosyaTuru_id	= $tur_ekle[ 2 ]; 
 			}
 				

@@ -18,7 +18,8 @@ SELECT
 FROM
 	tb_firma_dosya_turleri
 WHERE 
-	firma_id = ? 
+	firma_id = ? AND 
+	kategori = ? 
 SQL;
 
 $SQL_tek_dosya_turu_oku = <<< SQL
@@ -48,12 +49,24 @@ WHERE
 	dt.firma_id = ?
 SQL;
 
+/*ANA KATEGORİLER*/
+$SQL_firma_ana_kategori = <<< SQL
+SELECT
+	*
+FROM
+	tb_firma_dosya_turleri
+WHERE
+	firma_id 	= ? AND 
+	kategori 	= 0
+SQL;
 
-$dosyaTurleri 		= $vt->select( $SQL_tum_firma_dosyasi_oku, array( $_SESSION[ 'firma_id' ] ) );
+
+
+$dosyaTurleri 		= $vt->select( $SQL_tum_firma_dosyasi_oku, 		array( $_SESSION[ 'firma_id' ], 0 ) );
 $dosyaTuru_id		= array_key_exists( 'dosyaTuru_id', $_REQUEST ) ? $_REQUEST[ 'dosyaTuru_id' ] : $dosyaTurleri[ 2 ][ 0 ][ 'id' ];
-$tekDosyaTuru		= $vt->select( $SQL_tek_dosya_turu_oku, array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ] ;
-$firmaDosyalari		= $vt->select( $SQL_firma_dosyalari, array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ];
-
+$tekDosyaTuru		= $vt->select( $SQL_tek_dosya_turu_oku, 		array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ] ;
+$firmaDosyalari		= $vt->select( $SQL_firma_dosyalari, 			array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ];
+$anaKategori		= $vt->select( $SQL_firma_ana_kategori, 		array( $_SESSION[ 'firma_id' ] ) ) [ 2 ];
 
 $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 
@@ -107,31 +120,65 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1;  foreach( $dosyaTurleri[ 2 ] AS $dosyaTuru ) { ?>
-									<tr  <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo "class = '$satir_renk'";?>>
-										<td><?php echo $sayi++; ?></td>
-										<td><?php echo $dosyaTuru[ 'adi' ]; ?></td>
-										<td>
-											<?php
-												$suanki_tarih 		= date_create(date('Y-m-d'));
-												$hatirlanacak_tarih = date_create($dosyaTuru[ 'tarih' ]);
-												if ( $dosyaTuru[ 'tarih' ] != '0000-00-00' AND $suanki_tarih < $hatirlanacak_tarih ) {
-													$kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
-													echo $kalan_gun->format("%a Gün Kaldı");
-												}
-											?>
-										</td>
-										<td><?php echo $dosyaTuru[ 'dosyaSayisi' ]; ?></td>
-										<td align = "center">
-											<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
-												Evraklar
-											</a>
-										</td>
-										<td>
-											<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
-										</td>
-									</tr>
-								<?php } ?>
+								<?php 
+									$sayi = 1;  
+
+									foreach( $dosyaTurleri[ 2 ] AS $dosyaTuru ) { 
+								?>
+										<tr  <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo "class = '$satir_renk'";?>>
+											<td><?php echo $sayi++; ?></td>
+											<td><?php echo $dosyaTuru[ 'adi' ]; ?></td>
+											<td>
+												<?php
+													$suanki_tarih 		= date_create(date('Y-m-d'));
+													$hatirlanacak_tarih = date_create($dosyaTuru[ 'tarih' ]);
+													if ( $dosyaTuru[ 'tarih' ] != '0000-00-00' AND $suanki_tarih < $hatirlanacak_tarih ) {
+														$kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
+														echo $kalan_gun->format("%a Gün Kaldı");
+													}
+												?>
+											</td>
+											<td><?php echo $dosyaTuru[ 'dosyaSayisi' ]; ?></td>
+											<td align = "center">
+												<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
+													Evraklar
+												</a>
+											</td>
+											<td>
+												<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
+											</td>
+										</tr>
+								<?php 
+										$altDosya = $vt->select( $SQL_tum_firma_dosyasi_oku, array( $_SESSION[ 'firma_id' ], $dosyaTuru[ 'id' ] ) ) [ 2];
+										foreach ( $altDosya as $altDosyaTuru ) { 
+								?>
+											<tr  <?php if( $altDosyaTuru[ 'id' ] == $dosyaTuru_id ) echo "class = '$satir_renk'";?>>
+												<td><i class="fas fa-angle-double-right"></i></td>
+												<td><?php echo $altDosyaTuru[ 'adi' ]; ?></td>
+												<td>
+													<?php
+														$suanki_tarih 		= date_create(date('Y-m-d'));
+														$hatirlanacak_tarih = date_create($altDosyaTuru[ 'tarih' ]);
+														if ( $altDosyaTuru[ 'tarih' ] != '0000-00-00' AND $suanki_tarih < $hatirlanacak_tarih ) {
+															$kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
+															echo $kalan_gun->format("%a Gün Kaldı");
+														}
+													?>
+												</td>
+												<td><?php echo $altDosyaTuru[ 'dosyaSayisi' ]; ?></td>
+												<td align = "center">
+													<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
+														Evraklar
+													</a>
+												</td>
+												<td>
+													<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
+												</td>
+											</tr>
+								<?php		
+										}
+									} 
+								?>
 							</tbody>
 						</table>
 					</div>
@@ -230,9 +277,22 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 					<input type="hidden" name="konu" value="tur">
 					<div class="modal-body">
 						<div class="form-group">
+							<label class="control-label">Kategori</label>
+							<select name="kategori" class="form-control">
+								<option value="0">Kategori Yok</option>
+								<?php 
+									foreach ($anaKategori as $kategori) {
+										echo '<option value="'.$kategori[ "id" ].'">'.$kategori[ "adi" ].'</option>';
+									}
+								?>
+							</select>
+						</div>
+
+						<div class="form-group">
 							<label class="control-label">Başlık</label>
 							<input type="text" name="adi" placeholder="Başlık" class="form-control">
 						</div>
+						
 						<div class="form-group">
 		                    <label>Evrak Yenileme Tarihi</label>
 		                    <div class="input-group date" id="tarih" data-target-input="nearest">
@@ -260,7 +320,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 		"paging": true,
 		"lengthChange": true,
 		"searching": true,
-		"ordering": true,
+		"ordering": false,
 		"info": true,
 		"autoWidth": false,
 		"responsive": true,
