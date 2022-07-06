@@ -63,8 +63,7 @@ SELECT
 	
 FROM
 	tb_giris_cikis
-WHERE
-	baslangic_saat  IS NOT NULL AND 
+WHERE 
 	personel_id 			  = ? AND 
 	DATE_FORMAT(tarih,'%Y-%m') =? AND
 	aktif 				  = 1
@@ -105,7 +104,6 @@ LEFT JOIN tb_giris_cikis_tipi AS ftp ON ftp.id =  gc.islem_tipi
 LEFT JOIN tb_giris_cikis_tipleri AS tp ON tp.id =  ftp.tip_id
 LEFT JOIN tb_personel AS p ON gc.personel_id =  p.id
 WHERE
-	gc.baslangic_saat IS NOT NULL
 	gc.personel_id = ? AND 
 	gc.tarih 		= ? AND 
 	p.firma_id 	= ? AND 
