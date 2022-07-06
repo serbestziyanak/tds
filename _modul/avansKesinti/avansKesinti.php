@@ -229,7 +229,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 												<td><?php echo $avans[ "adi" ]; ?></td>
 												<td><?php echo $avans[ "verilis_sekli" ]; ?></td>
 												<td align = "center" width = "5%">
-													<a modul = 'avansKesinti' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=avansKesinti&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>&avansKesinti_id=<?php echo $avans[ 'id' ]; ?>" >
+													<a modul = 'avansKesinti' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=avansKesinti&islem=guncelle&personel_id=<?php echo $personel_id; ?>&avansKesinti_id=<?php echo $avans[ 'id' ]; ?>" >
 														Güncelle
 													</a>
 												</td>
