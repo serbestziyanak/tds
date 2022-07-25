@@ -280,6 +280,7 @@ switch( $islem ) {
 		
 	break;
 }
+$_SESSION[ 'anasayfa_durum' ] = 'guncelle';
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
 header( "Location:../../index.php?modul=giriscikis&personel_id=".$personel_id );

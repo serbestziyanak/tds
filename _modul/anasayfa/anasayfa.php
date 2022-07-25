@@ -12,6 +12,7 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
 
+//Beyaz Yakalı Personle Haric Tüm Personel Listesi
 $SQL_tum_personel = <<< SQL
 SELECT
     id
@@ -22,8 +23,25 @@ FROM
     tb_personel AS p
 WHERE
     p.firma_id  = ? AND 
+    p.grup_id  != ? AND 
     p.aktif     = 1 
 SQL;
+
+//Beyaz Yakalı Personle Haric Listesi
+$SQL_beyaz_yakali_personel = <<< SQL
+SELECT
+    id
+    ,adi
+    ,soyadi
+    ,grup_id
+FROM
+    tb_personel AS p
+WHERE
+    p.firma_id  = ? AND 
+    p.grup_id   = ? AND 
+    p.aktif     = 1 
+SQL;
+
 
 //Giriş Yapmış ama çıkış yapmamış suan çalışan personel 
 $SQL_icerde_olan_personel = <<< SQL
@@ -202,6 +220,7 @@ SQL;
 
 $genel_ayarlar                          = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ "firma_id" ] ) ) [ 2 ][ 0 ];
 
+
 //Yazdırma İşlemi Yapılan Tutanaklar Listesi
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
 $yazdirilan_gecgelen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
@@ -220,7 +239,13 @@ $erken_cikan_personel_listesi               = Array();
 $gec_giris_saatler                          = Array();
 $erken_cikis_saatler                        = Array();
 
-    $tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ] ) ) [2];
+//SESSIONDA TUTMA İŞLEMLERİ
+$anasayfa_durum = $_SESSION[ 'anasayfa_durum' ] ==  'guncel' ? 'guncel' : 'guncelle';
+
+if( $anasayfa_durum == "guncelle" ){
+
+    $tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ], $genel_ayarlar["beyaz_yakali_personel"] ) ) [2];
+    $beyaz_yakali_personel                  = $vt->select( $SQL_beyaz_yakali_personel,array( $_SESSION[ "firma_id" ], $genel_ayarlar["beyaz_yakali_personel"] ) ) [3];
     $icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
 
     //tutanak dosyası oluşturulmayan personel listesi
@@ -228,9 +253,9 @@ $erken_cikis_saatler                        = Array();
     $gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
     $erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
 
-    foreach ($tum_personel as $personel) {
+    $gun = $fn->gunVer( date("Y-m-d") );
 
-        $gun = $fn->gunVer( date("Y-m-d") );
+    foreach ($tum_personel as $personel) {
 
         $giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', '%,'.$personel["grup_id"].',%' ) ) [ 2 ][ 0 ];
 
@@ -306,10 +331,37 @@ $erken_cikis_saatler                        = Array();
         } 
     }
 
+    $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ]       = $gelmeyen_personel_tutanak_tutulmayan; 
+    $_SESSION[ 'gelmeyen_personel_sayisi' ]                   = $gelmeyen_personel_sayisi;
+    $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ]      = $gec_gelen_personel_tutanak_tutulmayan;
+    $_SESSION[ 'gec_giris_saatler' ]                          = $gec_giris_saatler;
+    $_SESSION[ 'erken_cikan_personel_listesi' ]               = $erken_cikan_personel_listesi;
+    $_SESSION[ 'erken_cikan_personel_tutanak_tutulmayan' ]    = $erken_cikan_personel_tutanak_tutulmayan;
+    $_SESSION[ 'izinli_personel_listesi' ]                    = $izinli_personel_listesi;
+    $_SESSION[ 'gelip_cikan_personel_listesi' ]               = $gelip_cikan_personel_listesi;
+    $_SESSION[ 'tum_personel' ]                               = $tum_personel;
+    $_SESSION[ 'beyaz_yakali_personel' ]                      = $beyaz_yakali_personel;
+    $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
+
+}else{
+
+    $gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
+    $gelmeyen_personel_sayisi                                 = $_SESSION[ 'gelmeyen_personel_sayisi' ];
+    $gec_gelen_personel_tutanak_tutulmayan                    = $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ];
+    $gec_giris_saatler                                        = $_SESSION[ 'gec_giris_saatler' ];
+    $erken_cikan_personel_listesi                             = $_SESSION[ 'erken_cikan_personel_listesi' ];
+    $erken_cikan_personel_tutanak_tutulmayan                  = $_SESSION[ 'erken_cikan_personel_tutanak_tutulmayan' ];
+    $izinli_personel_listesi                                  = $_SESSION[ 'izinli_personel_listesi' ];
+    $gelip_cikan_personel_listesi                             = $_SESSION[ 'gelip_cikan_personel_listesi' ];
+    $tum_personel                                             = $_SESSION[ 'tum_personel' ];
+    $beyaz_yakali_personel                                    = $_SESSION[ 'beyaz_yakali_personel' ];
+
+}
+
 ?>
 
 <div class="row">
-    <div class="col-lg-3 col-6">
+    <div class="col-sm">
         <!-- small box -->
         <div class="small-box bg-info">
             <div class="inner">
@@ -325,7 +377,7 @@ $erken_cikis_saatler                        = Array();
     </div>
 
     <!-- ./col -->
-    <div class="col-lg-3 col-6">
+    <div class="col-sm">
         <!-- small box -->
         <div class="small-box bg-success">
             <div class="inner">
@@ -340,7 +392,7 @@ $erken_cikis_saatler                        = Array();
         </div>
     </div>
     <!-- ./col -->
-    <div class="col-lg-3 col-6">
+    <div class="col-sm">
         <!-- small box -->
         <div class="small-box bg-warning">
             <div class="inner">
@@ -354,11 +406,26 @@ $erken_cikis_saatler                        = Array();
         </div>
     </div>
     <!-- ./col -->
-    <div class="col-lg-3 col-6">
+    <div class="col-sm">
+        <!-- small box -->
+        <div class="small-box bg-pink">
+            <div class="inner">
+                <h3><?php echo $beyaz_yakali_personel; ?></h3>
+
+                <p>Beyaz Yakalı Personel</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+            </div>
+            <a href="#" class="small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-sm">
         <!-- small box -->
         <div class="small-box bg-danger">
             <div class="inner">
-                <h3><?php echo count( $tum_personel ); ?></h3>
+                <h3><?php echo count( $tum_personel ) + $beyaz_yakali_personel; ?></h3>
 
                 <p>Toplam Personel</p>
             </div>
@@ -369,6 +436,7 @@ $erken_cikis_saatler                        = Array();
         </div>
     </div>
     <!-- ./col -->
+    
 </div>
 
 <!-- GENEL AYARLARDAN GİRİŞ ÇIKIŞ LİSTERİ GÖSTER EVET OLARAK İŞARETLENMİŞ İSE LİSTELER GORUNTULENECEK -->
