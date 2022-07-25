@@ -51,6 +51,37 @@ WHERE
 	id = ?
 SQL;
 
+//Kapatılmış Dönem Sorgulama
+$SQL_donem = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_donem
+WHERE 
+	firma_id 	= ? AND 
+	yil 		= ? AND
+	ay 			= ? AND 
+	aktif 		= 1 
+SQL;
+
+$tek_avanKesinti_oku = $vt->select( $SQL_tek_avansKesinti_oku, array( $avansKesinti_id ) ) [ 2 ][ 0 ];
+
+$tarih 		= $islem == 'ekle' ?  $_REQUEST['verilis_tarihi'] : $tek_avanKesinti_oku[ 'verilis_tarihi' ];
+$yil 		= date( "Y", strtotime( $tarih ) );
+$ay 		= date( "m", strtotime( $tarih ) );
+
+$donem_oku 			 = $vt->select( $SQL_donem, array( $_SESSION[ 'firma_id' ], $yil, $ay ) )[ 2 ][ 0 ];
+
+//İŞLEM YAPILCAK DONEM KAPATILMIŞ İSE İŞLEM YAPILMASINI ENGELLEME
+if ( count( $donem_oku ) > 0 ) {
+	$___islem_sonuc = array( 'hata' => True, 'mesaj' => 'İşlem Yapmak istediğiniz dönem kapatılmış Sistem Yöneticisi ile iletişime geçiniz.' );
+	
+	$_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
+	header( "Location:../../index.php?modul=avansKesinti&personel_id=".$_REQUEST['personel_id'] );
+	die();
+}
+
+
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
 switch( $islem ) {
