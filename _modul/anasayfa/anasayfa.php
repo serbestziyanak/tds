@@ -341,6 +341,7 @@ if( $anasayfa_durum == "guncelle" ){
     $_SESSION[ 'gelip_cikan_personel_listesi' ]               = $gelip_cikan_personel_listesi;
     $_SESSION[ 'tum_personel' ]                               = $tum_personel;
     $_SESSION[ 'beyaz_yakali_personel' ]                      = $beyaz_yakali_personel;
+    $_SESSION[ 'icerde_olan_personel' ]                       = $icerde_olan_personel;
     $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
 
 }else{
@@ -355,6 +356,7 @@ if( $anasayfa_durum == "guncelle" ){
     $gelip_cikan_personel_listesi                             = $_SESSION[ 'gelip_cikan_personel_listesi' ];
     $tum_personel                                             = $_SESSION[ 'tum_personel' ];
     $beyaz_yakali_personel                                    = $_SESSION[ 'beyaz_yakali_personel' ];
+    $icerde_olan_personel                                     = $_SESSION[ 'icerde_olan_personel' ];
 
 }
 
