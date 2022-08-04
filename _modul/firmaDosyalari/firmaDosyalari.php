@@ -2,7 +2,7 @@
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
 
-$islem 			= array_key_exists( 'islem', $_REQUEST ) 		? $_REQUEST[ 'islem' ] 			: 'ekle';
+$islem 			= array_key_exists( 'islem', $_REQUEST ) 		? $_REQUEST[ 'islem' ] 			: '';
 $dosyaTuru_id 	= array_key_exists( 'dosyaTuru_id', $_REQUEST ) ? $_REQUEST[ 'dosyaTuru_id' ] 	: 0;
 
 //Firma_Dosya Trurlerini ve toplasm dosya sayısı ile birlikte listelemek
@@ -104,7 +104,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 					<div class="card-header">
 						<h3 class="card-title">Firma Dosya Türleri</h3>
 						<div class="card-tools">
-							<a id="yeni_personel"  title="" href="javascript:void(0)" class="btn btn-tool" data-original-title="Yeni Dosya Türü Ekle" data-toggle="modal" data-target="#dosyaTuru"><i class="fas fa-plus fa-lg"></i></a>
+							<a id="yeni_personel"  title="" href="?modul=firmaDosyalari&islem=ekle" class="btn btn-tool" data-original-title="Yeni Dosya Türü Ekle" ><i class="fas fa-plus fa-lg"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
@@ -115,6 +115,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 									<th>Adı</th>
 									<th style="width: 80px">Kalan G.S.</th>
 									<th style="width: 80px">Dosya Sayısı</th>
+									<th data-priority=" 1" style="width: 20px">Evraklar</th>
 									<th data-priority=" 1" style="width: 20px">Düzenle</th>
 									<th data-priority=" 1" style="width: 20px">Sil</th>
 								</tr>
@@ -140,10 +141,16 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 											</td>
 											<td><?php echo $dosyaTuru[ 'dosyaSayisi' ]; ?></td>
 											<td align = "center">
-												<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
+												<a modul = 'firmaDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-dark btn-xs" href = "?modul=firmaDosyalari&islem=evraklar&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
 													Evraklar
 												</a>
 											</td>
+											<td align = "center">
+												<a modul = 'firmaDosyalari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
+													Düzenle
+												</a>
+											</td>
+											
 											<td>
 												<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
 											</td>
@@ -167,10 +174,16 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 												</td>
 												<td><?php echo $altDosyaTuru[ 'dosyaSayisi' ]; ?></td>
 												<td align = "center">
-													<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
+													<a modul = 'firmaDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-dark btn-xs" href = "?modul=firmaDosyalari&islem=evraklar&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
 														Evraklar
 													</a>
 												</td>
+												<td align = "center">
+													<a modul = 'firmaDosyalari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
+														Düzenle
+													</a>
+												</td>
+												
 												<td>
 													<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
 												</td>
@@ -273,8 +286,9 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 			</div>
 			<div class="modal-body">
 				<form action="_modul/firmaDosyalari/firmaDosyalariSEG.php" method="post">
-					<input type="hidden" name="islem" value="ekle">
+					<input type="hidden" name="islem" value="<?php echo $islem; ?>">
 					<input type="hidden" name="konu" value="tur">
+					<input type="hidden" name="dosyaTuru_id" value="<?php echo $dosyaTuru_id; ?>">
 					<div class="modal-body">
 						<div class="form-group">
 							<label class="control-label">Kategori</label>
@@ -282,7 +296,8 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 								<option value="0">Kategori Yok</option>
 								<?php 
 									foreach ($anaKategori as $kategori) {
-										echo '<option value="'.$kategori[ "id" ].'">'.$kategori[ "adi" ].'</option>';
+										$selected = $tekDosyaTuru[0][ "kategori" ] == $kategori[ "id" ] ? 'selected' : '';
+										echo '<option id="kategori" value="'.$kategori[ "id" ].'" '.$selected.'>'.$kategori[ "adi" ].'</option>';
 									}
 								?>
 							</select>
@@ -290,13 +305,13 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 
 						<div class="form-group">
 							<label class="control-label">Başlık</label>
-							<input type="text" name="adi" placeholder="Başlık" class="form-control">
+							<input type="text" name="adi" placeholder="Başlık" class="form-control" value="<?php echo $tekDosyaTuru[ 0 ][ 'adi' ] ?>">
 						</div>
 						
 						<div class="form-group">
 		                    <label>Evrak Yenileme Tarihi</label>
 		                    <div class="input-group date" id="tarih" data-target-input="nearest">
-		                      <input type="text" name="tarih" class="form-control datetimepicker-input" data-target="#tarih" value="<?php echo $giris_cikis["bitis_saat"]; ?>" data-target="#tarih" data-toggle="datetimepicker" placeholder = "Uyarı Tarihi"/>
+		                      <input type="text" name="tarih" class="form-control datetimepicker-input" data-target="#tarih" value="<?php echo $tekDosyaTuru[ 0 ]["tarih"]; ?>" data-target="#tarih" data-toggle="datetimepicker" placeholder = "Uyarı Tarihi"/>
 		                    </div>
 		                    <!-- /.input group -->
 		                </div>
@@ -315,7 +330,9 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 
 
 
-<script>
+<script> 
+	<?php if ( $islem =="guncelle" OR $islem =="ekle" ) {?> $('#dosyaTuru').modal( "show" ) <?php } ?>
+
 	$('#tbl_personelOzlukDosyalari').DataTable({
 		"paging": true,
 		"lengthChange": true,

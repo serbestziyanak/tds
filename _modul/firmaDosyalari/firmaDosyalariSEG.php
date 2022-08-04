@@ -44,6 +44,17 @@ SET
 	tarih 		= ?
 SQL;
 
+//SQL DOSYA TURU DUZENLEME
+$SQL_dosya_turu_duzenle = <<< SQL
+UPDATE
+	tb_firma_dosya_turleri
+SET
+	kategori	= ?,
+	adi			= ?,
+	tarih 		= ?
+WHERE
+	id 			= ?
+SQL;
 
 $SQL_dosya_kaydet = <<< SQL
 INSERT INTO
@@ -116,6 +127,7 @@ if ( $konu == 'dosya' ) {
     		if ( count( $tek_dosya_turu_oku ) > 0 ){
     			//Gelen Dosyaları Yüklemesini Yapıyoruz
 				foreach ($_FILES['file']["tmp_name"] as $key => $value) {
+					$aciklama   	= $aciklama == '' ? $_FILES[ "file"][ 'name' ][$key] : $aciklama;
 					if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 						$dosya_adi	= rand() ."_".$tekDosyaTuru[ 0 ] [ "adi" ] ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
 						$hedef_yol	= $dizin . '/'.$dosya_adi;
@@ -124,6 +136,7 @@ if ( $konu == 'dosya' ) {
 							$sonuc["sonuc"] = 'ok';
 						}
 					}
+					$aciklama  = array_key_exists( 'aciklama', $_REQUEST ) ? $_REQUEST[ 'aciklama' ] : '';
 				}
 				
     		}else{
@@ -156,6 +169,13 @@ if ( $konu == 'dosya' ) {
 			if ( $adi != '' ) {
 				$tur_ekle = $vt->insert( $SQL_dosya_turu_kaydet, array( $_SESSION[ 'firma_id' ], $kategori ,$adi, $tarih ) );
 				$dosyaTuru_id	= $tur_ekle[ 2 ]; 
+			}
+				
+			break;
+		
+		case 'guncelle':
+			if ( $adi != '' ) {
+				$tur_duzenle = $vt->update( $SQL_dosya_turu_duzenle, array( $kategori, $adi, $tarih, $dosyaTuru_id ) );
 			}
 				
 			break;
