@@ -32,6 +32,7 @@ SELECT
 	t.bitis_tarih,
 	t.min_calisma_saati,
 	t.gun_donumu,
+	t.grup_id,
 	mt.adi AS mesai_adi,
 	(select 
 		COUNT(id) 
@@ -145,9 +146,16 @@ foreach($tarifeler AS $mola){
 $molaSayisi = max($molaSayisi);
 $saatSayisi = max($molaSayisi);
 
+
+/*Seçili grupları arraya atıyoruz ve boş elemanları siliyoruz*/
 $secili_gruplar   = explode(",", $tek_tarife["grup_id"]);
-
-
+$secili_gruplar   = array_filter($secili_gruplar); 
+$gruplar_duzenle  = array();
+foreach ( $gruplar as $grup ) {
+	/*Grupları indexlerini göre ayarlıyorum*/
+	$gruplar_duzenle[$grup[ 'id']] = array();
+	array_push($gruplar_duzenle[$grup[ 'id']], $grup[ 'id'], $grup[ 'adi'] );
+}
 ?>
 
 <div class="modal fade" id="sil_onay">
@@ -194,7 +202,6 @@ $secili_gruplar   = explode(",", $tek_tarife["grup_id"]);
 								<tr>
 									<th style="width: 15px">#</th>
 									<th>Adı</th>
-									<th>Grup</th>
 									<th>Mesai Türü</th>
 									<th>Baş. Tar.</th>
 									<th>Bit. Tar.</th>
@@ -205,26 +212,39 @@ $secili_gruplar   = explode(",", $tek_tarife["grup_id"]);
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1; foreach( $tarifeler AS $tarife ) { ?>
-								<tr oncontextmenu="fun();" class ="personel-Tr <?php if( $tarife[ 'id' ] == $tarife_id ) echo $satir_renk; ?>" data-id="<?php echo $tarife[ 'id' ]; ?>">
-									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $tarife[ 'adi' ]; ?></td>
-									<td>Gruplar</td>
-									<td><?php echo $tarife[ 'mesai_adi' ]; ?></td>
-									<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'baslangic_tarih' ] ); ?></td>
-									<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'bitis_tarih' ] ); ?></td>
-									<td><?php echo $tarife[ 'min_calisma_saati' ].' dk'; ?></td>
-									<td><?php echo date( 'H:i', strtotime( $tarife[ 'gun_donumu' ] ) );  ?></td>
-									
-									<td align = "center">
-										<a modul = 'tarifeler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=tarifeler&islem=guncelle&tarife_id=<?php echo $tarife[ 'id' ]; ?>" >
-											Düzenle
-										</a>
-									</td>
-									<td align = "center">
-										<button modul= 'tarifeler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/tarifeler/tarifelerSEG.php?islem=sil&tarife_id=<?php echo $tarife[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
-									</td>
-								</tr>
+								<?php 
+
+									$sayi = 1; 
+									foreach( $tarifeler AS $tarife ) { 
+										$grup_adlari = array();
+										/*Seçili grupları arraya atıyoruz ve boş elemanları siliyoruz*/
+										$tarifeler_secili_gruplar   = explode(",", $tarife["grup_id"]);
+										$tarifeler_secili_gruplar   = array_filter($tarifeler_secili_gruplar); 
+										/*Seçiilmiş olan grupların başlıklarını alıp birleştiriyoruz*/
+										foreach ( $tarifeler_secili_gruplar as  $grup) {
+											$grup_adlari[] = array_key_exists($grup, $gruplar_duzenle) ? $gruplar_duzenle[$grup][1] : null;
+											
+										}
+										$grup_adlari = implode(", ", $grup_adlari);
+								?>
+									<tr oncontextmenu="fun();" class ="personel-Tr <?php if( $tarife[ 'id' ] == $tarife_id ) echo $satir_renk; ?>" data-id="<?php echo $tarife[ 'id' ]; ?>" data-toggle="tooltip" role="button" title="<?php echo $grup_adlari; ?>">
+										<td><?php echo $sayi++; ?></td>
+										<td><?php echo $tarife[ 'adi' ]; ?></td>
+										<td><?php echo $tarife[ 'mesai_adi' ]; ?></td>
+										<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'baslangic_tarih' ] ); ?></td>
+										<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'bitis_tarih' ] ); ?></td>
+										<td><?php echo $tarife[ 'min_calisma_saati' ].' dk'; ?></td>
+										<td><?php echo date( 'H:i', strtotime( $tarife[ 'gun_donumu' ] ) );  ?></td>
+										
+										<td align = "center">
+											<a modul = 'tarifeler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=tarifeler&islem=guncelle&tarife_id=<?php echo $tarife[ 'id' ]; ?>" >
+												Düzenle
+											</a>
+										</td>
+										<td align = "center">
+											<button modul= 'tarifeler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/tarifeler/tarifelerSEG.php?islem=sil&tarife_id=<?php echo $tarife[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
+										</td>
+									</tr>
 								<?php } ?>
 							</tbody>
 						</table>
