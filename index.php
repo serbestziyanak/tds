@@ -59,6 +59,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
 <!-- fullCalendar -->
 <link rel="stylesheet" href="plugins/fullcalendar/main.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/colreorder/1.5.6/css/colReorder.dataTables.min.css">
 
 <link rel="stylesheet" href="_css/tds.css">
 

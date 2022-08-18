@@ -1,4 +1,5 @@
 <?php
+error_reporting( 0 );
 include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
@@ -13,15 +14,44 @@ SET
 	baslangic_saat	= ?
 SQL;
 
+/*tb_puantaj tablosuna veri ekleme*/
+$SQL_puantaj_kaydet = <<< SQL
+INSERT INTO
+	tb_puantaj
+SET
+	personel_id			= ?,
+	tarih				= ?,
+	izin				= ?,
+	calisma				= ?,
+	hafta_tatili		= ?,
+	ucretli_izin		= ?,
+	ucretsiz_izin		= ?,
+	toplam_kesinti		= ?,
+	tatil				= ?,
+	maasa_etki_edilsin	= ?
+SQL;
+
+/*Firmanın Tüm Personel Listesi*/
+$SQL_tum_personel_oku = <<< SQL
+SELECT
+	 p.*
+FROM
+	tb_personel AS p
+WHERE
+	firma_id = ? AND p.aktif = 1
+SQL;
+
 //Personel Olup Olmadıgını kontrol etme 
 $SQL_personel_oku = <<< SQL
 SELECT
-	p.id
+	p.id,
+	p.grup_id
 FROM
 	tb_personel AS p
 WHERE
 	p.firma_id = ? AND 
-	p.kayit_no = ?
+	p.kayit_no = ? AND
+	p.aktif    = 1
 SQL;
 
 //Çıkış Yapılıp Yapılmadığı Kontrolü
@@ -39,6 +69,18 @@ WHERE
 SQL;
 
 //Giriş Çıkış id sine göre listeleme 
+$SQL_puantaj_oku = <<< SQL
+SELECT
+	*
+FROM
+	tb_puantaj
+WHERE
+	personel_id 	= ? AND
+	tarih 	   		= ?
+
+SQL;
+
+//Giriş Çıkış id sine göre listeleme 
 $SQL_personel_giris_cikis = <<< SQL
 SELECT
 	*
@@ -49,6 +91,7 @@ WHERE
 	aktif 	   = 1
 SQL;
 
+
 $SQL_bitis_saat_guncelle = <<< SQL
 UPDATE tb_giris_cikis
 SET 
@@ -57,40 +100,85 @@ WHERE
 	id 			= ?  
 SQL;
 
+/*Puantaj Güncelleme İşlemi*/
+$SQL_puantaj_guncelle = <<< SQL
+UPDATE tb_puantaj
+SET 
+	personel_id			= ?,
+	tarih				= ?,
+	izin				= ?,
+	calisma				= ?,
+	hafta_tatili		= ?,
+	ucretli_izin		= ?,
+	ucretsiz_izin		= ?,
+	toplam_kesinti		= ?,
+	tatil				= ?,
+	maasa_etki_edilsin	= ?
+WHERE
+	id 					= ?  
+SQL;
 
+$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'] ) )[2];
 
-$Dosya = fopen( "../../data/kayit.txt", "r" ) or exit( "Dosya Açılamadı !" );
- 
-while( !feof( $Dosya ) )
-{	
+$tarih = "2022-06";
+$sayi  = 21;
+
+foreach ($personeller as $personel) {
 	
-  	$satir 		= fgets( $Dosya );
-  	$satir_bol 	= explode( ",", $satir );
-  	$tarih_bol  = explode( " ", $satir_bol[3] );
-  	$tarih 		= $tarih_bol[0];
-  	$saat 		= $tarih_bol[1];
-  	$personel_kayit_numarasi = intval( $satir_bol[1] ); 
+	while ( $sayi <= 30 ) {
 
-  	//Gelen kayıt numarasına göre personelli çağırıyoruz
-  	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
-  	// print_r($personel_varmi);
-  	// echo $personel_varmi[ 0 ][ 'id' ];
-  	// die();
-  	//Personel Varsa işlmelere devam ediliyor
-  	if ( count( $personel_varmi ) > 0 ){
-  		
-  		//Personel giriş yapıp cıkış yapmadığını kontrol ediyoruz
-  		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
-  		
-  		if ( count( $girisvarmi ) > 0 ){
-  			$vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
-  		}else{
-  			$vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
-  		}
-  	}
+	  	$hesapla 	= $fn->puantajHesapla( $personel[ "id" ],$tarih,$sayi,$personel[ "grup_id" ]);
+
+		$calismasiGerekenToplamDakika  	= $hesapla["calismasiGerekenToplamDakika"];
+		$calisilanToplamDakika 		 	= $hesapla["calisilanToplamDakika"];
+		$kullanilmasiGerekenToplamMola 	= $hesapla["kullanilmasiGerekenToplamMola"];
+		$ilkUygulanacakSaat 		 	= $hesapla["ilkUygulanacakSaat"];
+		$tatil 							= $hesapla["tatil"] 			 == "hayir" ? 0 : 1;
+		$maasa_etki_edilsin 			= $hesapla["maasa_etki_edilsin"] == "hayir" ? 0 : 1;
+		$ucretli_izin 					= $hesapla["ucretli"];
+		$ucretsiz_izin 					= $hesapla["ucretsiz"];
+
+		$toplamIzın 					= $ucretli_izin + $ucretsiz_izin;
+		$cikarilacakMola 				= $kullanilmasiGerekenToplamMola;
+
+		$toplam_kesinti 				= $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzın  - $cikarilacakMola;
+
+		/*Hesaplama işleminin Veri Tabanına Kaydedilme İşlemi*/
+
+		/*Oncelikle o günün veri tabanında kayıtlı lolup olmadığını kontrol ediyoruz kayıt var ise guncelleme yapılacak yok ise eklemesi yapılacak*/
+		$puantaj_varmi		= $vt->select( $SQL_puantaj_oku, array($personel[ "id" ],$tarih."-".$sayi ) ) [2];
+		$calisma 			= json_encode($calisilanToplamDakika);
+
+		$veriler = array(
+			$personel[ "id" ],
+			$tarih."-".$sayi,
+			$izin,
+			$calisma,
+			$hafta_tatili,
+			$ucretli_izin,
+			$ucretsiz_izin,
+			$toplam_kesinti, 
+			$tatil,
+			$maasa_etki_edilsin
+		);
+
+		if( count($puantaj_varmi) > 0 ){
+			array_push( $veriler, $puantaj_varmi[ 0 ][ 'id' ] );
+			$vt->update($SQL_puantaj_guncelle, $veriler );
+		}else{
+			/*Yeni puantaj ekelenecek*/
+			
+			$vt->insert( $SQL_puantaj_kaydet, $veriler );
+
+		}
+
+		$sayi++;
+	}
+
+	$sayi = 21;
 }
-unlink("../../data/kayit.txt");
- 
-fclose($Dosya);
+
+  	
+
 
 ?>

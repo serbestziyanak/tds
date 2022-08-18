@@ -42,3 +42,7 @@ div.dt-button-collection div.dropdown-menu {
     width: 300px;
     transition: right 0.3s ease-in-out, display 0.3s ease-in-out;
 }
+.bilgiTablosu table tr td, .bilgiTablosu table tr th{
+	border: 0 !important;
+	padding: 3px !important;
+}
