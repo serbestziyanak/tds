@@ -39,7 +39,7 @@ if( !$sorguSonuc[ 0 ] ) {
 		$_SESSION[ 'giris_var' ]		= 'evet';
 		$_SESSION[ 'yil' ]				= date('Y');
 		$_SESSION[ 'super' ]			= $kullaniciBilgileri[ 'super' ];
-		$_SESSION[ 'firmalar' ]			= explode(",",$kullaniciBilgileri[ "firmalar" ]);
+		$_SESSION[ 'universite_id' ]	= $kullaniciBilgileri[ 'universiteler' ];
 	} else {
 		$_SESSION[ 'giris_var' ] = 'hayir';
 	}

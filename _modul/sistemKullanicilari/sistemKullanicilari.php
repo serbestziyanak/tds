@@ -20,11 +20,13 @@ FROM
 -- WHERE id IN( SELECT gorulecek_rol_id FROM tb_gorulecek_roller WHERE rol_id = ? )
 SQL;
 
-$SQL_firmalar = <<< SQL
+$SQL_universiteler = <<< SQL
 SELECT
 	*
 FROM
-	tb_firmalar
+	tb_universiteler
+WHERE 
+	aktif = 1
 SQL;
 
 $SQL_sistem_kullanicilari = <<< SQL
@@ -56,30 +58,30 @@ WHERE
 SQL;
 
 $sistem_kullanici_id	= array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
-$roller					= $vt->select( $SQL_roller, array( $_SESSION[ 'rol_id' ] ) );
-$firmalar				= $vt->select( $SQL_firmalar, array(  ) );
-$sistem_kullanici		= $vt->selectSingle( $SQL_sistem_kullanici, array( $sistem_kullanici_id ) );
+$roller								= $vt->select( $SQL_roller, array( $_SESSION[ 'rol_id' ] ) );
+$universiteler				= $vt->select( $SQL_universiteler, array(  ) );
+$sistem_kullanici			= $vt->selectSingle( $SQL_sistem_kullanici, array( $sistem_kullanici_id ) );
 $sistem_kullanicilari	= $vt->select( $SQL_sistem_kullanicilari, array( $_SESSION[ 'super' ] , $_SESSION[ 'kullanici_id' ]) );
 $kullaniciBilgileri		= array( "resim"=>'resimler/resim_yok.jpg', "ad_soyad" => '<h6 align = "center">Resim eklemek için fotoğrafa tıklayınız</h6>' );
-$islem					= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
+$islem								= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
 if( $islem == 'guncelle' )
 $kullaniciBilgileri = array(
-	 'id'			=> $sistem_kullanici[ 2 ][ 'id' ]
-	,'firma_id'		=> $sistem_kullanici[ 2 ][ 'firma_id' ]
-	,'firmalar'		=> $sistem_kullanici[ 2 ][ 'firmalar' ]
-	,'adi'			=> $sistem_kullanici[ 2 ][ 'adi' ]
-	,'soyadi'		=> $sistem_kullanici[ 2 ][ 'soyadi' ]
-	,'email'		=> $sistem_kullanici[ 2 ][ 'email' ]
-	,'sifre'		=> $sistem_kullanici[ 2 ][ 'sifre' ]
-	,'telefon'		=> $sistem_kullanici[ 2 ][ 'telefon' ]
-	,'tc_no'		=> $sistem_kullanici[ 2 ][ 'tc_no' ]
+	 'id'						=> $sistem_kullanici[ 2 ][ 'id' ]
+	,'universite_id'=> $sistem_kullanici[ 2 ][ 'universite_id' ]
+	,'universiteler'=> $sistem_kullanici[ 2 ][ 'universiteler' ]
+	,'adi'					=> $sistem_kullanici[ 2 ][ 'adi' ]
+	,'soyadi'				=> $sistem_kullanici[ 2 ][ 'soyadi' ]
+	,'email'				=> $sistem_kullanici[ 2 ][ 'email' ]
+	,'sifre'				=> $sistem_kullanici[ 2 ][ 'sifre' ]
+	,'telefon'			=> $sistem_kullanici[ 2 ][ 'telefon' ]
+	,'tc_no'				=> $sistem_kullanici[ 2 ][ 'tc_no' ]
 	,'dogum_tarihi'	=> explode( ' ', $sistem_kullanici[ 2 ][ 'dogum_tarihi' ] )[ 0 ]
-	,'rol_id'		=> $sistem_kullanici[ 2 ][ 'rol_id' ]
-	,'rol_adi'		=> $sistem_kullanici[ 2 ][ 'rol_adi' ]
-	,'super'		=> $sistem_kullanici[ 2 ][ 'super' ]
-	,'resim'		=> 'resimler/' . $sistem_kullanici[ 2 ][ 'resim' ]
-	,'ad_soyad'		=> $sistem_kullanici[ 2 ][ 'adi' ] . " " . $sistem_kullanici[ 2 ][ 'soyadi' ]
+	,'rol_id'				=> $sistem_kullanici[ 2 ][ 'rol_id' ]
+	,'rol_adi'			=> $sistem_kullanici[ 2 ][ 'rol_adi' ]
+	,'super'				=> $sistem_kullanici[ 2 ][ 'super' ]
+	,'resim'				=> 'resimler/' . $sistem_kullanici[ 2 ][ 'resim' ]
+	,'ad_soyad'			=> $sistem_kullanici[ 2 ][ 'adi' ] . " " . $sistem_kullanici[ 2 ][ 'soyadi' ]
 );
 
 
@@ -209,12 +211,6 @@ $kaydet_buton_cls		= $sistem_kullanici_id > 0	? 'btn btn-warning btn-sm pull-rig
 						<label  class="control-label">Soyadı</label>
 						<input required type="text" class="form-control" name ="sistem_kullanici_soyadi" value = "<?php echo $kullaniciBilgileri[ 'soyadi' ]; ?>">
 					</div>
-					<!--div class="form-group">
-						<label  class="control-label">Telefon</label>
-						<div class="col-sm-8">
-							<input type="text" class="form-control" name ="sistem_kullanici_telefon" value = "<?php echo $kullaniciBilgileri[ 'telefon' ]; ?>">
-						</div>
-					</div-->
 					<div class="form-group">
 					  <label>Cep Telefonu:</label>
 
@@ -253,13 +249,13 @@ $kaydet_buton_cls		= $sistem_kullanici_id > 0	? 'btn btn-warning btn-sm pull-rig
 							</select>
 					</div>
 					<div class="form-group">
-						<label  class="control-label">Firma</label>
-							<select  class="form-control select2"  multiple="multiple" name = "firma_id[]" required>
-									<option value="">Seçiniz</option>
-								<?php foreach( $firmalar[ 2 ] AS $firma ) { 
-										$firmalar2 = explode(",", $kullaniciBilgileri[ 'firmalar' ]);
+						<label  class="control-label">Üniversite</label>
+							<select   class="form-control select2"  multiple="multiple" name = "universite_id[]" required>
+									<option>Seçiniz</option>
+								<?php foreach( $universiteler[ 2 ] AS $universite ) { 
+										$universiteler2 = explode(",", $kullaniciBilgileri[ 'universiteler' ]);
 								?>
-									<option value = "<?php echo $firma[ 'id' ]; ?>" <?php if( in_array($firma[ 'id' ], $firmalar2) ) echo 'selected'?>><?php echo $firma[ 'adi' ]?></option>
+									<option value = "<?php echo $universite[ 'id' ]; ?>" <?php if( in_array($universite[ 'id' ], $universiteler2) ) echo 'selected'?>><?php echo $universite[ 'adi' ]?></option>
 								<?php } ?>
 							</select>
 					</div>

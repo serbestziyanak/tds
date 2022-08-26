@@ -3,7 +3,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 	session_start();
 }
 	define("ADMIN", true);
-	error_reporting( 0 );
+	error_reporting( E_ALL );
 	// Bu sayfa için önbellekleme yapmamaya zorla
 	header( 'Pragma: no-cache' );
 	header( 'Cache-Control: no-cache, must revalidate' );
@@ -18,7 +18,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tesis Denetim Sistemi</title>
+<title>YYÜ - EYPS </title>
 <link rel="icon" href="dist/img/AdminLTELogo.png" type="image/x-icon" />
 <!-- Google Font: Source Sans Pro -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -62,6 +62,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <link rel="stylesheet" href="https://cdn.datatables.net/colreorder/1.5.6/css/colReorder.dataTables.min.css">
 
 <link rel="stylesheet" href="_css/tds.css">
+<link rel="stylesheet" href="_css/agaclandirma.css">
 
 <!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
@@ -141,15 +142,15 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <script src="_js/dropzoneYukle.js"></script>
 
 </head>
-	<?php 
-$SQL_modul_klasor = <<< SQL
-SELECT
-	klasor
-FROM
-	tb_modul
-WHERE
-	modul = ?
-SQL;
+<?php 
+	$SQL_modul_klasor = <<< SQL
+	SELECT
+		klasor
+	FROM
+		tb_modul
+	WHERE
+		modul = ?
+	SQL;
 
 	if( array_key_exists( 'giris_var', $_SESSION ) && $_SESSION[ 'giris_var' ] == 'evet' ) { ?>
 		<body class="hold-transition sidebar-mini layout-fixed text-sm">
@@ -158,8 +159,6 @@ SQL;
 				<?php include "_modul/solMenu.php"; ?>
 
 				<?php
-
-					if (array_key_exists( 'firma_id', $_SESSION ) ) {
 						if( array_key_exists( 'modul', $_REQUEST ) && isset( $_REQUEST[ 'modul'  ]  ) ) {
 							if( !$fn->yetkiKontrol( $_SESSION[ 'kullanici_id' ], $_REQUEST[ 'modul' ], 'goruntule' ) ) {
 								$modul = 'yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
@@ -171,12 +170,7 @@ SQL;
 							}
 						} else {
 							$modul	= "_modul/anasayfa/anasayfa.php";
-						}						
-					}else{
-						$modul	= "_modul/firmaSec.php";
-					}
-
-					
+						}	
 				?>
 
 			<div class="content-wrapper">

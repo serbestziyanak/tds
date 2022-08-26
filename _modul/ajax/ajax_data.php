@@ -134,10 +134,141 @@ WHERE
 	il_id = ?
 SQL;
 
+$SQL_ders_yillari_getir = <<< SQL
+SELECT
+	*
+FROM
+	tb_ders_yillari
+WHERE 
+	universite_id = ? AND
+ 	aktif = 1
+SQL;
+
+$SQL_donemler_getir = <<< SQL
+SELECT
+	*
+FROM
+	tb_donemler
+WHERE 
+	universite_id = ? AND
+	program_id 	  = ? AND
+ 	aktif = 1
+SQL;
+
+/*Programa ait dersler*/
+$SQL_dersler_getir = <<< SQL
+SELECT
+	id,
+	adi,
+	ders_kodu
+FROM
+	tb_dersler
+WHERE 
+	program_id 	  = ? AND
+ 	aktif = 1
+SQL;
+
+
 
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
+	case 'dersYillariListe':
+		$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION['universite_id'] ) )[ 2 ];
+		$option = '';
+		foreach( $ders_yillari AS $yil ) {
+			$option .="
+				<option value='$yil[id]'>$yil[adi]</option>
+			";
+		}
+		$select = '<label  class="control-label">Ders Yılı</label>
+					<select class="form-control select2" name = "ders_yili_id" id="ders-yili-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="donemListesi" required>
+						<option>Seçiniz...</option>
+						'.$option.'
+					</select>
+					<script>
+						$("#ders-yili-sec").on("change", function(e) { 
+					    var program_id 		= $("#program-sec").val();
+					    var ders_yili_id 	= $(this).val();
+					    var data_islem 		= $(this).data("islem");
+					    var data_url 		= $(this).data("url");
+					    $("#donemListesi").empty();
+					    $.post(data_url, { islem : data_islem,ders_yili_id : ders_yili_id,program_id : program_id}, function (response) {
+					        $("#donemListesi").append(response);
+					    });
+					});
+					</script>';
+		echo $select;
+	break;
+
+	case 'donemListesi':
+		$donemler = $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_REQUEST[ "program_id" ] ) )[ 2 ];
+		$option = '';
+		foreach( $donemler AS $donem ) {
+			$option .="
+				<option value='$donem[id]'>$donem[adi]</option>
+			";
+		}
+		$select = '<label  class="control-label">Dönem</label>
+					<select class="form-control select2" name = "donem_id" id="donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+						<option>Seçiniz...</option>
+						'.$option.'
+					</select>
+					<script>
+						$("#donemler").on("change", function(e) {
+							var program_id 		= $("#program-sec").val();
+							var data_islem 		= $(this).data("islem");
+						    var data_url 		= $(this).data("url");
+						    $("#dersler").empty();
+						    $.post(data_url, { islem : data_islem,program_id : program_id}, function (response) {
+						        $("#dersler").append(response);
+						    });
+						});
+					</script>';
+		
+		echo $select;
+	break;
+	
+
+	case 'dersler':
+		$dersler 	= $vt->select( $SQL_dersler_getir, array( $_REQUEST[ "program_id" ] ) )[ 2 ];
+		$dersSonuc 		= "";
+		foreach ($dersler as $ders) {
+			$dersSonuc .= '
+				<div class="form-group " style="display: flex; align-items: center;">
+					<div class="custom-control custom-checkbox col-sm-8 float-left">
+						<input class="custom-control-input " name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
+						<label for="'.$ders[ "id" ].'" class="custom-control-label">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
+					</div>
+					<input  type="number" class="form-control col-sm-2 float-left" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+					<input  type="number" class="form-control col-sm-2 float-left" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+				</div><hr>';
+		}
+
+		$sonuc =  '
+			<hr>
+			<div class="col-sm-12">
+				<div class="form-group " style="display: flex; align-items: center;">
+					<div class="custom-control custom-checkbox col-sm-8 float-left">
+						<b>Ders</b>
+					</div>
+					<div class="col-sm-2 float-left"><b>Teaorik D.S.</b></div>
+					<div class="col-sm-2 float-left"><b>Uygulama D.S.</b></div>
+					
+				</div>
+			</div>
+
+			<div class="col-sm-12">
+				'.$dersSonuc.'
+			</div>
+			<script>
+				$(".dersSecimi").on("click", function() {
+					
+				});
+			</script>';
+		echo $sonuc;
+	break;
+	
 	case 'ilce_ver':
 
 		$ilceler	= $vt->select( $SQL_ilceler_getir, array( $_REQUEST[ 'il_id' ] ) );

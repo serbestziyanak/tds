@@ -1,0 +1,87 @@
+
+/*Domer DERSLERİNE AİT AĞAÇLANDIRMA İŞLEMİ*/
+body {
+  background: white;
+  font: normal normal 13px/1.4 Segoe, "Segoe UI", Calibri, Helmet, FreeSans, Sans-Serif;
+}
+.tree ul {
+  margin: 0 0 0 150px;
+  padding: 0;
+  list-style: none;
+  color: #369;
+  position: relative;
+}
+.tree:before, .tree ul:before {
+  content: "";
+  display: block;
+  width: 0px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-left: 1px solid;
+  background: white;
+}
+.tree li {
+  font-weight: bold;
+  line-height: 25px;
+  margin: 0;
+  padding: 0.5em 0 0 5px;
+  position: relative;
+}
+.tree li:before {
+  border-top: 1px solid;
+  content: "";
+  display: block;
+  height: 100%;
+  left: 0;
+  margin-top: 1em;
+  position: absolute;
+  top: 1.5em;
+  width: 5px;
+}
+.tree li:last-child:before {
+  background: white;
+  bottom: 0;
+  height: auto;
+  top: 1.5em;
+}
+.tree > li:before {
+  border-top: none !important;
+}
+.tree li div{
+  border-radius: 5px;
+  border: 1px solid #afafaf;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  background: white;
+  box-shadow: 1px 1px 4px #8f949a;
+  color: #369;
+  font-weight: bold;
+}
+.tree li div:not(.ders-kapsa){
+    max-width: 150px;
+}
+
+ul.tree {
+  margin-left: 0px;
+  list-style: none;
+}
+ul.tree:before {
+  border-left: none;
+}
+.sticky {
+  position: sticky;
+  top: 0px;
+}
+.tree .ders-kapsa {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tree .ders-ul{
+  padding: 0 10px 0 0;
+}
+
+

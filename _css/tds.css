@@ -46,3 +46,10 @@ div.dt-button-collection div.dropdown-menu {
 	border: 0 !important;
 	padding: 3px !important;
 }
+.bolumTablo th, .bolumTablo td{
+	vertical-align: inherit;
+	padding: 0;
+}
+.bolumTablo tr{
+	height: 40px;
+}

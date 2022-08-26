@@ -8,7 +8,7 @@ $super	= array_key_exists( 'sistem_kullanici_super' , $_REQUEST ) ? 1 : 0; /* Ka
 if( $_REQUEST[ 'sistem_kullanici_dogum_tarihi' ] == '' ) $dogum_tarihi = NULL;
 else $dogum_tarihi = date( 'Y-m-d', strtotime( $_REQUEST[ 'sistem_kullanici_dogum_tarihi' ] ) );
 
-$firmalar = implode(",", $_REQUEST[ 'firma_id' ]);
+$universiteler = implode(",", $_REQUEST[ 'universite_id' ]);
 
 $SQL_ekle = <<< SQL
 INSERT INTO
@@ -23,7 +23,7 @@ SET
 	,rol_id			= ?
 	,super			= ?
 	,sifre			= ?
-	,firmalar		= ?
+	,universiteler	= ?
 SQL;
 
 $SQL_guncelle = <<< SQL
@@ -38,7 +38,7 @@ SET
 	,dogum_tarihi	= ?
 	,rol_id			= ?
 	,super			= ?
-	,firmalar		= ?
+	,universiteler	= ?
 WHERE
 	id = ?
 SQL;
@@ -103,7 +103,7 @@ if( array_key_exists( 'islem', $_REQUEST ) ) {
 				,$_REQUEST[ 'sistem_kullanici_rol_id' ]
 				,$super
 				,md5( $_REQUEST[ 'sistem_kullanici_sifre' ] )
-				,$firmalar
+				,$universiteler
 			) );
 			$resim_sonuc = $fn->resimYukle( 'input_sistem_kullanici_resim', $sorgu_sonuc[ 2 ] );
 			if( $resim_sonuc[ 0 ] ) {
@@ -132,7 +132,7 @@ if( array_key_exists( 'islem', $_REQUEST ) ) {
 					,$dogum_tarihi
 					,$_REQUEST[ 'sistem_kullanici_rol_id' ]
 					,$super
-					,$firmalar
+					,$universiteler
 					,$id
 				) );
 				/* Gelen şifre ile mevcut şifreyi karşılaştır. Aynı değil ise güncelle.*/
