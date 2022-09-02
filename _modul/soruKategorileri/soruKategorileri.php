@@ -15,6 +15,7 @@ SELECT
   *
 FROM
   tb_soru_kategorileri
+ORDER BY sira
 SQL;
 
 $SQL_soru_kategorileri = <<< SQL
@@ -150,6 +151,10 @@ if( $islem == 'guncelle' ){
 						</div>
 					</div>
 					<div class="form-group">
+						<label  class="control-label">Sıra</label>
+						<input type="number" class="form-control form-control-sm" name ="sira" id="sira" value = "<?php echo $soru_kategori_bilgileri[ 'sira' ]; ?>" required placeholder="Sırayı Giriniz">
+					</div>
+					<div class="form-group">
 						<label  class="control-label">Açıklama</label>
 						<textarea id="summernote" name="aciklama" rows="20"><?php echo $soru_kategori_bilgileri[ 'aciklama' ]; ?></textarea>
 					</div>
@@ -213,7 +218,7 @@ if( $islem == 'guncelle' ){
 								}
 								$sil_butonu = "";
 								$li = "<li style='padding-left:$ml;' onmouseover=\"document.getElementById('btn_$kategori[id]').style.display = 'block';\" onmouseout=\"document.getElementById('btn_$kategori[id]').style.display = 'none';\" class='list-group-item list-group-item-action list-group-item$renkli '>";
-								$html .= $li. "<i class='fas fa-arrow-right'></i> " . $kategori['adi'].$butonlar2;
+								$html .= $li. "<i class='fas fa-arrow-right'></i> " . $kategori['sira'] . " - " . $kategori['adi'].$butonlar2;
 								$html .= '</li>';
 								$renk2=$renk+1;
 								$html .= kategoriListele($kategoriler, $kategori['id'], $renk2);
