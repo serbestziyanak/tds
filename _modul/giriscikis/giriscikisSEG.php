@@ -23,6 +23,19 @@ WHERE
 	p.aktif = 1
 SQL;
 
+/*Tek Personele Ait Veriler*/
+$SQL_tek_personel_oku = <<< SQL
+SELECT
+	id,
+	grup_id
+FROM
+	tb_personel
+WHERE
+	id = ? AND 
+	firma_id 	= ? AND 
+	aktif 		= 1
+SQL;
+
 //Çıkış Yapılıp Yapılmadığı Kontrolü
 $SQL_personel_gun_cikis = <<< SQL
 SELECT
@@ -139,10 +152,21 @@ if($islem == "ekle"){
 }
 
 $personeller 			= $vt->select($SQL_tum_personel_oku, array($_SESSION['firma_id']))[2];
+
 $personel_id 			= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
+$tek_personel 			= $vt->select($SQL_tek_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) )[ 2 ];
 
-$___islem_sonuc  		= array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
+$___islem_sonuc  		= array( 'hata' => true, 'mesaj' => 'Hatalı işlem : Hata kodu : 5001', 'id' => 0 );
+
+
+if ( count( $tek_personel )   < 1  ) {
+
+	$_SESSION[ 'sonuclar' ] = $___islem_sonuc;
+	$_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
+	header( "Location:../../index.php?modul=giriscikis&personel_id=".$personel_id );
+	die();
+}
 
 $SQL_ekle				.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
@@ -156,6 +180,8 @@ if ( $islem == "saatguncelle" ) {
 }else{
 	$islem_turu 		= 'saat_ekle';
 }
+
+
 
 
 switch( $islem ) {
@@ -202,7 +228,9 @@ switch( $islem ) {
 
 		if ( $islem_turu == "saat_guncelle" ) {
 
-			
+			/*Guncellenecek giriş Çıkışın tarihini Alıyoruz*/
+			$gelenTarih 	= $vt->select( $SQL_personel_giris_cikis, array( $_REQUEST[ "giriscikis_id" ][ 0 ] ) ) [ 2 ] [ 0 ] [ "tarih" ];
+
 			foreach ($_REQUEST["giriscikis_id"] as $alan => $deger) {
 				//DEgısen girişe ait kayıtları getirip katşılaştırmasını yapıyoruz
 
@@ -261,13 +289,29 @@ switch( $islem ) {
 
 			}
 
+			/*Puantaj Güncelleme İşlemi*/
+
 			$_SESSION['anasayfa_durum'] = 'guncelle';
 
 		}else{
-			$degerler[] = $personel_cikis_varmi[0]["id"];
-			$sonuc = $vt->update( $SQL_guncelle, $degerler );
+			
+			/*Hareket Ekleme İşlemi Yapılsıysa yapılacak işlem*/
+			$gelenTarih = $personel_cikis_varmi[0][ "tarih" ];
+			$degerler[] = $personel_cikis_varmi[0][ "id" ];
+			$sonuc 		= $vt->update( $SQL_guncelle, $degerler );
 			$_SESSION['anasayfa_durum'] = 'guncelle';
+
 		}
+		
+		/*Başlangıc ve bitiş saati var ise paketi alıp hesaplama işlemi yapılacak*/
+		$tarih 		= date( "Y-m", strtotime( $gelenTarih ) );
+		$sayi 		= date( "d", strtotime( $gelenTarih ) );
+
+		$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarih, $sayi, $tek_personel[ 0 ][ 'grup_id' ] );
+
+		/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
+		$fn->puantajKaydet( $personel_id, $tarih ,$sayi, $hesapla);
+
 		
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
