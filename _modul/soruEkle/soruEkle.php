@@ -50,7 +50,8 @@ SQL;
 
 $SQL_soru_kategori_adi = <<< SQL
 SELECT
-   adi
+   id
+  ,adi
   ,aciklama
 FROM
   tb_soru_kategorileri
@@ -316,7 +317,7 @@ if( $islem == 'guncelle' ){
 					</div>
 					<div class="form-group">
 						<label  class="control-label">Soru</label>
-						<input type="text" class="form-control" name ="soru" id="soru" value = "<?php echo $soru_bilgileri[ 'soru' ]; ?>" required placeholder="Soruyu Giriniz">
+						<input type="text" class="form-control form-control-sm" name ="soru" id="soru" value = "<?php echo $soru_bilgileri[ 'soru' ]; ?>" required placeholder="Soruyu Giriniz">
 					</div>
 					<div class="form-group">
 						<label  class="control-label">Soru Cevap Türü</label>
@@ -535,9 +536,10 @@ if( $islem == 'guncelle' ){
 						foreach ($kategoriler as $kategori){
 							if( $kategori['ust_id'] == $parent ){
 								$kategori2		= $vt->selectSingle( $SQL_soru_kategori_adi, array( $kategori['id'] ) );
-								$kategori_adi	= $kategori2[ 2 ][ 'adi' ];				
+								$kategori_adi	= $kategori2[ 2 ][ 'adi' ];		
+								$kategori_collapse_id = "collapse_kategori_".$kategori2[ 2 ][ 'id' ];	
 								$kategori_aciklama	= $kategori2[ 2 ][ 'aciklama' ];				
-								$html .="<div class='card card-primary' ><div class='card-header'><b>Alt Kategori : </b>$kategori_adi</div><div class='card-body'>";
+								$html .="<div class='card card-primary' ><div class='card-header'><a class='' data-toggle='collapse' href='#$kategori_collapse_id' role='button' aria-expanded='false' aria-controls='$kategori_collapse_id'><b>Alt Kategori : </b>$kategori_adi </a></div><div class='collapse' id='$kategori_collapse_id'><div class='card-body' >";
 								if( $kategori_aciklama != "" )
 									$html .="<div class='alert alert-warning' role='alert'>$kategori_aciklama</div>";						
 								$sorular 		= $vt->select( $SQL_oku, array( $kategori['id'] ) );
@@ -545,7 +547,7 @@ if( $islem == 'guncelle' ){
 								
 								$html .= soruListele($sorular,0,$vt,$SQL_soru_secenekleri,$SQL_secenek_altindaki_sorular);
 								$html .= altKategoriSorulariListele($kategoriler, $kategori['id'], $SQL_oku, $SQL_soru_kategori_adi,$vt,$SQL_soru_secenekleri,$SQL_secenek_altindaki_sorular );
-								$html .= "</div></div>";
+								$html .= "</div></div></div>";
 							}
 						}
 						

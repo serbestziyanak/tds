@@ -13,6 +13,7 @@ SET
 	,aciklama	= ?
 	,ust_id 	= ?
 	,kategori 	= ?
+	,sira 	 	= ?
 SQL;
 
 $SQL_guncelle = <<< SQL
@@ -21,7 +22,9 @@ UPDATE
 SET
 	 adi 		= ?
 	,aciklama	= ?
-	,kategori	= ?
+	,ust_id 	= ?
+	,kategori 	= ?
+	,sira 	 	= ?
 WHERE
 	id = ?
 SQL;
@@ -44,6 +47,7 @@ if( array_key_exists( 'islem', $_REQUEST ) ) {
 				,$_REQUEST[ 'aciklama' ]
 				,$_REQUEST[ 'ust_id' ]
 				,$_REQUEST[ 'kategori' ]
+				,$_REQUEST[ 'sira' ]
 			) );
 			if( $sorgu_sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sorgu_sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sorgu_sonuc[ 1 ] );
 		break;
@@ -51,7 +55,9 @@ if( array_key_exists( 'islem', $_REQUEST ) ) {
 				$sorgu_sonuc = $vt->update( $SQL_guncelle, array(
 					 $fn->ilkHarfleriBuyut( $_REQUEST[ 'adi' ] )
 					,$_REQUEST[ 'aciklama' ]
+					,$_REQUEST[ 'ust_id' ]
 					,$_REQUEST[ 'kategori' ]
+					,$_REQUEST[ 'sira' ]
 					,$id
 				) );
 				if( $sorgu_sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sorgu_sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sorgu_sonuc[ 1 ] );
