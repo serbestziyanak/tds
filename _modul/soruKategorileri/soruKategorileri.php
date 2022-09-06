@@ -27,16 +27,16 @@ WHERE
   id = ?
 SQL;
 
-$id     					= array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
-$ust_id     				= array_key_exists( 'ust_id', $_REQUEST ) ? $_REQUEST[ 'ust_id' ] : 0;
-$soru_kategorileri			= $vt->select( $SQL_oku, array() );
+$id     									= array_key_exists( 'id', $_REQUEST ) 		? $_REQUEST[ 'id' ] 		: 0;
+$ust_id     							= array_key_exists( 'ust_id', $_REQUEST ) ? $_REQUEST[ 'ust_id' ] : 0;
+$soru_kategorileri				= $vt->select( $SQL_oku, array() );
 $soru_kategori           	= $vt->selectSingle( $SQL_soru_kategorileri, array( $id ) );
 $soru_kategori_bilgileri 	= array();
-$islem          			= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
+$islem          					= array_key_exists( 'islem', $_REQUEST ) 	? $_REQUEST[ 'islem' ] 	: 'ekle';
 
 if( $islem == 'guncelle' ){
 	$soru_kategori_bilgileri = $soru_kategori[ 2 ];
-	$ust_id					 = $soru_kategori_bilgileri['ust_id'];
+	$ust_id					 				 = $soru_kategori_bilgileri['ust_id'];
 }
 ?>
 <!-- UYARI MESAJI VE BUTONU-->

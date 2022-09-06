@@ -745,11 +745,11 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 		</tr>
 		<tr>
 			<td>%100</td>
-			<td>21</td>
+			<td><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 2.0 );  ?></td>
 		</tr>
 		<tr>
 			<td>T. Mesai</td>
-			<td>21</td>
+			<td><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 );  ?></td>
 		</tr>
 	</table>
 </div>
@@ -761,46 +761,71 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 		</tr>
 		<tr>
 			<td>Normal Çalışma</td>
-			<td>21</td>
+			<td><?php echo $personel_maas; ?></td>
 		</tr>
 		<tr>
 			<td>Gelmeme Kesintisi</td>
-			<td>21</td>
+			<td><?php echo  $fn->parabirimi( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );  ?></td>
 		</tr>
 		<tr>
 			<td>Normal Hakediş</td>
-			<td>21</td>
+			<td>	
+				<?php
+					$normalHakedis = $personel_maas - ( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );
+				 	echo $fn->parabirimi( $normalHakedis ); 
+				 ?>
+				 
+			</td>
 		</tr>
 		<tr>
 			<td>Mesai Kazancı</td>
-			<td>21</td>
+			<td>
+				<?php
+					
+					$mesaiKazanci = 0;
+					foreach ($genelCalismaSuresiToplami as $carpan => $calisma) {
+					 	$mesaiKazanci += $carpan == "1.00" ? 0 : ( ( $personel_maas / $aylik_calisma_saati ) / 60 ) * $carpan * $calisma ;
+					}
+					echo $fn->parabirimi($mesaiKazanci);
+
+				?>
+			</td>
 		</tr>
 		<tr>
 			<td>Ek Ödeme Toplamı</td>
-			<td>21</td>
+			<td><?php echo $fn->parabirimi( $kazanilan[ "toplamTutar" ] ); ?></td>
 		</tr>
 		<tr>
 			<td>Ek Kesinti Toplamı</td>
-			<td>21</td>
+			<td><?php echo $fn->parabirimi( $kesinti[ "toplamTutar" ] ); ?></td>
 		</tr>
 		<tr>
 			<td>Avans Toplamı</td>
-			<td>21</td>
+			<td></td>
 		</tr>
 		<tr>
 			<td>Borç Tutarı</td>
-			<td>21</td>
+			<td>
+				<?php
+					$sonuc = $normalHakedis + $mesaiKazanci +$kazanilan[ "toplamTutar" ] - $kesinti[ "toplamTutar" ];
+					echo $sonuc < 0 ? $sonuc : "";
+				?>
+			</td>
 		</tr>
 		<tr>
 			<td>Ödeme Tutarı</td>
-			<td>21</td>
+			<td><?php echo  $sonuc > 0 ? $fn->parabirimi($sonuc) : ""; ?></td>
 		</tr>
 	</table>
 </div>
 
 <?php 
+	$mesaiKazanci = 0;
+	foreach ($genelCalismaSuresiToplami as $carpan => $calisma) { 
+		$mesaiKazanci += $carpan == "1.00" ? 0 : ( ( $personel_maas / $aylik_calisma_saati ) / 60 ) * $carpan * $calisma ;
+	} 
 
-	$puantaj_bilgisi = '<div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="80%">Açıklama</th><th>Gün</th></tr><tr><td>Normal Gün</td><td>21</td></tr><tr><td>Hafta Tatili</td><td>21</td></tr><tr><td>Genel Tatil</td><td>21</td></tr><tr><td>Ücretli İzin</td><td>21</td></tr><tr><td>Ücretsiz İzin</td><td>21</td></tr><tr><td>M.siz Gelmeme</td><td>21</td></tr><tr><td>Hak Ediş Günü</td><td>21</td></tr></table></div><div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="80%">Açıklama</th><th>Saat</th></tr><tr><td>Normal Çalışma</td><td>21</td></tr><tr><td>%50</td><td>21</td></tr><tr><td>100%</td><td>21</td></tr><tr><td>T.Mesai</td><td>21</td></tr><tr><td>Ücretli İzin</td><td>21</td></tr><tr><td>Ücretsiz İzin</td><td>21</td></tr><tr><td>Toplam Kesinti</td><td>21</td></tr><tr><td>Hakediş</td><td>21</td></tr></table></div><div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="80%">Açıklama</th><th>Birim (TL)</th></tr><tr><td>Bordro</td><td>21</td></tr><tr><td>Günlük</td><td>21</td></tr><tr><td>Saat</td><td>21</td></tr><tr><td>%50</td><td>21</td></tr><tr><td>%100</td><td>21</td></tr><tr><td>T. Mesai</td><td>21</td></tr></table></div><div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="80%">Açıklama</th><th>Ücret (TL)</th></tr><tr><td>Normal Çalışma</td><td>21</td></tr><tr><td>Gelmeme Kesintisi</td><td>21</td></tr><tr><td>Normal Hakediş</td><td>21</td></tr><tr><td></td><td>21</td></tr><tr><td>%100</td><td>21</td></tr><tr><td>T. Mesai</td><td>21</td></tr></table></div>';
+	$puantaj_bilgisi = '<div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="80%">Açıklama</th><th>Gün</th></tr><tr><td>Normal Gün</td><td>'.$normalGun.'</td></tr><tr><td>Hafta Tatili</td><td>'.$haftaTatili .'</td></tr><tr><td>Genel Tatil</td><td>'.$genelTatil.'</td></tr><tr><td>Ücretli İzin</td><td>'.$ucretliIzinGun.'</td></tr><tr><td>Ücretsiz İzin</td><td>'.$ucretsizIzinGun.'</td></tr><tr><td>M.siz Gelmeme</td><td>'.$mazeretsizGelmeme.'</td></tr><tr><td>Hak Ediş Günü</td><td>'.( $normalGun + $haftaTatili + $genelTatil + $ucretliIzinGun ).'</td></tr></table></div><div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="70%">Açıklama</th><th>Saat</th></tr><tr><td>Normal Çalışma</td><td>'.$fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ '1.00' ] ).'</td></tr><tr><td>%50</td><td>'.$fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ '1.50' ] ).'</td></tr><tr><td>%100</td><td>'.$fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ '2.00' ] ).'</td></tr><tr><td>T.Mesai</td><td>-</td></tr><tr><td>Ücretli İzin</td><td>'.$fn->dakikaSaatCevir( $izin[ 'ucretli' ] ).'</td></tr><tr><td>Ücretsiz İzin</td><td>'.$fn->dakikaSaatCevir( $izin[ 'ucretsiz' ] ) .'</td></tr><tr><td>Toplam Kesinti</td><td>'.$fn->dakikaSaatCevir( $genelToplamKesintiSuresi ).'</td></tr><tr><td>Hakediş</td><td>'.$fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ '1.00' ] + $izin[ 'ucretli' ] + $tatilGunleriToplamDakika ).'</td></tr></table></div><div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="70%">Açıklama</th><th>Birim (TL)</th></tr><tr><td>Bordro</td><td>'.$personel_maas.'</td></tr><tr><td>Günlük</td><td>'.$fn->parabirimi( $personel_maas / $aylik_calisma_saati ).'</td></tr><tr><td>Saat</td><td>'.$fn->parabirimi( $personel_maas / $aylik_calisma_saati ).'</td></tr><tr><td>%50</td><td>'.$fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 ).'</td></tr><tr><td>%100</td><td>'.$fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 2.0 ).'</td></tr><tr><td>T. Mesai</td><td>'.$fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 ).'</td></tr></table></div><div class="col-sm-3 float-left bilgiTablosu"><table class="table"><tr><th width="70%">Açıklama</th><th>Ücret (TL)</th></tr><tr><td>Normal Çalışma</td><td>'.$personel_maas.'</td></tr><tr><td>Gelmeme Kesintisi</td><td>'.$fn->parabirimi( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi ).'</td></tr><tr><td>Normal Hakediş</td><td>'. $normalHakedis = $personel_maas - ( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi ).''.$fn->parabirimi( $normalHakedis ).' </td></tr><tr><td>Mesai Kazancı</td><td>'.$fn->parabirimi($mesaiKazanci).'</td></tr><tr><td>Ek Ödeme Toplamı</td><td>'.$fn->parabirimi( $kazanilan[ "toplamTutar" ] ).'</td></tr><tr><td>Ek Kesinti Toplamı</td><td>'.$fn->parabirimi( $kesinti[ "toplamTutar" ] ) .'</td></tr><tr><td>Avans Toplamı</td><td></td></tr><tr><td>Borç Tutarı</td><td>'.$sonuc = $normalHakedis + $mesaiKazanci +$kazanilan[ "toplamTutar" ] - $kesinti[ "toplamTutar" ];$sonuc < 0 ? $sonuc : "".'</td></tr><tr><td>Ödeme Tutarı</td><td>'.$sonuc > 0 ? $fn->parabirimi($sonuc) : "".'</td></tr></table></div>';
 ?>
 
 <div class="clearfix"></div>
