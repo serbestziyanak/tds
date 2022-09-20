@@ -13,7 +13,8 @@ $SQL_ekle = <<< SQL
 INSERT INTO
 	tb_gruplar
 SET
-	 adi = ?
+	firma_id 	= ?,
+	 adi 		= ?
 SQL;
 
 $SQL_guncelle = <<< SQL
@@ -38,7 +39,8 @@ SQL;
 switch( $_REQUEST[ 'islem' ] ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, array(
-			 $fn->ilkHarfleriBuyut( $_REQUEST[ 'grup_adi' ] )
+			$_SESSION[ "firma_id" ]
+			,$fn->ilkHarfleriBuyut( $_REQUEST[ 'grup_adi' ] )
 		) );
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;

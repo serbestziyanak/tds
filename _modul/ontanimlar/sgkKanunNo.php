@@ -7,7 +7,8 @@ SELECT
 FROM
 	tb_sgk_kanun_no
 WHERE
-	aktif = 1
+	firma_id 	= ? AND
+	aktif 		= 1
 SQL;
 
 $SQL_tek_sgk_kanun_oku = <<< SQL
@@ -16,15 +17,16 @@ SELECT
 FROM
 	tb_sgk_kanun_no
 WHERE
-	id = ?
+	firma_id 	= ? AND
+	id 			= ?
 SQL;
 
 
 $id			= array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ]		: 0;
 $islem		= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ]	: 'ekle';
 
-$sgk_nolar	= $vt->select( $SQL_oku, array() );
-$tek_sgk	= $vt->select( $SQL_tek_sgk_kanun_oku, array( $id ) );
+$sgk_nolar	= $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
+$tek_sgk	= $vt->select( $SQL_tek_sgk_kanun_oku, array( $_SESSION[ "firma_id" ],$id ) );
 
 $sgk_bilgileri = array(
 	 'id'		=> $id > 0 ? $id : 0
@@ -112,7 +114,7 @@ $kaydet_buton_cls		= $id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-su
 			</div>
 			</div>
 			<div class="card-footer">
-			<button modul= 'bolumler' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls;?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi;?></button>
+			<button modul= 'sgkKanunNo' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls;?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi;?></button>
 				<button onclick="window.location.href = '?modul=sgkKanunNo&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 			</div>
 		</form>

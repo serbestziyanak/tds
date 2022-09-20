@@ -334,7 +334,7 @@ $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
 ?>
 
 
-<section class="content">
+<section class="content" modul="puantaj" yetki_islem="goruntule">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">

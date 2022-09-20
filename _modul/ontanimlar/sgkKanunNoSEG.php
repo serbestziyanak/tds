@@ -11,7 +11,8 @@ $SQL_ekle = <<< SQL
 INSERT INTO
 	tb_sgk_kanun_no
 SET
-	 adi = ?
+	firma_id 	= ?,
+	adi 		= ?
 SQL;
 
 $SQL_guncelle = <<< SQL
@@ -35,7 +36,8 @@ SQL;
 switch( $_REQUEST[ 'islem' ] ) {
 	case 'ekle':
 		$vt->insert( $SQL_ekle, array(
-			 $fn->ilkHarfleriBuyut( $_REQUEST[ 'sgk_kanun_adi' ] )
+			$_SESSION[ "firma_id" ]
+			,$fn->ilkHarfleriBuyut( $_REQUEST[ 'sgk_kanun_adi' ] )
 		) );
 	break;
 	case 'guncelle':

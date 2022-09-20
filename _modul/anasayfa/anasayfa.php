@@ -135,25 +135,6 @@ WHERE
     t.id IN (SELECT tutanak_id FROM tb_tutanak_dosyalari)
 SQL;
 
-
-//İzinli Olan Veya gelip çıkış yapan personel sayısı 
-$SQL_izinli_cikan_personel = <<< SQL
-SELECT
-    p.*
-FROM
-    tb_personel AS p
-INNER JOIN tb_giris_cikis AS gc ON gc.personel_id = p.id
-WHERE
-    p.firma_id    = ? AND 
-    gc.tarih      = ? AND 
-    gc.baslangic_saat IS NOT NULL AND 
-    gc.bitis_saat     IS NOT NULL AND 
-    p.aktif       = 1 AND
-    gc.aktif      = 1
-GROUP BY p.id
-ORDER BY adi ASC
-SQL;
-
     //Belirli tarihe göre giriş çıkış yapılan saatler 
 $SQL_belirli_tarihli_giris_cikis = <<< SQL
 SELECT
@@ -494,7 +475,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank"  href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -521,7 +502,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -589,7 +570,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -630,7 +611,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=erkencikma&saat=<?php echo $gec_giris_saatler[ $personel[ 'id' ] ] ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo date("Y-m-d"); ?>&tip=erkencikma&saat=<?php echo $gec_giris_saatler[ $personel[ 'id' ] ] ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -658,7 +639,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -728,7 +709,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $tutanak_personel[ 'personel_id' ]; ?>&tarih=<?php echo $tutanak_personel[ 'tarih' ]; ?>&tip=gunluk" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -775,7 +756,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=tutanakolustur&personel_id=<?php echo $gecgelen_personel[ 'personel_id' ]; ?>&tarih=<?php echo $gecgelen_personel[ 'tarih' ]; ?>&tip=gecgelme&saat=<?php echo $gecgelen_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -822,7 +803,7 @@ if( $anasayfa_durum == "guncelle" ){
                                         </td>
                                         <td width="80">
                                             <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
-                                                <a target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
+                                                <a modul="anasayfa" yetki_islem="tutanakYaz" target="_blank" href="?modul=erkencikanolustur&personel_id=<?php echo $erkencikan_personel[ 'personel_id' ]; ?>&tarih=<?php echo $erkencikan_personel[ 'tarih' ]; ?>&tip=erkencikma&saat=<?php echo $erkencikan_personel[ 'saat' ]; ?>" class="btn btn-danger btn-xs">Tutanak Tut</a>
                                             <?php } ?>
                                         </td>
                                     </tr>

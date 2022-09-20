@@ -18,7 +18,8 @@ SELECT
 FROM
 	tb_gruplar
 WHERE
-	aktif = 1
+	firma_id 	= ? AND
+	aktif 		= 1
 SQL;
 
 $SQL_tek_grup_oku = <<< SQL
@@ -34,7 +35,7 @@ SQL;
 $grup_id	= array_key_exists( 'grup_id', $_REQUEST ) ? $_REQUEST[ 'grup_id' ] : 0;
 $islem		= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
-$gruplar	= $vt->select( $SQL_oku, array() );
+$gruplar	= $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
 $tek_grup	= $vt->select( $SQL_tek_grup_oku, array( $grup_id ) );
 
 $grup_bilgileri = array(

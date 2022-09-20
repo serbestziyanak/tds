@@ -91,6 +91,7 @@ SELECT
 FROM
 	tb_gruplar
 WHERE
+	firma_id = ? AND
 	aktif = 1
 SQL;
 
@@ -133,7 +134,7 @@ SQL;
 
 $tarifeler					= $vt->select( $SQL_tum_tarife_oku, array($_SESSION['firma_id'] ) )[ 2 ];
 $tek_tarife					= $vt->select( $SQL_tek_tarife_oku, array( $tarife_id, $_SESSION['firma_id'] ) )[ 2 ][ 0 ];
-$gruplar					= $vt->select( $SQL_gruplar			,array() )[ 2 ];
+$gruplar					= $vt->select( $SQL_gruplar			,array( $_SESSION[ "firma_id" ] ) )[ 2 ];
 $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'] ) )[ 2 ];
 $tarifeyeAitmolaGetir 		= $vt->select( $SQL_mola_getir, array( $tarife_id ) )[ 2 ];
 $tarifeyeAitsaatGetir 		= $vt->select( $SQL_tarife_saat_getir, array( $tarife_id ) )[ 2 ];
@@ -341,7 +342,7 @@ foreach ( $gruplar as $grup ) {
 										</div>
 									</div>
 									<div class="card-footer">
-										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<button modul= 'tarifeler' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>
@@ -400,8 +401,8 @@ foreach ( $gruplar as $grup ) {
 									?>
 									</div>
 									<div class="card-footer">
-										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-										<span class=" btn btn-info float-right saatSatirEkle" data-tur="saat" id="saatSatirEkle" data-sayi="<?php echo $sonSaat; ?>">Mesai Ekle</span>
+										<button modul= 'tarifeler' yetki_islem="tarifeSaatKaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<span  modul= 'tarifeler' yetki_islem="tarifeSaatEkle" class=" btn btn-info float-right saatSatirEkle" data-tur="saat" id="saatSatirEkle" data-sayi="<?php echo $sonSaat; ?>">Mesai Ekle</span>
 									</div>
 								</form>
 							</div>
@@ -454,8 +455,8 @@ foreach ( $gruplar as $grup ) {
 									?>
 									</div>
 									<div class="card-footer">
-										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-										<span class=" btn btn-info float-right SatirEkle" data-tur="mola" id="molaSatirEkle" data-sayi="<?php echo $sonMola; ?>">Mola Ekle</span>
+										<button modul= 'tarifeler' yetki_islem="tarifeMolaKaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<span  modul= 'tarifeler' yetki_islem="tarifeMolaEkle" class=" btn btn-info float-right SatirEkle" data-tur="mola" id="molaSatirEkle" data-sayi="<?php echo $sonMola; ?>">Mola Ekle</span>
 									</div>
 								</form>
 							</div>

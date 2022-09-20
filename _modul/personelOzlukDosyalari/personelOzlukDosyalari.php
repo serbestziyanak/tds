@@ -16,7 +16,8 @@ SELECT
 FROM
 	tb_personel
 WHERE
-	aktif = 1
+	firma_id 	= ? AND
+	aktif 		= 1
 SQL;
 
 $SQL_tek_personel_oku = <<< SQL
@@ -41,6 +42,7 @@ SELECT
 	,od.dosya_turu_id
 	,ot.adi 
 	,od.dosya
+	,od.tarih
 FROM
 	tb_personel_ozluk_dosyalari AS od
 JOIN
@@ -78,7 +80,7 @@ SQL;
 
 
 
-$personeller					= $vt->select( $SQL_tum_personel_oku, array() );
+$personeller					= $vt->select( $SQL_tum_personel_oku, array( $_SESSION[ "firma_id" ] ) );
 $personel_id					= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 $tek_personel					= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) )[ 2 ][ 0 ];
 $personel_ozluk_dosyalari		= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) )[2];
@@ -145,7 +147,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 									<td><?php echo $personel[ 'adi' ]; ?></td>
 									<td><?php echo $dosya_durumu; ?></td>
 									<td align = "center">
-									<a modul = 'firmalar' yetki_islem="evraklar" class = "btn btn-sm btn-<?php echo $evraklarBtnRenk; ?> btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
+									<a modul = 'personelOzlukDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-<?php echo $evraklarBtnRenk; ?> btn-xs" href = "?modul=personelOzlukDosyalari&islem=guncelle&personel_id=<?php echo $personel[ 'id' ]; ?>" >
 										Evraklar
 									</a>
 									</td>
@@ -156,7 +158,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 					</div>
 				</div>
 			</div>
-			<div class = "col-md-8">
+			<div class = "col-md-8" >
 				<div class="card card-light">
 					<div class="card-header">
 						<h3 class="card-title">
@@ -193,7 +195,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 											
 										</div>
 										<div class="input-group-append">
-											<button class="btn  btn-<?php echo  $buttonRenk; ?>" type = "submit"><?php echo $buttonYazi; ?></button>
+											<button modul="personelOzlukDosyalari" yetki_islem="kaydet" class="btn btn-<?php echo  $buttonRenk; ?>" type = "submit"><?php echo $buttonYazi; ?></button>
 										</div>
 									</div>
 								</div>
@@ -201,7 +203,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 						<?php } ?>
 					</div>
 				</div>
-				<div class="card card-secondary">
+				<div class="card card-secondary" modul = 'personelOzlukDosyalari' yetki_islem="evraklar">
 					<div class="card-header">
 						<h3 class="card-title"><?php echo $tek_personel[ 'adi' ] . " " . $tek_personel[ 'soyadi' ]; ?> - Özlük Dosyaları</h3>
 					</div>
@@ -218,8 +220,12 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 															<td>
 																<?php echo $dosya[ 'adi' ]; ?>
 															</td>
+															<td>
+																<b><?php echo  $dosya[ "tarih" ] != null ? $fn->tarihFormatiDuzelt( $dosya[ "tarih" ] ) : null; ?></b>
+															</td>
 															<td align = "right" width = "5%">
 																<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>"
+																	modul = 'personelOzlukDosyalari' yetki_islem="goruntule"
 																	data-toggle="tooltip"
 																	data-placement="left"
 																	title="Dosyayı İndir" target="_blank">
@@ -252,11 +258,11 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 						</div>
 					</div>
 				</div>
-				<div class="card card-warning">
+				<div class="card card-warning" modul = 'tutanakOlustur' yetki_islem="goruntule">
 					<div class="card-header">
 						<h3 class="card-title"><?php echo $tek_personel[ 'adi' ] . " " . $tek_personel[ 'soyadi' ]; ?> - Tutanakları</h3>
 						<div class="card-tools">
-	                        <button type="button" class="btn btn-outline-dark personel-Tr" data-durum="yeni" data-personel_id ="<?php echo $personel_id; ?>">
+	                        <button modul = 'tutanakOlustur' yetki_islem="Kaydet" type="button" class="btn btn-outline-dark personel-Tr" data-durum="yeni" data-personel_id ="<?php echo $personel_id; ?>">
 	                            <i class="fas fa-file"></i> &nbsp; Yeni Tutanak Ekle
 	                        </button>
 	                    </div>
@@ -332,7 +338,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 </section>
 
 <!-- dropzone modal -->
-<div class="modal fade" id="dosyayukle" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="dosyayukle" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" modul = 'tutanakOlustur' yetki_islem="kaydet">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content ">
 			<div class="modal-header">

@@ -7,7 +7,8 @@ SELECT
 FROM
 	tb_ozel_kod
 WHERE
-	aktif = 1
+	firma_id 	= ? AND
+	aktif 		= 1
 SQL;
 
 $SQL_tek_ozel_kod_oku = <<< SQL
@@ -23,7 +24,7 @@ SQL;
 $ozel_kod_id	= array_key_exists( 'ozel_kod_id', $_REQUEST ) ? $_REQUEST[ 'ozel_kod_id' ] : 0;
 $islem		= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
-$ozel_kodlar	= $vt->select( $SQL_oku, array() );
+$ozel_kodlar	= $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
 $tek_ozel_kod	= $vt->select( $SQL_tek_ozel_kod_oku, array( $ozel_kod_id ) );
 
 $ozel_kod_bilgileri = array(

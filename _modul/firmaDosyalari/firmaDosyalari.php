@@ -96,7 +96,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 	} );
 </script>
-<section class="content">
+<section class="content" modul = 'firmaDosyalari' yetki_islem="goruntule">
 	<div class="container-fluid">
 		<div class="row">
 			<div class = "col-md-6">
@@ -216,7 +216,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 		                        </div>
 		                        <input type="hidden" name="dosyaTuru_id" value="<?php echo $dosyaTuru_id; ?>">
 		                        <input type="hidden" name="konu" id="konu" value="dosya">
-		                        <a href="javascript:void(0);" class="btn btn-outline-info" style="margin-top:10px; width: 100%;" id="submit-all">Yükle</a>
+		                        <a modul = 'firmaDosyalari' yetki_islem="kaydet" href="javascript:void(0);" class="btn btn-outline-info" style="margin-top:10px; width: 100%;" id="submit-all">Yükle</a>
 		                    </form>
 		                </div>
 		            </div>
@@ -240,15 +240,15 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 														</td>
 														<td align = "right" width = "5%">
 															<a href = "firmaDosyalari/<?php echo $dosyaTuru_id; ?>/<?php echo $dosya[ 'dosya' ]; ?>"
+																modul = 'firmaDosyalari' yetki_islem="goruntule"
 																data-toggle="tooltip"
 																data-placement="left"
 																title="Dosyayı İndir" target="_blank">
 																<i class = "fa fa-download"></i>
-
 															</a>
 														</td>
 														<td align = "right" width = "5%">
-															<a href = "" 
+															<a 
 															modul = 'firmaDosyalari' yetki_islem="sil"
 															data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=dosya&dosya_id=<?php echo $dosya[ 'dosya_id' ]; ?>&dosyaTuru_id=<?php echo $dosya[ 'tur_id' ]; ?>"
 															data-target="#kayit_sil"
@@ -277,7 +277,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 </div>
 </section>
 <!-- dropzone modal -->
-<div class="modal fade" id="dosyaTuru" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="dosyaTuru" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" modul = 'firmaDosyalari' yetki_islem="goruntule" >
 	<div class="modal-dialog">
 		<div class="modal-content ">
 			<div class="modal-header">

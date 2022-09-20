@@ -206,14 +206,14 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
-				<button class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
-				<button class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
+				<button modul = 'giriscikis' yetki_islem="kaydet" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
+				<button modul = 'giriscikis' yetki_islem="kaydet" class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
 				<?php 
-					$link 		=  $detay == "gun" ? '?modul=giriscikis' 			: '?modul=giriscikis&detay=gun'; 
+					$link 		=  $detay == "gun" ? '?modul=giriscikis' 	: '?modul=giriscikis&detay=gun'; 
 					$btnyazi 	=  $detay == "gun" ? 'Personele Ait Veri Getir' 	: 'Günlük Veri Getir'; 
 				?>
-				<a class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
-				<button class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
+				<a modul = 'giriscikis' yetki_islem="gorutule" class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
+				<button modul = 'giriscikis' yetki_islem="tipKaydet" class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
 
 				<?php if ($detay =="gun" )  { ?>
 					<div class="col-sm-2" style="float: right;display: flex;">
@@ -313,7 +313,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 											$i++;
 										}
 									?>
-									<th>Durum</th>
+									<th modul="anasayfa" yetki_islem="tutanakYaz">Durum</th>
 									<th>İşlem</th>
 								</tr>
 							</thead>
@@ -451,7 +451,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 											}
 										?>
 										
-										<td width="270px">
+										<td width="270px" modul="anasayfa" yetki_islem="tutanakYaz">
 											<?php 
 												if($tatil == "evet" ){
 													echo '<b class="text-center text-info">'.$giris_cikis_saat_getir[ 'adi' ].'</b>';
@@ -478,7 +478,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 				</div>
 			</div>
 			<?php }else{ ?>
-			<div class="col-12">
+			<div class="col-12" modul = 'giriscikis' yetki_islem="goruntule">
 				<div class="card card-secondary" id = "card_giriscikislar">
 					<div class="card-header">
 						<h3 class="card-title">Tüm Personelin Giriş Çıkış Hareketleri</h3>
@@ -661,7 +661,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 </section>
 
 <!--Toplu Hareket Ekleme Modalı-->
-<div class="modal fade" id="TopluHareketEkle"  aria-modal="true" role="dialog">
+<div class="modal fade" id="TopluHareketEkle"  aria-modal="true" role="dialog" modul = 'giriscikis' yetki_islem="kaydet">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<form action="_modul/giriscikis/giriscikisSEG.php" method="post" >
@@ -715,7 +715,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 </div>
 
 <!--Personel Hareket Ekleme Modalı-->
-<div class="modal fade" id="PersonelHareketEkle"  aria-modal="true" role="dialog">
+<div class="modal fade" id="PersonelHareketEkle"  aria-modal="true" role="dialog" modul = 'giriscikis' yetki_islem="kaydet">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<form action="_modul/giriscikis/giriscikisSEG.php" method="post" >
@@ -769,7 +769,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 </div>
 
 <!--Firma Tip İşlemleri -->
-<div class="modal fade" id="IslemTipi"  aria-modal="true" role="dialog">
+<div class="modal fade" id="IslemTipi"  aria-modal="true" role="dialog" modul = 'giriscikis' yetki_islem="tipKaydet">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 				<div class="modal-header">
@@ -812,7 +812,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 </div>
 
 <!--Tüm İşlem Tip Listesi -->
-<div class="modal fade" id="IslemTipleri"  aria-modal="true" role="dialog" >
+<div class="modal fade" id="IslemTipleri"  aria-modal="true" role="dialog"  modul = 'giriscikis' yetki_islem="tipKaydet">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<form action="_modul/giriscikis/tipSEG.php" method="post">

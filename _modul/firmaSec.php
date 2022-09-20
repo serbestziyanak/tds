@@ -17,20 +17,31 @@ FROM
 WHERE
 	id =? AND aktif = 1
 SQL;
+
+$_SESSION[ 'anasayfa_durum' ] = "guncelle";
 	
 if (in_array(  $_REQUEST["firma_id"], $firmaListesi)) {
 	$_SESSION[ 'firma_id' ]			= $_REQUEST["firma_id"];
 	$_SESSION[ 'firma_adi' ]		= $_REQUEST["firma_adi"];
 
 	header( "Location: ../index.php" );
-}
+}?> 
+
+
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="alert alert-warning text-center font-weight-bold">Lütfen İşlem Yapacağınız Firmayı Seçiniz</div>
+		<div class="row">
+
+<?php 
 
 $firmalar  = array();
 foreach($firmaListesi AS $firma){
 	$firmalar[] = $vt->select($SQL_firmalari_oku,array($firma[0]))[2][0];
 }	
 	$_SESSION['firmalarListesi'] = $firmalar;
-	echo '<div class="row">';
+
 	foreach ($firmalar as $firma) {
 		echo '
 		  	<div class="col-lg-3 col-sm-4">
@@ -48,7 +59,10 @@ foreach($firmaListesi AS $firma){
 			    </div>
 		  	</div><!-- ./col -->';
 	}
-	echo '</div><!-- /.row -->';
 
 
 ?>
+		</div>
+	</div>
+</section>
+

@@ -249,11 +249,11 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 }
 ?>
 
-<section class="content">
+<section class="content" modul="puantaj" yetki_islem="goruntule">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
-				<div class="col-sm-2 float-left">
+				<div class="col-sm-2 float-left" >
 					<div class="form-group">
 						<select class="form-control select2 btn btn-lg" id="personelAra" name = "personel_id" onchange="personelpuantaj(this.value);">
 							<?php foreach( $personeller as $personel ) { ?>
@@ -275,11 +275,11 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 						<button class="btn btn-success" id="listeleBtn">listele</button>
 					</div>
 				</div>
-				<a class="btn btn-outline-warning btn-lg col-xs-6 col-sm-2 float-right" href="?modul=puantaj&amp;detay=tumPersonel&amp;tarih=<?php echo $tarih; ?>">Tüm Personel Verileri</a>
+				<a modul="puantaj" yetki_islem="goruntule" class="btn btn-outline-warning btn-lg col-xs-6 col-sm-2 float-right" href="?modul=puantaj&amp;detay=tumPersonel&amp;tarih=<?php echo $tarih; ?>">Tüm Personel Verileri</a>
 				
 			</div>
 			
-			<div class="col-12">
+			<div class="col-12" modul="puantaj" yetki_islem="goruntule">
 				<div class="card card-secondary" id = "card_giriscikislar">
 					<div class="card-header">
 						<h3 class="card-title"><?php echo $tek_personel["adi"].' '.$tek_personel["soyadi"] ?> Puantaj İşlemleri</h3>
@@ -642,7 +642,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 	</div>
 </section>
 
-<div class="col-sm-3 float-left bilgiTablosu">
+<div class="col-sm-3 float-left bilgiTablosu" modul="puantaj" yetki_islem="goruntule">
 	<table class="table">
 		<tr>
 			<th width="80%">Açıklama</th>

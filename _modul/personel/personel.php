@@ -44,7 +44,8 @@ LEFT JOIN tb_ozel_kod AS ok2 ON p.ozel_kod2_id = ok2.id
 LEFT JOIN tb_ulkeler AS u ON p.uyruk_id = u.id
 LEFT JOIN tb_ogrenim_duzeyleri AS od ON p.ogrenim_duzeyi_id = od.id
 WHERE
-	p.aktif = 1
+	p.firma_id 	= ? AND
+	p.aktif 	= 1
 SQL;
 
 
@@ -93,6 +94,7 @@ SELECT
 FROM
 	tb_gruplar
 WHERE
+	firma_id = ? AND
 	aktif = 1
 SQL;
 
@@ -102,6 +104,8 @@ SELECT
 	*
 FROM
 	tb_subeler
+WHERE
+	firma_id 	=? 
 SQL;
 
 
@@ -111,7 +115,8 @@ SELECT
 FROM
 	tb_bolumler
 WHERE
-	aktif = 1
+	firma_id 	= ? AND
+	aktif 		= 1
 SQL;
 
 
@@ -121,7 +126,8 @@ SELECT
 FROM
 	tb_ozel_kod
 WHERE
-	aktif = 1
+	firma_id  	= ? AND
+	aktif 		= 1
 SQL;
 
 
@@ -166,7 +172,7 @@ FROM
 	tb_ogrenim_duzeyleri
 SQL;
 
-$personeller					= $vt->select( $SQL_tum_personel_oku, array() );
+$personeller					= $vt->select( $SQL_tum_personel_oku, array( $_SESSION[ "firma_id" ] ) );
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array( $personel_id ) )[ 2 ][ 0 ];
 $personel_ozluk_dosyalari	= $vt->select( $SQL_personel_ozluk_dosyalari, array( $personel_id ) );
 
@@ -183,11 +189,11 @@ $dinler				= $vt->select( $SQL_dinler				,array() )[ 2 ];
 $ilceler			= $vt->select( $SQL_ilceler, array( $tek_personel[ 'il_id' ] ) )[ 2 ];
 
 
-$gruplar			= $vt->select( $SQL_gruplar				,array() )[ 2 ];
-$subeler			= $vt->select( $SQL_subeler				,array() )[ 2 ];
+$gruplar			= $vt->select( $SQL_gruplar				,array( $_SESSION[ "firma_id" ] ) )[ 2 ];
+$subeler			= $vt->select( $SQL_subeler				,array( $_SESSION[ "firma_id" ] ) )[ 2 ];
 $ulkeler			= $vt->select( $SQL_ulkeler				,array() )[ 2 ];
-$bolumler			= $vt->select( $SQL_bolumler			,array() )[ 2 ];
-$ozel_kod			= $vt->select( $SQL_ozel_kod			,array() )[ 2 ];
+$bolumler			= $vt->select( $SQL_bolumler			,array( $_SESSION[ "firma_id" ] ) )[ 2 ];
+$ozel_kod			= $vt->select( $SQL_ozel_kod			,array( $_SESSION[ "firma_id" ] ) )[ 2 ];
 $ogrenim_duzeyleri	= $vt->select( $SQL_ogrenim_duzeyleri	,array() )[ 2 ];
 
 if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';

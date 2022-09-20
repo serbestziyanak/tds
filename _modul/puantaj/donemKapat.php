@@ -3,7 +3,6 @@
 include "../../_cekirdek/fonksiyonlar.php";
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
-error_reporting( E_ALL );
 
 $SQL_tum_personel = <<< SQL
 SELECT

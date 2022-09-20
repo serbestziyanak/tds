@@ -10,15 +10,8 @@ $SQL_ekle = <<< SQL
 INSERT INTO
 	tb_subeler
 SET
-	 adi = ?
-	,firma = ?
-	,unvan = ?
-	,vergi_no = ?
-	,vergi_dairesi = ?
-	,ticaret_sicil_no = ?
-	,yetki_belgesi_no = ?
-	,tel = ?
-	,adres = ?
+	 firma_id 	= ?
+	,adi 		= ?
 SQL;
 
 $SQL_guncelle = <<< SQL
@@ -26,14 +19,6 @@ UPDATE
 	tb_subeler
 SET
 	 adi = ?
-	,firma = ?
-	,unvan = ?
-	,vergi_no = ?
-	,vergi_dairesi = ?
-	,ticaret_sicil_no = ?
-	,yetki_belgesi_no = ?
-	,tel = ?
-	,adres = ?
 WHERE
 	id = ?
 SQL;
@@ -53,29 +38,14 @@ if( array_key_exists( 'islem', $_REQUEST ) ) {
 	switch( $_REQUEST[ 'islem' ] ) {
 		case 'ekle':
 			$sorgu_sonuc = $vt->insert( $SQL_ekle, array(
-				 $fn->ilkHarfleriBuyut( $_REQUEST[ 'sube_adi' ] )
-				,$_REQUEST[ 'firma' ]
-				,$_REQUEST[ 'unvan' ]
-				,$_REQUEST[ 'vergi_no' ]
-				,$_REQUEST[ 'vergi_dairesi' ]
-				,$_REQUEST[ 'ticaret_sicil_no' ]
-				,$_REQUEST[ 'yetki_belgesi_no' ]
-				,$_REQUEST[ 'tel' ]
-				,$_REQUEST[ 'adres' ]
+				 $_SESSION[ "firma_id" ]
+				,$fn->ilkHarfleriBuyut( $_REQUEST[ 'sube_adi' ] )
 			) );
 			if( $sorgu_sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sorgu_sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sorgu_sonuc[ 1 ] );
 		break;
 		case 'guncelle':
 			$sorgu_sonuc = $vt->update( $SQL_guncelle, array(
 				 $fn->ilkHarfleriBuyut( $_REQUEST[ 'sube_adi' ] )
-				,$_REQUEST[ 'firma' ]
-				,$_REQUEST[ 'unvan' ]
-				,$_REQUEST[ 'vergi_no' ]
-				,$_REQUEST[ 'vergi_dairesi' ]
-				,$_REQUEST[ 'ticaret_sicil_no' ]
-				,$_REQUEST[ 'yetki_belgesi_no' ]
-				,$_REQUEST[ 'tel' ]
-				,$_REQUEST[ 'adres' ]
 				,$id
 			) );
 			if( $sorgu_sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sorgu_sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sorgu_sonuc[ 1 ] );
