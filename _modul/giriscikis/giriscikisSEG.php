@@ -83,6 +83,24 @@ WHERE
 	id 					 = ?  
 SQL;
 
+$baslangic_yil 	= intval(date( "Y", strtotime( $_REQUEST["baslangicTarihSaat"] ) ));
+$baslangic_ay  	= intval(date( "m", strtotime( $_REQUEST["baslangicTarihSaat"] ) ));
+
+$bitis_yil 	= intval( date( "Y", strtotime( $_REQUEST["bitisTarihSaat"] ) ) );
+$bitis_ay  	= intval( date( "m", strtotime( $_REQUEST["bitisTarihSaat"] ) ) );
+
+
+
+@$donem_baslangic = $fn->donemKontrol( $baslangic_yil, $baslangic_ay );
+@$donem_bitis = $fn->donemKontrol( $bitis_yil, $bitis_ay );
+
+if( $donem_baslangic > 0 OR $donem_bitis > 0 ) {
+	$___islem_sonuc 		= array( 'hata' => True, 'mesaj' => 'İşlem Yapmak istediğiniz dönem kapatılmış. Sistem Yöneticisi ile iletişime geçiniz.' );
+	$_SESSION[ 'sonuclar' ] = $___islem_sonuc;
+	header( "Location:../../index.php?modul=giriscikis" );
+	die();
+}
+
 
 //Baslangıc ve Bitiş Tarihlerini Karşılastırıyoruz
 @$baslangicTarihi 	        = new DateTime($_REQUEST["baslangicTarihSaat"]);

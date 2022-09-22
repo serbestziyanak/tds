@@ -3,7 +3,7 @@
 include "../../_cekirdek/fonksiyonlar.php";
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
-
+error_reporting( E_ALL );
 $SQL_tum_personel = <<< SQL
 SELECT
     id
@@ -111,7 +111,7 @@ FROM
 WHERE 
     p.firma_id = ? AND
     aktif      = 1 AND 
-    p.ucret NOT IN( SELECT maas from tb_kapatilan_maas  )
+    p.ucret NOT IN( SELECT maas from tb_kapatilan_maas WHERE firma_id = ?   )
 GROUP BY ucret 
 SQL;
 
@@ -203,8 +203,9 @@ SET
     maas        = ?
 SQL;
 
+$vt->islemBaslat();
 
-    $olmayan_maaslar            = $vt->select( $SQL_olmayan_maaslar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
+    $olmayan_maaslar            = $vt->select( $SQL_olmayan_maaslar, array( $_SESSION[ 'firma_id' ], $_SESSION[ 'firma_id' ] ) )[ 2 ];
     $tum_personel               = $vt->select( $SQL_tum_personel, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
     $genel_ayarlar              = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ][ 0 ];
 
@@ -300,9 +301,9 @@ SQL;
             }
             $sayi++;
         }
-        if ( count( $eklenenTarifeler ) > 0) 
-            /*Kapatılan donemi genel ayarlardan verileri ekliyoruz*/
-            $vt->insert( $SQL_donem_ekle, array( $_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy, $genel_ayarlar[ "aylik_calisma_saati" ], $genel_ayarlar[ "haftalik_calisma_saati" ], $genel_ayarlar[ "pazar_kesinti_sayisi" ],$genel_ayarlar[ "beyaz_yakali_personel" ] ) );
+        /*Kapatılan donemi genel ayarlardan verileri ekliyoruz*/
+        $vt->insert( $SQL_donem_ekle, array( $_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy, $genel_ayarlar[ "aylik_calisma_saati" ], $genel_ayarlar[ "haftalik_calisma_saati" ], $genel_ayarlar[ "pazar_kesinti_sayisi" ],$genel_ayarlar[ "beyaz_yakali_personel" ] ) );
+        $vt->islemBitir();
 
         $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'Belirtmiş Oldugunuz ay kapatıldı.' ); 
 

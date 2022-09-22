@@ -700,6 +700,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 </section>
 <div style="display:none;">
 	<div id="ciktiAlt">
+		<hr>
 		<div class="col-sm-3 float-left bilgiTablosu" modul="puantaj" yetki_islem="goruntule">
 			<table class="table">
 				<tr>
@@ -829,7 +830,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 					<td>Normal Hakediş</td>
 					<td>	
 						<?php
-							$normalHakedis = $personel_maas - ( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );
+							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * $genelCalismaSuresiToplami["1.00"] * 1;
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
 						 
@@ -866,24 +867,18 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 					<td>
 						<?php
 							$sonuc = $normalHakedis + $mesaiKazanci +$kazanilan[ "toplamTutar" ] - $kesinti[ "toplamTutar" ];
-							echo $sonuc < 0 ? $sonuc : "";
+							echo  $fn->parabirimi($sonuc < 0 ? $sonuc : 0);
 						?>
 					</td>
 				</tr>
 				<tr>
 					<td>Ödeme Tutarı</td>
-					<td><?php echo  $sonuc > 0 ? $fn->parabirimi($sonuc) : ""; ?></td>
+					<td><?php echo  $fn->parabirimi($sonuc > 0 ? $sonuc : 0); ?></td>
 				</tr>
 			</table>
 		</div>
 	</div>
 </div>
-<?php 
-	$mesaiKazanci = 0;
-	foreach ($genelCalismaSuresiToplami as $carpan => $calisma) { 
-		$mesaiKazanci += $carpan == "1.00" ? 0 : ( ( $personel_maas / $aylik_calisma_saati ) / 60 ) * $carpan * $calisma ;
-	} 
-?>
 
 <div class="clearfix"></div>
 

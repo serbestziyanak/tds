@@ -225,6 +225,19 @@ SET
 	tatil				= ?,
 	maasa_etki_edilsin	= ?
 SQL;
+
+/*İşlem Yapılan donemin kapatılıp kapatılmadığını kntrol etme*/
+	const SQL_donem_kontrol = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_donem
+WHERE 
+	firma_id 	= ? AND 
+	yil 		= ? AND
+	ay 		= ? AND 
+	aktif 	= 1 
+SQL;
 	/* Kurucu metod  */
 	public function __construct() {
 		$this->vt = new VeriTabani();
@@ -1045,6 +1058,11 @@ SQL;
 		}
 
 		return true;
+	}
+
+	public function donemKontrol( $yil, $ay ){
+		$donem = $this->vt->select( self::SQL_donem_kontrol, array( $_SESSION[ 'firma_id' ], $yil, $ay ) )[ 3 ];
+		return $donem;
 	}
 
 

@@ -7,7 +7,8 @@ SELECT
 FROM
 	tb_bolumler
 WHERE
-	aktif = 1
+	firma_id = ? AND
+	aktif 	 = 1
 SQL;
 
 $SQL_tek_bolum_oku = <<< SQL
@@ -23,7 +24,7 @@ SQL;
 $bolum_id	= array_key_exists( 'bolum_id', $_REQUEST ) ? $_REQUEST[ 'bolum_id' ] : 0;
 $islem		= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 
-$bolumler	= $vt->select( $SQL_oku, array() );
+$bolumler	= $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
 $tek_bolum	= $vt->select( $SQL_tek_bolum_oku, array( $bolum_id ) );
 
 $bolum_bilgileri = array(

@@ -115,6 +115,10 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
+			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
+				<button modul = 'avansKesinti' yetki_islem="toplu_avans_kazanc_ekle" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Toplu İşlem Ekle</button>
+				
+			</div>
 			<div class = "col-md-4">
 				<div class="card card-secondary">
 					<div class="card-header">
@@ -258,6 +262,61 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 		</div>
 	</div>
 </section>
+<div class="modal fade" id="PersonelHareketEkle"  aria-modal="true" role="dialog" modul = 'giriscikis' yetki_islem="kaydet">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<form action="_modul/avansKesinti/avansKesintiSEG.php" method="post" enctype="multipart/form-data">
+				<input type = "hidden" name = "islem" value = "toplu" >
+				<div class="modal-header">
+					<h4 class="modal-title">Toplu İşlem Ekleme</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label class="control-label">Veriliş Tarihi</label>
+						<div class="input-group date" id="topluVerilisTarihi" data-target-input="nearest">
+							<div class="input-group-append" data-target="#topluVerilisTarihi" data-toggle="datetimepicker">
+								<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+							</div>
+							<input autocomplete="off" type="text" name="verilis_tarihi" class="form-control datetimepicker-input" data-target="#topluVerilisTarihi" data-toggle="datetimepicker" 
+							value="<?php echo $avansGelen[ 'verilis_tarihi' ] != '' ? date('d.m.Y', strtotime( $avansGelen[ 'verilis_tarihi' ] ) ) : ''; ?>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label">İşlem Tipi</label>
+						<select class="form-control select2 " name="islem_tipi" data-select2-id="4" required tabindex="-1" aria-hidden="true">
+							<?php foreach( $avans_kesinti_tipleri as $tip ) { ?>
+								<option value="<?php echo $tip[ 'id' ]; ?>" <?php echo $avansGelen[ "islem_tipi" ] == $tip[ "id" ] ? 'selected' : ''; ?>><?php echo $tip[ 'adi' ]; ?></option>
+							<?php } ?>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label class="control-label">Tutar</label>
+						<input type="number" step="0.01" class="form-control" name ="tutar"  required value="<?php echo $avansGelen[ 'tutar' ] ?>">
+					</div>
+					
+					<div class="form-group">
+						<label class="control-label">Ödeme Şekli</label>
+						<select class="form-control select2 " name="verilis_sekli" data-select2-id="4" required tabindex="-1" aria-hidden="true">
+							<option value="Banka" <?php echo $avansGelen[ "verilis_sekli" ] == 'Banka' ? 'selected' : ''; ?>>Banka</option>
+							<option value="Elden" <?php echo $avansGelen[ "verilis_sekli" ] == 'Elden' ? 'selected' : ''; ?>>Elden</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Açıklama</label>
+						<textarea class="form-control" rows="2" name="aciklama" placeholder="Açıklama Yazabilirisniz"><?php echo $avansGelen[ "aciklama" ]; ?></textarea>
+					</div>
+					
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
+					<button type="submit" class="btn btn-success">Kaydet</button>
+					
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 <script>
 	$('#tbl_avansKesinti').DataTable({
@@ -302,7 +361,19 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 				down: "fa fa-arrow-down"
 			}
 		});
+
+		$('#topluVerilisTarihi').datetimepicker({
+			//defaultDate: simdi,
+			format: 'DD.MM.yyyy',
+			icons: {
+				time: "far fa-clock",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down"
+			}
+		});
 	});
+	
     
 
 </script>

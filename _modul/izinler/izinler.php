@@ -40,6 +40,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			 = ? AND
 	(dogum_tarihi  >= ? OR dogum_tarihi <= ? ) AND
 	ise_giris_tarihi 	 > ? AND 
 	p.aktif 			 = 1 
@@ -62,6 +63,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			= ? AND
 	dogum_tarihi 		> ? AND 
 	dogum_tarihi 		< ? AND 
 	ise_giris_tarihi 	> ? AND 
@@ -86,6 +88,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			= ? AND
 	dogum_tarihi 		> ? AND 
 	dogum_tarihi 		< ? AND 
 	ise_giris_tarihi 	> ? AND 
@@ -110,6 +113,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			= ? AND
 	dogum_tarihi 		> ? AND 
 	dogum_tarihi 		< ? AND 
 	ise_giris_tarihi 	> ? AND 
@@ -135,6 +139,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			= ? AND
 	dogum_tarihi 		> ? AND 
 	dogum_tarihi 		< ? AND 
 	ise_giris_tarihi 	> ? AND 
@@ -160,6 +165,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			= ? AND
 	dogum_tarihi 		> ? AND 
 	dogum_tarihi 		< ? AND 
 	ise_giris_tarihi 	< ? AND  
@@ -183,6 +189,7 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
+	p.firma_id 			= ? AND
 	dogum_tarihi 		> ? AND 
 	dogum_tarihi 		< ? AND 
 	ise_giris_tarihi 	< ? AND 
@@ -199,7 +206,7 @@ FROM
 WHERE
 	personel_id 	= ? AND
 	yil 			= ? AND
-	aktif 		= 1
+	aktif 			= 1
 SQL;
 
 $onsekiz_yas_alti 	= date( "Y-m-d", strtotime( date( "Y-m-d").'-18 year' ) );
@@ -209,17 +216,17 @@ $ise_giris_tarihi   = date( "m-d" );
 $bes_yil_once 		= date( "Y-m-d", strtotime( date( "Y-m-d").'-5 year' ) );
 $onbes_yil_once 	= date( "Y-m-d", strtotime( date( "Y-m-d").'-15 year' ) );
 
-$onsekiz_elli_izin_kazanan 	= $vt->select( $SQL_18_50_izin_kazanan, array( $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
-$onsekiz_elli_izin_kazanmayan	= $vt->select( $SQL_18_50_izin_kazanmayan, array( $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
+$onsekiz_elli_izin_kazanan 	= $vt->select( $SQL_18_50_izin_kazanan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
+$onsekiz_elli_izin_kazanmayan	= $vt->select( $SQL_18_50_izin_kazanmayan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
 /*1 Yıl ile 5 Yıl Çalışan Personelin İzin Durumu*/
-$bir_bes_yil_cal_kazanan   	= $vt->select( $SQL_1_5_yil_izin_kazanan, array( $elli_yas_ustu, $onsekiz_yas_alti,  $bes_yil_once ,  $bir_yil_once,$ise_giris_tarihi  ) )[ 2 ];
-$bir_bes_yil_cal_kazanmayan   = $vt->select( $SQL_1_5_yil_izin_kazanmayan, array( $elli_yas_ustu, $onsekiz_yas_alti,  $bes_yil_once ,  $bir_yil_once,$ise_giris_tarihi  ) )[ 2 ];
+$bir_bes_yil_cal_kazanan   	= $vt->select( $SQL_1_5_yil_izin_kazanan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti,  $bes_yil_once ,  $bir_yil_once,$ise_giris_tarihi  ) )[ 2 ];
+$bir_bes_yil_cal_kazanmayan   = $vt->select( $SQL_1_5_yil_izin_kazanmayan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti,  $bes_yil_once ,  $bir_yil_once,$ise_giris_tarihi  ) )[ 2 ];
 /*5 Yıl ile 15 Yıl Çalışan Personelin İzin Durumu*/
-$bes_onbes_yil_cal_kazanan   	= $vt->select( $SQL_5_15_yil_izin_kazanan, array( $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $bes_yil_once, $bir_yil_once, $ise_giris_tarihi ) )[ 2 ];
-$bes_onbes_yil_cal_kazanmayan = $vt->select( $SQL_5_15_yil_izin_kazanmayan, array( $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $bes_yil_once, $bir_yil_once, $ise_giris_tarihi  ) )[ 2 ];
+$bes_onbes_yil_cal_kazanan   	= $vt->select( $SQL_5_15_yil_izin_kazanan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $bes_yil_once, $bir_yil_once, $ise_giris_tarihi ) )[ 2 ];
+$bes_onbes_yil_cal_kazanmayan = $vt->select( $SQL_5_15_yil_izin_kazanmayan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $bes_yil_once, $bir_yil_once, $ise_giris_tarihi  ) )[ 2 ];
 /*15 yıldan fazla çalışan personelin izin  durumu*/
-$onbes_yil_cal_kazanan   	= $vt->select( $SQL_15_yildan_fazla_izin_kazanan, array( $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $ise_giris_tarihi  ) )[ 2 ];
-$onbes_yil_cal_kazanmayan 	= $vt->select( $SQL_15_yildan_fazla_izin_kazanmayan, array( $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $ise_giris_tarihi ) )[ 2 ];
+$onbes_yil_cal_kazanan   	= $vt->select( $SQL_15_yildan_fazla_izin_kazanan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $ise_giris_tarihi  ) )[ 2 ];
+$onbes_yil_cal_kazanmayan 	= $vt->select( $SQL_15_yildan_fazla_izin_kazanmayan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti, $onbes_yil_once, $ise_giris_tarihi ) )[ 2 ];
 
 ?>
 
