@@ -386,7 +386,7 @@ foreach ( $gruplar as $grup ) {
 														<div class="col-sm-1">
 															<div class="form-group">
 																<label class="control-label">Sil</label><br>
-																<a modul= "molalar" yetki_islem="sil" class="btn btn-danger" data-href="_modul/tarifeler/saatlerSEG.php?islem=sil&tarife_id='.$tarife_id.'&saat_id='.$saat[ 'id' ].'" data-toggle="modal" data-target="#sil_onay"><i class="fas fa-trash"></i></a>
+																<a modul= "tarifeler" yetki_islem="saat_sil" class="btn btn-danger" data-href="_modul/tarifeler/saatlerSEG.php?islem=sil&tarife_id='.$tarife_id.'&saat_id='.$saat[ 'id' ].'" data-toggle="modal" data-target="#sil_onay"><i class="fas fa-trash"></i></a>
 															</div>
 														</div>
 													</div>';
@@ -401,8 +401,8 @@ foreach ( $gruplar as $grup ) {
 									?>
 									</div>
 									<div class="card-footer">
-										<button modul= 'tarifeler' yetki_islem="tarifeSaatKaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-										<span  modul= 'tarifeler' yetki_islem="tarifeSaatEkle" class=" btn btn-info float-right saatSatirEkle" data-tur="saat" id="saatSatirEkle" data-sayi="<?php echo $sonSaat; ?>">Mesai Ekle</span>
+										<button modul= 'tarifeler' yetki_islem="tarife_saat_kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<span  modul= 'tarifeler' yetki_islem="tarife_saat_ekle" class=" btn btn-info float-right saatSatirEkle" data-tur="saat" id="saatSatirEkle" data-sayi="<?php echo $sonSaat; ?>">Mesai Ekle</span>
 									</div>
 								</form>
 							</div>
@@ -440,7 +440,7 @@ foreach ( $gruplar as $grup ) {
 														<div class="col-sm-1">
 															<div class="form-group">
 																<label class="control-label">Sil</label><br>
-																<a modul= "molalar" yetki_islem="sil" class="btn btn-danger" data-href="_modul/molalar/molalarSEG.php?islem=sil&tarife_id='.$tarife_id.'&mola_id='.$mola[ 'id' ].'" data-toggle="modal" data-target="#sil_onay"><i class="fas fa-trash"></i></a>
+																<a modul= "tarifeler" yetki_islem="mola_sil" class="btn btn-danger" data-href="_modul/molalar/molalarSEG.php?islem=sil&tarife_id='.$tarife_id.'&mola_id='.$mola[ 'id' ].'" data-toggle="modal" data-target="#sil_onay"><i class="fas fa-trash"></i></a>
 															</div>
 														</div>
 													</div>';
@@ -455,8 +455,8 @@ foreach ( $gruplar as $grup ) {
 									?>
 									</div>
 									<div class="card-footer">
-										<button modul= 'tarifeler' yetki_islem="tarifeMolaKaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-										<span  modul= 'tarifeler' yetki_islem="tarifeMolaEkle" class=" btn btn-info float-right SatirEkle" data-tur="mola" id="molaSatirEkle" data-sayi="<?php echo $sonMola; ?>">Mola Ekle</span>
+										<button modul= 'tarifeler' yetki_islem="tarife_mola_kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<span  modul= 'tarifeler' yetki_islem="tarife_mola_ekle" class=" btn btn-info float-right SatirEkle" data-tur="mola" id="molaSatirEkle" data-sayi="<?php echo $sonMola; ?>">Mola Ekle</span>
 									</div>
 								</form>
 							</div>

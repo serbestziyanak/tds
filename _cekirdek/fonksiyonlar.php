@@ -688,7 +688,7 @@ SQL;
 			//dropdown menu oluşturma
 			$sonuc = '
 			<div class="btn-group">
-	          <button type="button" class="btn btn-xs btn-default" data-toggle="dropdown" aria-expanded="false">'.$baslik.'</button>
+	          <button modul="giriscikis" yetki_islem="tutanak_olustur" type="button" class="btn btn-xs btn-default" data-toggle="dropdown" aria-expanded="false">'.$baslik.'</button>
 	          
 	          </button>
 	          <div class="dropdown-menu" role="menu" style="min-width:180px; padding:10px;">

@@ -129,7 +129,7 @@ $beyaz_yakali_personel 		= $ayar[ "beyaz_yakali_personel" ];
 									
 									<div class="clearfix"></div>
 									<div class="card-footer">
-										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<button modul= 'genelAyarlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>

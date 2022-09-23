@@ -225,7 +225,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 															</td>
 															<td align = "right" width = "5%">
 																<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>"
-																	modul = 'personelOzlukDosyalari' yetki_islem="goruntule"
+																	modul = 'personelOzlukDosyalari' yetki_islem="indir"
 																	data-toggle="tooltip"
 																	data-placement="left"
 																	title="Dosyayı İndir" target="_blank">
@@ -288,6 +288,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 														</td>
 														<td align = "right" width = "20%">
 															<button class="personel-Tr btn btn-dark"
+																modul = 'personelOzlukDosyalari' yetki_islem="dosya_yukle"
 																data-personel_id    = "<?php echo $personel_id; ?>"
 																data-tutanak_id 	= "<?php echo $tutanak[ 'tutanak_id' ]; ?>"
 																data-tarih 		    = "<?php echo $tutanak[ 'tarih' ]; ?>"
@@ -300,6 +301,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 
 														<td align = "right" width = "5%">
 															<a href = "tutanak/<?php echo $personel_id; ?>/<?php echo $tutanak[ 'dosya' ]; ?>"
+																modul = 'personelOzlukDosyalari' yetki_islem="dosya_indir"
 																data-toggle="tooltip"
 																data-placement="top"
 																title="Dosyayı İndir" target="_blank">
@@ -309,7 +311,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 														</td>
 														<td align = "right" width = "5%">
 															<a href = "" 
-															modul = 'personelOzlukDosyalari' yetki_islem="sil"
+															modul = 'personelOzlukDosyalari' yetki_islem="dosya_sil"
 															data-href="_modul/tutanakolustur/tutanakolusturSEG.php?islem=sil&personel_id=<?php echo $personel_id; ?>&dosya_id=<?php echo $tutanak[ 'dosya_id' ]; ?>&tutanak_id=<?php echo $tutanak[ 'tutanak_id' ]; ?>"
 															data-target="#kayit_sil"
 															data-toggle="modal"

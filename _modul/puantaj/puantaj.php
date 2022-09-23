@@ -275,7 +275,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 						<button class="btn btn-success" id="listeleBtn">listele</button>
 					</div>
 				</div>
-				<a modul="puantaj" yetki_islem="goruntule" class="btn btn-outline-warning btn-lg col-xs-6 col-sm-2 float-right" href="?modul=puantaj&amp;detay=tumPersonel&amp;tarih=<?php echo $tarih; ?>">Tüm Personel Verileri</a>
+				<a modul="puantaj" yetki_islem="tum_personel_verileri" class="btn btn-outline-warning btn-lg col-xs-6 col-sm-2 float-right" href="?modul=puantaj&amp;detay=tumPersonel&amp;tarih=<?php echo $tarih; ?>">Tüm Personel Verileri</a>
 				
 			</div>
 			

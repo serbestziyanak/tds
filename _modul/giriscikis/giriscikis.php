@@ -206,14 +206,14 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
-				<button modul = 'giriscikis' yetki_islem="kaydet" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
-				<button modul = 'giriscikis' yetki_islem="kaydet" class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
+				<button modul = 'giriscikis' yetki_islem="personel_hareket_ekle" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
+				<button modul = 'giriscikis' yetki_islem="personel_toplu_hareket_ekle" class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
 				<?php 
 					$link 		=  $detay == "gun" ? '?modul=giriscikis' 	: '?modul=giriscikis&detay=gun'; 
 					$btnyazi 	=  $detay == "gun" ? 'Personele Ait Veri Getir' 	: 'Günlük Veri Getir'; 
 				?>
-				<a modul = 'giriscikis' yetki_islem="gorutule" class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
-				<button modul = 'giriscikis' yetki_islem="tipKaydet" class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
+				<a modul = 'giriscikis' yetki_islem="gunluk_giris_cikis" class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
+				<button modul = 'giriscikis' yetki_islem="giris_cikis_tipi" class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
 
 				<?php if ($detay =="gun" )  { ?>
 					<div class="col-sm-2" style="float: right;display: flex;">
@@ -275,7 +275,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 									<td><?php echo $personel[ 'adi' ]; ?>		</td>
 									<td><?php echo $personel[ 'soyadi' ]; ?>	</td>
 									<td align = "center">
-										<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-success btn-xs" href = "?modul=giriscikis&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo $listelenecekAy; ?>" >
+										<a modul = 'giriscikis' yetki_islem="hareketler" class = "btn btn-sm btn-success btn-xs" href = "?modul=giriscikis&personel_id=<?php echo $personel[ 'id' ]; ?>&tarih=<?php echo $listelenecekAy; ?>" >
 											Hareketler
 										</a>
 									</td>
@@ -794,14 +794,14 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 										echo '<td>'.$sayi.'</td>';
 										echo '<td>'.$giris_cikis_tipi[ "adi" ].'</td>';
 										echo '<td>'.$maas_kesintisi.'</td>';
-										echo '<td><button modul= "giriscikis" yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/tipSEG.php?islem=sil&tip_id='.$giris_cikis_tipi[ "id" ].'" data-toggle="modal" data-target="#sil_onay">Sil</button></td>';
+										echo '<td><button modul= "giriscikis" yetki_islem="giris_cikis_tipi_sil" class="btn btn-xs btn-danger" data-href="_modul/giriscikis/tipSEG.php?islem=sil&tip_id='.$giris_cikis_tipi[ "id" ].'" data-toggle="modal" data-target="#sil_onay">Sil</button></td>';
 									echo '</tr>';
 									$sayi++;
 								} 
 							?>
 						</tbody>
 					</table>
-					<button class="btn btn-outline-info col-sm-6 offset-sm-3" data-toggle="modal" data-target="#IslemTipleri"> Farklı İzin Kaydet</button>
+					<button modul="" yetki_islem="giris_cikis_tipi_keydet" class="btn btn-outline-info col-sm-6 offset-sm-3" data-toggle="modal" data-target="#IslemTipleri"> Farklı İzin Kaydet</button>
 				</div>
 				<div class="modal-footer justify-content-between">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>

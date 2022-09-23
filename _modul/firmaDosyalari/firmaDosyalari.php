@@ -216,7 +216,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 		                        </div>
 		                        <input type="hidden" name="dosyaTuru_id" value="<?php echo $dosyaTuru_id; ?>">
 		                        <input type="hidden" name="konu" id="konu" value="dosya">
-		                        <a modul = 'firmaDosyalari' yetki_islem="kaydet" href="javascript:void(0);" class="btn btn-outline-info" style="margin-top:10px; width: 100%;" id="submit-all">Yükle</a>
+		                        <a modul = 'firmaDosyalari' yetki_islem="dosya_ekle" href="javascript:void(0);" class="btn btn-outline-info" style="margin-top:10px; width: 100%;" id="submit-all">Yükle</a>
 		                    </form>
 		                </div>
 		            </div>
@@ -240,7 +240,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 														</td>
 														<td align = "right" width = "5%">
 															<a href = "firmaDosyalari/<?php echo $dosyaTuru_id; ?>/<?php echo $dosya[ 'dosya' ]; ?>"
-																modul = 'firmaDosyalari' yetki_islem="goruntule"
+																modul = 'firmaDosyalari' yetki_islem="dosya_indir"
 																data-toggle="tooltip"
 																data-placement="left"
 																title="Dosyayı İndir" target="_blank">
@@ -249,7 +249,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 														</td>
 														<td align = "right" width = "5%">
 															<a 
-															modul = 'firmaDosyalari' yetki_islem="sil"
+															modul = 'firmaDosyalari' yetki_islem="dosya_sil"
 															data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=dosya&dosya_id=<?php echo $dosya[ 'dosya_id' ]; ?>&dosyaTuru_id=<?php echo $dosya[ 'tur_id' ]; ?>"
 															data-target="#kayit_sil"
 															data-toggle="modal"
@@ -320,7 +320,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 						
 					<div class="modal-footer justify-content-between">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Hayır</button>
-						<button type="submit" class="btn btn-success">Kaydet</button>
+						<button modul="firmaDosyalari" yetki_islem="kaydet" type="submit" class="btn btn-success">Kaydet</button>
 					</div>
 				</form>
 			</div>

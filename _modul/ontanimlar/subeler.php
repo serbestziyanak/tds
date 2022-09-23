@@ -25,7 +25,8 @@ SELECT
 FROM
   tb_subeler
 WHERE
-  id = ?
+  firma_id  = ? AND
+  id        = ?
 SQL;
 
 $SQL_ara = <<< SQL
@@ -78,7 +79,7 @@ $sube_bilgileri = array(
    'id'       => $sube[ 2 ][ 'id' ]
   ,'adi'      => $sube[ 2 ][ 'adi' ]
 );
-  $sorgu = $vt->select( $SQL_sayfala, array( $_SESSION[ "firma_id" ], $baslangic,$limit) );
+  $sorgu = $vt->select( $SQL_sayfala, array( $_SESSION[ "firma_id" ]) );
   $sorgu2 = $vt->select( $SQL_toplam_veri, array() );
  // print_r ($sorgu2[2][0]['count(id)']);
   //echo $sorgu2[2][0]['count(id)'];
@@ -91,18 +92,9 @@ if($sayfa == $sayfalar)
 {
   $subeler = $sorgu;
 }else{
-  $subeler = $vt->select( $SQL_oku, array(  $_SESSION[ "firma_id" ]) );
+  $subeler = $vt->select( $SQL_oku, array(  $_SESSION[ "firma_id" ] ) );
 }
 
-if(isset($_POST['arama'])){
-   $aranan = "%".$_POST['table_search']."%";
-   if(strlen($aranan) >= 3){
-     $sorgu = $vt->select( $SQL_ara, array($aranan) );
-      //print_r($sorgu);
-    }else{
-       echo "Bulunamadı!";
-    }
- }
    
 $sube_id     = array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
 if(isset($_POST['arama'])){
@@ -110,7 +102,7 @@ if(isset($_POST['arama'])){
 }else{
 	$subeler    = $vt->select( $SQL_sayfala, array( $_SESSION[ "firma_id" ] ) );
 }
-$sube           = $vt->selectSingle( $SQL_sube_bilgileri, array( $sube_id ) );
+$sube           = $vt->selectSingle( $SQL_sube_bilgileri, array( $_SESSION[ "firma_id" ], $sube_id ) );
 $sube_bilgileri = array();
 $islem          = array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
 

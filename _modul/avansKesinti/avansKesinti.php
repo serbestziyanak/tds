@@ -116,7 +116,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
-				<button modul = 'avansKesinti' yetki_islem="toplu_avans_kazanc_ekle" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Toplu İşlem Ekle</button>
+				<button modul = 'avansKesinti' yetki_islem="toplu_avans_kesinti_kazanc" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Toplu İşlem Ekle</button>
 				
 			</div>
 			<div class = "col-md-4">
@@ -140,7 +140,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
 									<td align = "center">
-										<a modul = 'avansKesinti' yetki_islem="personel" class = "btn btn-sm btn-success btn-xs" href = "?modul=avansKesinti&personel_id=<?php echo $personel[ 'id' ]; ?>" >
+										<a modul = 'avansKesinti' yetki_islem="odemeler" class = "btn btn-sm btn-success btn-xs" href = "?modul=avansKesinti&personel_id=<?php echo $personel[ 'id' ]; ?>" >
 											Ödemeler
 										</a>
 									</td>
@@ -199,7 +199,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 									<textarea class="form-control" rows="2" name="aciklama" placeholder="Açıklama Yazabilirisniz"><?php echo $avansGelen[ "aciklama" ]; ?></textarea>
 								</div>
 								<div class="card-footer">
-									<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+									<button modul= 'avansKesinti' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 								</div>
 							</form>
 					</div>
@@ -234,7 +234,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 												<td><?php echo $avans[ "verilis_sekli" ]; ?></td>
 												<td align = "center" width = "5%">
 													<a modul = 'avansKesinti' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=avansKesinti&islem=guncelle&personel_id=<?php echo $personel_id; ?>&avansKesinti_id=<?php echo $avans[ 'id' ]; ?>" >
-														Güncelle
+														Düzenle
 													</a>
 												</td>
 												<td align = "center" width = "5%">
@@ -262,7 +262,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 		</div>
 	</div>
 </section>
-<div class="modal fade" id="PersonelHareketEkle"  aria-modal="true" role="dialog" modul = 'giriscikis' yetki_islem="kaydet">
+<div class="modal fade" id="PersonelHareketEkle"  aria-modal="true" role="dialog" modul = 'avansKesinti' yetki_islem="toplu_avans_kesinti_kazanc">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<form action="_modul/avansKesinti/avansKesintiSEG.php" method="post" enctype="multipart/form-data">

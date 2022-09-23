@@ -170,7 +170,7 @@ $secili_gunler = explode( ",", $tek_mesai_turu[ "gunler" ] );
 										</select>
 									</div>
 									<div class="card-footer">
-										<button modul= 'personel' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<button modul= 'mesaiTurleri' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>

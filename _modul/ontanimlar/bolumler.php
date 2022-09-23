@@ -33,7 +33,6 @@ $bolum_bilgileri = array(
 
 );
 
-
 $satir_renk				= $bolum_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi		= $bolum_id > 0	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $bolum_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
