@@ -57,6 +57,7 @@ SET
 	 personel_id		= ?
 	,dosya_turu_id		= ?
 	,dosya				= ?
+	,tarih 				= now()
 SQL;
 
 $SQL_dosya_sil = <<< SQL

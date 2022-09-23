@@ -225,7 +225,7 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 															</td>
 															<td align = "right" width = "5%">
 																<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>"
-																	modul = 'personelOzlukDosyalari' yetki_islem="indir"
+																	modul = 'personelOzlukDosyalari' yetki_islem="goruntule"
 																	data-toggle="tooltip"
 																	data-placement="left"
 																	title="Dosyayı İndir" target="_blank">
