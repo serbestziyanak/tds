@@ -15,6 +15,13 @@
 	$dosya_id		= array_key_exists( 'dosya_id'		, $_REQUEST ) ? $_REQUEST[ 'dosya_id' ]		: '';
 	$islem			= array_key_exists( 'islem'		    , $_REQUEST ) ? $_REQUEST[ 'islem' ]		: '';
 
+	$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "tutanakolustur", $islem );
+
+	if ( $yetiKontrol == 0 ) {
+		include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+		die();
+	}
+
 	//Gelen Personele Ait Bilgiler
 	$SQL_tek_personel_oku = <<< SQL
 	SELECT
@@ -128,6 +135,7 @@
 	$tutanak_oku 	= $vt->select( $SQL_tutanak_oku, array($personel_id,$tutanak_id, $_SESSION['firma_id'] ) )[2];
 	$tutanak_varmi 	= $vt->select( $SQL_tutanak_varmi, array( $_SESSION['firma_id'], $personel_id,$tarih, $tip ) )[2];
 
+	$vt->islemBaslat();
 	if( count( $personel ) < 1 ){
 		echo '<div class="alert alert-danger alert-dismissible col-sm-6 offset-sm-3 align-items-center">
 				<h5><i class="icon fas fa-ban"></i> Hata!</h5>
@@ -262,9 +270,12 @@
 			unlink( $dizin.'/'.$tutanak_dosyasi [0] ["dosya"] );
 			$sonuc[ "sonuc" ]	= 'ok';
 
+			$vt->islemBitir();
 			header( "Location:../../index.php?modul=personelOzlukDosyalari&personel_id=$personel_id" );
 		}	
 	}
+
+	$vt->islemBitir();
 	
 	echo json_encode($sonuc);
 

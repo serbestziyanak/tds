@@ -5,6 +5,15 @@ $vt			= new VeriTabani();
 $fn			= new Fonksiyonlar();
 $id			= array_key_exists( 'id' , $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "firmaSorulari", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
+
+
+
 //var_dump($_REQUEST);
 //exit;
 $secenekler = $_REQUEST['secenekler'];

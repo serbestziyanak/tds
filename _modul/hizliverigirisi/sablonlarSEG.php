@@ -7,6 +7,12 @@ $fn			= new Fonksiyonlar();
 
 $sablon_id	= array_key_exists( 'sablon_id' , $_REQUEST ) ? $_REQUEST[ 'sablon_id' ] : 0;
 $islem		= array_key_exists( 'islem' , $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "sablonlar", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
 $sablon_adi				= $_REQUEST[ 'sablon_adi' ];
 $sablon_tablo_adi		= $_REQUEST[ 'sablon_tablo_adi' ];
@@ -44,7 +50,7 @@ DELETE FROM
 WHERE
 	id = ?
 SQL;
-
+$vt->islemBaslat();
 
 switch( $islem ) {
 	case 'ekle':
@@ -57,6 +63,7 @@ switch( $islem ) {
 		$vt->delete( $SQL_sil, array( $sablon_id ) );
 	break;
 }
+$vt->islemBitir();
 header( 'Location: ../../index.php?modul=sablonlar&sablon_id=' . $sablon_id  );
 
 

@@ -13,6 +13,15 @@ $tarih 			= array_key_exists( 'tarih', $_REQUEST )	 		? trim($_REQUEST[ 'tarih' 
 $kategori 		= array_key_exists( 'kategori', $_REQUEST )	 		? trim($_REQUEST[ 'kategori' ]) : '';
 
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "firmaDosyalari", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
+
+
+
 $SQL_tum_firma_dosyalari_oku = <<< SQL
 SELECT
 	*
@@ -97,7 +106,7 @@ SQL;
 
 $tekDosyaTuru		= $vt->select( $SQL_tek_dosya_turu_oku, array( $dosyaTuru_id, $_SESSION['firma_id']) ) [ 2 ] ;
 
-
+$vt->islemBaslat();
 if ( $konu == 'dosya' ) {
 	//Firmaya ait bir dosya turu yok ise işlemi durduruyoruz
 	if ( count($tekDosyaTuru) < 1 ){
@@ -120,7 +129,7 @@ if ( $konu == 'dosya' ) {
         	chmod($dizin, 0777);
         }
     }
-
+	
     switch( $islem ){
     	case 'ekle':
     		$tek_dosya_turu_oku = $vt->select( $SQL_tek_dosya_turu_oku, array( $dosyaTuru_id, $_SESSION[ 'firma_id' ] ) ) [ 2 ];
@@ -157,7 +166,6 @@ if ( $konu == 'dosya' ) {
 				unlink($dizin.'/'.$tek_dosya_oku[ 0 ][ "dosya" ]);
 
 			}
-			header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$dosyaTuru_id" );
 			break;
 
     }
@@ -188,9 +196,9 @@ if ( $konu == 'dosya' ) {
 			}
 			break;
 	}
-
-	header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$dosyaTuru_id" );
-
 }
+
+$vt->islemBitir();
+header( "Location:../../index.php?modul=firmaDosyalari&dosyaTuru_id=$dosyaTuru_id" );
 
 ?>

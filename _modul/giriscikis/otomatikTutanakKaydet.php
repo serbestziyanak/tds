@@ -6,7 +6,6 @@ AYARLANACAK CRON JOP ZAAMANINA GÖRE FİRMANIN PERSONELİNİ KONTROL EDECEK VE O
 include "../../_cekirdek/fonksiyonlar.php";
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
-error_reporting( E_ALL );
 
 $SQL_tum_personel = <<< SQL
 SELECT
@@ -171,7 +170,7 @@ SQL;
 
 
 $firmalar       = $vt->select( $SQL_tum_firmalar,array() ) [2];
-    
+    $vt->islemBaslat();
 foreach ($firmalar as $firma) {
 
     $tum_personel                           = $vt->select( $SQL_tum_personel,array( $firma[ "id" ] ) ) [2];
@@ -243,3 +242,4 @@ foreach ($firmalar as $firma) {
         } 
     }
 }
+$vt->islemBitir();

@@ -5,7 +5,7 @@ $fn		= new Fonksiyonlar();
 
 
 $tabloAdi = $_REQUEST[ 'tabloAdi' ];
-
+$vt->islemBaslat();
 
 // Silinen kayıtları veritabanına yansıt.
 if( array_key_exists( 'silinenKayitlar', $_REQUEST ) ) {
@@ -68,6 +68,8 @@ if( array_key_exists( 'eklenenKayitlar', $_REQUEST ) ) {
 		$vt->insert( $SQL_ekle, $degerler );
 	}
 }
+
+$vt->islemBitir();
 echo 1;
 
 ?>

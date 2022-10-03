@@ -6,6 +6,12 @@ $fn			= new Fonksiyonlar();
 $bolum_id	= array_key_exists( 'bolum_id' , $_REQUEST ) ? $_REQUEST[ 'bolum_id' ] : 0;
 $islem		= array_key_exists( 'islem' , $_REQUEST ) ? $_REQUEST[ 'islem' ] : '';
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "bolumler", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
 $SQL_ekle = <<< SQL
 INSERT INTO
@@ -33,7 +39,7 @@ WHERE
 	id = ?
 SQL;
 
-
+$vt->islemBaslat();
 switch( $_REQUEST[ 'islem' ] ) {
 	case 'ekle':
 		$vt->insert( $SQL_ekle, array(
@@ -51,6 +57,7 @@ switch( $_REQUEST[ 'islem' ] ) {
 		$vt->update( $SQL_sil, array( $bolum_id ) );
 	break;
 }
+$vt->islemBitir();
 header( 'Location: ../../index.php?modul=bolumler' );
 
 

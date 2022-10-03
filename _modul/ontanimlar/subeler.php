@@ -10,13 +10,19 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
   echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
+$islem      = array_key_exists( 'islem', $_REQUEST )    ? $_REQUEST[ 'islem' ]    : 'ekle';
+$id         = array_key_exists( 'id', $_REQUEST )       ? $_REQUEST[ 'id' ]       : 0;
+
+
+
 $SQL_oku = <<< SQL
 SELECT
   *
 FROM
   tb_subeler
 WHERE 
-  firma_id = ?
+  firma_id  = ? AND
+  aktif     = 1
 SQL;
 
 $SQL_sube_bilgileri = <<< SQL
@@ -26,89 +32,12 @@ FROM
   tb_subeler
 WHERE
   firma_id  = ? AND
-  id        = ?
-SQL;
-
-$SQL_ara = <<< SQL
-SELECT
-  *
-FROM 
-  tb_subeler
-WHERE
-  adi
-LIKE 
-    ?
-SQL;
-
-$SQL_toplam_veri = <<< SQL
-SELECT 
-  count(id)
-FROM 
-  tb_subeler
-SQL;
-
-  session_start();
-  if(isset($_POST['limit-belirle'])){
-      $_SESSION['limit-belirle'] = $_POST['limit-belirle'];
-  }
-
-
-$limit = isset($_SESSION["limit-belirle"]) ? $_SESSION["limit-belirle"] : 5;
-  $sayfa = isset($_GET['sayfa']) ? $_GET['sayfa'] : 1;
-  $baslangic = ($sayfa - 1) * $limit;
-
-$SQL_sayfala = <<< SQL
-SELECT
- * 
-FROM 
-  tb_subeler
-WHERE 
-  firma_id  = ? AND
+  id        = ? AND
   aktif     = 1
-ORDER BY 
-  id 
-ASC 
-LIMIT
-   $baslangic
-  ,$limit
 SQL;
 
-  
-  if($sayfa)
-$sube_bilgileri = array(
-   'id'       => $sube[ 2 ][ 'id' ]
-  ,'adi'      => $sube[ 2 ][ 'adi' ]
-);
-  $sorgu = $vt->select( $SQL_sayfala, array( $_SESSION[ "firma_id" ]) );
-  $sorgu2 = $vt->select( $SQL_toplam_veri, array() );
- // print_r ($sorgu2[2][0]['count(id)']);
-  //echo $sorgu2[2][0]['count(id)'];
-
-  $sayfalar = ceil( $sorgu2[2][0]['count(id)'] / $limit );
-  $geri  = $sayfa - 1;
-  $ileri = $sayfa + 1;
-  //echo $sayfalar;
-if($sayfa == $sayfalar)
-{
-  $subeler = $sorgu;
-}else{
-  $subeler = $vt->select( $SQL_oku, array(  $_SESSION[ "firma_id" ] ) );
-}
-
-   
-$sube_id     = array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
-if(isset($_POST['arama'])){
-	$subeler = $sorgu;
-}else{
-	$subeler    = $vt->select( $SQL_sayfala, array( $_SESSION[ "firma_id" ] ) );
-}
-$sube           = $vt->selectSingle( $SQL_sube_bilgileri, array( $_SESSION[ "firma_id" ], $sube_id ) );
-$sube_bilgileri = array();
-$islem          = array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
-
-if( $islem == 'guncelle' )
-	$sube_bilgileri = $sube[ 2 ];
-
+$subeler          = $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
+$sube_bilgileri   = $vt->select( $SQL_sube_bilgileri, array( $_SESSION[ "firma_id" ], $id ) )[2][0];
 
 ?>
 <div class="modal fade" id="sil_onay">
@@ -136,15 +65,6 @@ if( $islem == 'guncelle' )
 	} );
 </script>
 
-<script>  
-  $(document).ready(function() {
-    $('#limit-belirle').change(function() {
-		
-        $(this).closest('form').submit();
-		
-    });
-});
-</script>
   <div class="row">
         <div class="col-md-6">
             <div class="card card-success">
@@ -163,7 +83,7 @@ if( $islem == 'guncelle' )
                     </tr>
                   </thead>
                   <tbody>
-                  <?php $sayi = ($sayfa-1)*$limit+1;  foreach( $subeler[ 2 ] AS $sube ) { ?>
+                  <?php $sayi = 1; foreach( $subeler[ 2 ] AS $sube ) { ?>
                   <tr>
                     <td><?php echo $sayi++; ?></td>
                     <td><?php echo $sube[ 'adi' ]; ?></td>

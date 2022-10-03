@@ -3,6 +3,14 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "tarifeler", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
+
+
 $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
 $tarife_id		= array_key_exists( 'tarife_id', $_REQUEST )		? $_REQUEST[ 'tarife_id' ]		: 0;
 $alanlar		= array();
@@ -92,7 +100,7 @@ SQL;
 // print_r($degerler);
 // die();
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
-
+$vt->islemBaslat();
 switch( $islem ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
@@ -118,6 +126,7 @@ switch( $islem ) {
 		}
 	break;
 }
+$vt->islemBitir();
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $tarife_id;
 header( "Location:../../index.php?modul=tarifeler&islem=guncelle&tarife_id=".$tarife_id );

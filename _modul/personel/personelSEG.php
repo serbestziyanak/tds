@@ -7,6 +7,12 @@ $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: '
 $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'personel_id' ]	: 0;
 $alanlar		= array();
 $degerler		= array();
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "personel", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
  
 $SQL_ekle		= "INSERT INTO tb_personel SET ";
@@ -50,7 +56,7 @@ WHERE
 SQL;
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
-
+$vt->islemBaslat();
 switch( $islem ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
@@ -87,6 +93,7 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt silinrken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 }
+$vt->islemBitir();
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
 header( "Location:../../index.php?modul=personel&islem=guncelle&personel_id=".$personel_id."&aktif_tab=".$aktif_tab );

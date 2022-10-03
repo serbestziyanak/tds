@@ -698,7 +698,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 		</div>
 	</div>
 </section>
-<div style="display:none;">
+<div >
 	<div id="ciktiAlt">
 		<hr>
 		<div class="col-sm-3 float-left bilgiTablosu" modul="puantaj" yetki_islem="goruntule">

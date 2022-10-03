@@ -108,7 +108,7 @@ echo '<pre>';
 $firmalar       		= $vt->select( $SQL_tum_firmalar,array() ) [2];
    
 $gun = $fn->gunVer( date( "Y-m-d" ) );
-
+$vt->islemBaslat();
 foreach ($firmalar as $firma) {
 	$genel_ayarlar 		= $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ "firma_id" ] ) )[ 2 ][ 0 ];
     $tum_personel 		= $vt->select( $SQL_tum_personel,array( $firma[ "id" ] ) ) [2];
@@ -140,3 +140,4 @@ foreach ($firmalar as $firma) {
     	}
     }
 }
+$vt->islemBitir();

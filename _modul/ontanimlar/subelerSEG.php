@@ -3,6 +3,15 @@ include "../../_cekirdek/fonksiyonlar.php";
 
 $vt			= new VeriTabani();
 $fn			= new Fonksiyonlar();
+
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "subeler", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
+
+
 $id			= array_key_exists( 'id' , $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
 
 

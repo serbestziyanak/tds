@@ -9,6 +9,13 @@ $dosya_turu_id	= array_key_exists( 'dosya_turu_id', $_REQUEST )	? $_REQUEST[ 'do
 $dosya_id		= array_key_exists( 'dosya_id', $_REQUEST )			? $_REQUEST[ 'dosya_id' ]		: 0;
 $dosya_durumu	= array_key_exists( 'dosya_durumu', $_REQUEST )		? $_REQUEST[ 'dosya_durumu' ]	: 0;
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "personelOzlukDosyalari", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
+
 $SQL_tum_personel_oku = <<< SQL
 SELECT
 	tc_no
@@ -83,7 +90,7 @@ if( count( $personel ) < 1 ){
 	$sonuc[ "sonuc" ] = 'hata';
 	die();
 }
-
+$vt->islemBaslat();
 switch( $islem ) {
 	case 'ekle':
 		$dosya_turu_adi		= $vt->select( $SQL_dosya_turu_adi, array( $dosya_turu_id ) );
@@ -136,5 +143,6 @@ switch( $islem ) {
 	break;
 	
 }
+$vt->islemBitir();
 header( "Location:../../index.php?modul=personelOzlukDosyalari&personel_id=$personel_id" );
 ?>

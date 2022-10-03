@@ -6,6 +6,12 @@ $fn			= new Fonksiyonlar();
 $ozel_kod_id	= array_key_exists( 'ozel_kod_id' , $_REQUEST ) ? $_REQUEST[ 'ozel_kod_id' ] : 0;
 $islem		= array_key_exists( 'islem' , $_REQUEST ) ? $_REQUEST[ 'islem' ] : '';
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "ozelKod", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
 $SQL_ekle = <<< SQL
 INSERT INTO
@@ -32,7 +38,7 @@ SET
 WHERE
 	id = ?
 SQL;
-
+$vt->islemBaslat();
 
 switch( $_REQUEST[ 'islem' ] ) {
 	case 'ekle':
@@ -51,6 +57,7 @@ switch( $_REQUEST[ 'islem' ] ) {
 		$vt->update( $SQL_sil, array( $ozel_kod_id ) );
 	break;
 }
+$vt->islemBitir();
 header( 'Location: ../../index.php?modul=ozelKod' );
 
 

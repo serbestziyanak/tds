@@ -7,7 +7,12 @@ $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: '
 $tip_id			= $_REQUEST[ 'tip_id' ];
 $alanlar		= array();
 $degerler		= array();
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "giriscikis", $islem );
 
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
  
 $SQL_ekle		= "INSERT INTO tb_giris_cikis_tipi SET ";
 $SQL_guncelle 	= "UPDATE tb_giris_cikis_tipi SET ";
@@ -72,7 +77,7 @@ $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 2 ][ 0 ][ 'id' ];
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
-
+$vt->islemBaslat();
 
 switch( $islem ) {
 	case 'ekle':
@@ -113,6 +118,7 @@ switch( $islem ) {
 
 	break;
 }
+$vt->islemBitir();
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
 header( "Location:../../index.php?modul=giriscikis");

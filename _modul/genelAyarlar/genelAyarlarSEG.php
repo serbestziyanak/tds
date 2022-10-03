@@ -7,7 +7,12 @@ $islem			= "guncelle";
 $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'personel_id' ]	: 0;
 $alanlar		= array();
 $degerler		= array();
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "genelAyarlar", $islem );
 
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
  
 $SQL_ekle		= "INSERT INTO tb_genel_ayarlar SET ";
 $SQL_guncelle 	= "UPDATE tb_genel_ayarlar SET ";
@@ -66,7 +71,7 @@ WHERE
 SQL;
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
-
+$vt->islemBaslat();
 switch( $islem ) {
 	
 	case 'guncelle':
@@ -75,6 +80,7 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 }
+$vt->islemBitir();
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
 header( "Location:../../index.php?modul=genelAyarlar&islem=guncelle" );

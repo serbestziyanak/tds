@@ -7,7 +7,12 @@ $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: '
 $mesai_turu_id		= array_key_exists( 'mesai_turu_id', $_REQUEST )		? $_REQUEST[ 'mesai_turu_id' ]		: 0;
 $alanlar		= array();
 $degerler		= array();
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "measiTurleri", $islem );
 
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
  
 $SQL_ekle		= "INSERT INTO tb_mesai_turu SET ";
 $SQL_guncelle 	= "UPDATE tb_mesai_turu SET ";
@@ -66,7 +71,7 @@ WHERE
 SQL;
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
-
+$vt->islemBaslat();
 switch( $islem ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
@@ -92,6 +97,7 @@ switch( $islem ) {
 		}
 	break;
 }
+$vt->islemBitir();
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $mesai_turu_id;
 header( "Location:../../index.php?modul=mesaiTurleri&islem=guncelle&mesai_turu_id=".$mesai_turu_id );

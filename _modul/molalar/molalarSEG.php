@@ -8,7 +8,12 @@ $tarife_id		= array_key_exists( 'tarife_id', $_REQUEST )		? $_REQUEST[ 'tarife_i
 $mola_id		= array_key_exists( 'mola_id', $_REQUEST )			? $_REQUEST[ 'mola_id' ]		: 0;
 $alanlar		= array();
 $degerler		= array();
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "molalar", $islem );
 
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
  
 $SQL_ekle		= "INSERT INTO tb_molalar SET ";
 $SQL_guncelle 	= "UPDATE tb_molalar SET ";
@@ -50,7 +55,7 @@ $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
 
 $SQL_guncelle 	.= implode( ' = ?, ', $alanlar ) . ' = ?';
 $SQL_guncelle	.= " WHERE id = ?";
-
+$vt->islemBaslat();
 switch( $islem ) {
 
 	case 'guncelle':
@@ -82,5 +87,6 @@ switch( $islem ) {
 
 	break;
 }
+$vt->islemBitir();
 header( "Location:../../index.php?modul=tarifeler&islem=guncelle&tarife_id=".$tarife_id."&detay=mola");
 ?>

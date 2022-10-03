@@ -3,6 +3,13 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "izinler", "guncelle" );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
+
 
 $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'personel_id' ]	: 0;
 $izin_durumu	= array_key_exists( 'izin_durumu', $_REQUEST )		? $_REQUEST[ 'izin_durumu' ]	: 0;
@@ -43,7 +50,7 @@ if ( $tek_personel < 0 ) {
 	$sonuc[ "sonuc" ] = 'hata';
 	die();
 }
-
+$vt->islemBaslat();
 /*Onceden verilen bir izin varsa ise o izi aktif veya pasif ediyoruz*/
 if ( $izinSorgula > 0 ) {
 	$sonuc = $vt->update( $SQL_guncelle, array( $izin_durumu, $personel_id, date( 'Y' ) ) );
@@ -54,5 +61,6 @@ if ( $izinSorgula > 0 ) {
 	$sonuc[ "sonuc" ] = "ok";
 }
 
+$vt->islemBitir();
 echo json_encode($sonuc);
 ?>

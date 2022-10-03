@@ -8,6 +8,12 @@ $avansKesinti_id	= array_key_exists( 'avansKesinti_id', $_REQUEST )		? $_REQUEST
 $alanlar		= array();
 $degerler		= array();
 
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "avansKesinti", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
  
 $SQL_ekle		= "INSERT INTO tb_avans_kesinti SET ";
 $SQL_guncelle 	= "UPDATE tb_avans_kesinti SET ";

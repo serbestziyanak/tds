@@ -6,6 +6,12 @@ $fn					= new Fonksiyonlar();
 $grup_id		= array_key_exists( 'grup_id' , $_REQUEST ) ? $_REQUEST[ 'grup_id' ] : 0;
 $islem				= array_key_exists( 'islem' , $_REQUEST ) ? $_REQUEST[ 'islem' ] : '';
 $___islem_sonuc		= array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti' );
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "gruplar", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
 
 
@@ -35,7 +41,7 @@ WHERE
 	id = ?
 SQL;
 
-
+$vt->islemBaslat();
 switch( $_REQUEST[ 'islem' ] ) {
 	case 'ekle':
 		$sonuc = $vt->insert( $SQL_ekle, array(
@@ -57,6 +63,7 @@ switch( $_REQUEST[ 'islem' ] ) {
 	break;
 }
 
+$vt->islemBitir();
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 header( 'Location: ../../index.php?modul=gruplar' );
 

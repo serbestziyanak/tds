@@ -8,6 +8,12 @@ $personel_id	= array_key_exists( 'personel_id', $_REQUEST )		? $_REQUEST[ 'perso
 $giriscikis_id	= array_key_exists( 'giriscikis_id', $_REQUEST )		? $_REQUEST[ 'giriscikis_id' ]	: 0;
 $alanlar		= array();
 $degerler		= array();
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "giriscikis", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
 
 $SQL_ekle		= "INSERT INTO tb_giris_cikis SET ";
@@ -198,10 +204,7 @@ if ( $islem == "saatguncelle" ) {
 }else{
 	$islem_turu 		= 'saat_ekle';
 }
-
-
-
-
+$vt->islemBaslat();
 switch( $islem ) {
 	case 'ekle':
 		if(array_key_exists("toplu", $_REQUEST)){
@@ -342,6 +345,7 @@ switch( $islem ) {
 		
 	break;
 }
+$vt->islemBitir();
 $_SESSION[ 'anasayfa_durum' ] = 'guncelle';
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;

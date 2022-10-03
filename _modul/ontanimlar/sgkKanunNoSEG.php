@@ -5,6 +5,12 @@ $vt			= new VeriTabani();
 $fn			= new Fonksiyonlar();
 $id			= array_key_exists( 'id' , $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
 $islem		= array_key_exists( 'islem' , $_REQUEST ) ? $_REQUEST[ 'islem' ] : '';
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "sgkKanunNo", $islem );
+
+if ( $yetiKontrol == 0 ) {
+	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+	die();
+}
 
 
 $SQL_ekle = <<< SQL
@@ -32,7 +38,7 @@ SET
 WHERE
 	id = ?
 SQL;
-
+$vt->islemBaslat();
 switch( $_REQUEST[ 'islem' ] ) {
 	case 'ekle':
 		$vt->insert( $SQL_ekle, array(
@@ -50,6 +56,7 @@ switch( $_REQUEST[ 'islem' ] ) {
 		$vt->update( $SQL_sil, array( $id ) );
 	break;
 }
+$vt->islemBitir();
 header( 'Location: ../../index.php?modul=sgkKanunNo' );
 
 
