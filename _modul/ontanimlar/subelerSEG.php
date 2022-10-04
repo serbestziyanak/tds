@@ -3,6 +3,7 @@ include "../../_cekirdek/fonksiyonlar.php";
 
 $vt			= new VeriTabani();
 $fn			= new Fonksiyonlar();
+$islem		= array_key_exists( 'islem' , $_REQUEST ) ? $_REQUEST[ 'islem' ] : '';
 
 $yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "subeler", $islem );
 
@@ -44,7 +45,7 @@ SQL;
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti' );
 $vt->islemBaslat();
 if( array_key_exists( 'islem', $_REQUEST ) ) {
-	switch( $_REQUEST[ 'islem' ] ) {
+	switch( $islem ) {
 		case 'ekle':
 			$sorgu_sonuc = $vt->insert( $SQL_ekle, array(
 				 $_SESSION[ "firma_id" ]
