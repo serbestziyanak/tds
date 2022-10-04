@@ -85,12 +85,12 @@ $kaydet_buton_cls		= $bolum_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn 
 							<td><?php echo $sayi++; ?></td>
 							<td><?php echo $bolum[ 'adi' ]; ?></td>
 							<td align = "center">
-							<a modul = 'firmalar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=bolumler&islem=guncelle&bolum_id=<?php echo $bolum[ 'id' ]; ?>" >
+							<a modul = 'bolumler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=bolumler&islem=guncelle&bolum_id=<?php echo $bolum[ 'id' ]; ?>" >
 								Düzenle
 							</a>
 							</td>
 							<td align = "center">
-							<button modul = 'firmalar' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/ontanimlar/bolumlerSEG.php?islem=sil&bolum_id=<?php echo $bolum[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
+							<button modul = 'bolumler' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/ontanimlar/bolumlerSEG.php?islem=sil&bolum_id=<?php echo $bolum[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay" >Sil</button>
 							</td>
 						</tr>
 						<?php } ?>
