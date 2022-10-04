@@ -14,9 +14,6 @@ if ( $yetiKontrol == 0 ) {
 	die();
 }
 
-echo $islem;
-die();
- 
 $SQL_ekle		= "INSERT INTO tb_mesai_turu SET ";
 $SQL_guncelle 	= "UPDATE tb_mesai_turu SET ";
 
