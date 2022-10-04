@@ -7,12 +7,15 @@ $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: '
 $mesai_turu_id		= array_key_exists( 'mesai_turu_id', $_REQUEST )		? $_REQUEST[ 'mesai_turu_id' ]		: 0;
 $alanlar		= array();
 $degerler		= array();
-$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "measiTurleri", $islem );
+$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "measaiTurleri", $islem );
 
 if ( $yetiKontrol == 0 ) {
 	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
 	die();
 }
+
+echo $islem;
+die();
  
 $SQL_ekle		= "INSERT INTO tb_mesai_turu SET ";
 $SQL_guncelle 	= "UPDATE tb_mesai_turu SET ";
