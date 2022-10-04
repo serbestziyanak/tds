@@ -46,3 +46,6 @@ div.dt-button-collection div.dropdown-menu {
 	border: 0 !important;
 	padding: 3px !important;
 }
+.jexcel_content table{
+	width: 100%;
+}

@@ -21,6 +21,8 @@ SELECT
   *
 FROM
   tb_firmalar
+WHERE
+  id = ?
 SQL;
 
 $SQL_firma_bilgileri = <<< SQL
@@ -32,84 +34,13 @@ WHERE
   id = ?
 SQL;
 
-$SQL_ara = <<< SQL
-SELECT
-  *
-FROM 
-  tb_firmalar
-WHERE
-  adi
-LIKE 
-    ?
-SQL;
-
-$SQL_toplam_veri = <<< SQL
-SELECT 
-  count(id)
-FROM 
-  tb_firmalar
-SQL;
-
-  session_start();
-  if(isset($_POST['limit-belirle'])){
-      $_SESSION['limit-belirle'] = $_POST['limit-belirle'];
-  }
-
 
 $limit = isset($_SESSION["limit-belirle"]) ? $_SESSION["limit-belirle"] : 5;
   $sayfa = isset($_GET['sayfa']) ? $_GET['sayfa'] : 1;
   $baslangic = ($sayfa - 1) * $limit;
 
-$SQL_sayfala = <<< SQL
-SELECT
- * 
-FROM 
-  tb_firmalar
-ORDER BY 
-  id 
-ASC 
-LIMIT
-   $baslangic
-  ,$limit
-SQL;
+$firmalar        = $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
 
-  
-if($sayfa)
-  $firma_bilgileri = array(
-   'id'       => $firma[ 2 ][ 'id' ]
-  ,'adi'      => $firma[ 2 ][ 'adi' ]
-);
-  $sorgu = $vt->select( $SQL_sayfala, array($baslangic,$limit) );
-  $sorgu2 = $vt->select( $SQL_toplam_veri, array() );
- // print_r ($sorgu2[2][0]['count(id)']);
-  //echo $sorgu2[2][0]['count(id)'];
-
-  $sayfalar = ceil( $sorgu2[2][0]['count(id)'] / $limit );
-  $geri  = $sayfa - 1;
-  $ileri = $sayfa + 1;
-  //echo $sayfalar;
-if($sayfa == $sayfalar)
-{
-  $firmalar = $sorgu;
-}else{
-  $firmalar = $vt->select( $SQL_oku, array() );
-}
-
-if(isset($_POST['arama'])){
-  $aranan = "%".$_POST['table_search']."%";
-  if(strlen($aranan) >= 3){
-    $sorgu = $vt->select( $SQL_ara, array($aranan) );
-    //print_r($sorgu);
-  }else{
-     echo "Bulunamadı!";
-  }
-}
-   
-if(isset($_POST['arama'])){
-	$firmalar = $sorgu;
-}else{
-	$firmalar    = $vt->select( $SQL_sayfala, array() );
-}
 $firma           = $vt->selectSingle( $SQL_firma_bilgileri, array( $firma_id ) );
 $firma_bilgileri = array();
 $islem          = array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle';
