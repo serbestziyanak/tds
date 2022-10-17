@@ -99,9 +99,6 @@ switch( $islem ) {
 		$tc_no				= $personel[ 2 ][ 0 ][ 'tc_no' ];
 
 		$dosya_turu_adi     = str_replace("/", "ve", $dosya_turu_adi);
-
-		echo '<pre>';
-		print_r($_FILES['OzlukDosya']);
 		foreach ($_FILES['OzlukDosya']["tmp_name"] as $key => $value) {
 			if( isset( $_FILES[ "OzlukDosya"]["tmp_name"][$key] ) and $_FILES[ "OzlukDosya"][ 'size' ][$key] > 0 ) {
 				$dosya_adi	= $tc_no . "_". rand() ."_".  $dosya_turu_adi . "." . pathinfo( $_FILES[ "OzlukDosya"][ 'name' ][$key], PATHINFO_EXTENSION );

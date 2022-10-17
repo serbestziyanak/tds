@@ -206,17 +206,18 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 	<div class="container-fluid">
 		<div class="row">
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
-				<button modul = 'giriscikis' yetki_islem="personel_hareket_ekle" class="btn btn-outline-primary btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
-				<button modul = 'giriscikis' yetki_islem="personel_toplu_hareket_ekle" class="btn btn-outline-success btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
+				<button modul = 'giriscikis' yetki_islem="personel_hareket_ekle" class="btn btn-outline-primary  m-0" data-toggle="modal" data-target="#PersonelHareketEkle">Personele Hareket Ekle</button>
+				<button modul = 'giriscikis' yetki_islem="personel_toplu_hareket_ekle" class="btn btn-outline-success  m-0" data-toggle="modal" data-target="#TopluHareketEkle">Toplu Hareket Ekle</button>
 				<?php 
 					$link 		=  $detay == "gun" ? '?modul=giriscikis' 	: '?modul=giriscikis&detay=gun'; 
 					$btnyazi 	=  $detay == "gun" ? 'Personele Ait Veri Getir' 	: 'Günlük Veri Getir'; 
 				?>
-				<a modul = 'giriscikis' yetki_islem="gunluk_giris_cikis" class="btn btn-outline-dark btn-lg col-xs-6 col-sm-2" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
-				<button modul = 'giriscikis' yetki_islem="giris_cikis_tipi" class="btn btn-outline-warning   btn-lg col-xs-6 col-sm-2" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
+				<a modul = 'giriscikis' yetki_islem="gunluk_giris_cikis" class="btn btn-outline-dark  m-0" href="<?php echo $link; ?>"><?php echo $btnyazi; ?></a>
+				<button modul = 'giriscikis' yetki_islem="giris_cikis_tipi" class="btn btn-outline-warning    m-0" data-toggle="modal" data-target="#IslemTipi">Giriş Çıkış Tipi</button>
+				<button modul = 'giriscikis' yetki_islem="giris_cikis_tipi" class="btn btn-outline-danger    m-0" data-toggle="modal" data-target="#dosyaOku">Dosyadan Yazdır</button>
 
 				<?php if ($detay =="gun" )  { ?>
-					<div class="col-sm-2" style="float: right;display: flex;">
+					<div class="col-sm-2 m-0 " style="float: right;display: flex;">
 						<div class="">
 							<div class="input-group date" id="datetimepickerGun" data-target-input="nearest">
 								<div class="input-group-append" data-target="#datetimepickerGun" data-toggle="datetimepicker">
@@ -231,7 +232,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 					</div>
 				<?php }else{?>
 					
-					<div class="col-sm-2" style="float: right;display: flex;">
+					<div class="col-sm-2 m-0 m-0" style="float: right;display: flex;">
 						<div class="">
 							<div class="input-group date" id="datetimepickerAy" data-target-input="nearest">
 								<div class="input-group-append" data-target="#datetimepickerAy" data-toggle="datetimepicker">
@@ -922,6 +923,29 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 	</div>
 <?php }else{echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";}?>
 <!--Toplu Hareket Ekleme Modalı-->
+
+<!--Firma Tip İşlemleri -->
+<div class="modal fade" id="dosyaOku"  aria-modal="true" role="dialog" modul = 'giriscikis' yetki_islem="tipKaydet">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Girş Çıkışları Dosyadan Çek</h4>
+				</div>
+				<div class="modal-body">
+					<form action="_modul/giriscikis/dosyadanCek.php" method="POST" enctype="multipart/form-data">
+						<input type="file" name="file">
+
+						<button type="submit" modul="giriscikis" yetki_islem="dosyadanCek" class="btn btn-outline-info col-sm-6 offset-sm-3"> Farklı İzin Kaydet</button>
+					</form>
+						
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 
 <div class="modal fade"  id="sil_onay">

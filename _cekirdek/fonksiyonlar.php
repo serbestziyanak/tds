@@ -195,15 +195,14 @@ SQL;
 	const SQL_puantaj_guncelle = <<< SQL
 UPDATE tb_puantaj
 SET 
-	personel_id			= ?,
-	tarih				= ?,
+	personel_id		= ?,
+	tarih			= ?,
 	izin				= ?,
-	calisma				= ?,
-	hafta_tatili		= ?,
+	calisma			= ?,
 	ucretli_izin		= ?,
 	ucretsiz_izin		= ?,
 	toplam_kesinti		= ?,
-	tatil				= ?,
+	tatil			= ?,
 	maasa_etki_edilsin	= ?
 WHERE
 	id 					= ?  
@@ -214,11 +213,10 @@ SQL;
 INSERT INTO
 	tb_puantaj
 SET
-	personel_id			= ?,
-	tarih				= ?,
+	personel_id		= ?,
+	tarih			= ?,
 	izin				= ?,
-	calisma				= ?,
-	hafta_tatili		= ?,
+	calisma			= ?,
 	ucretli_izin		= ?,
 	ucretsiz_izin		= ?,
 	toplam_kesinti		= ?,
@@ -799,7 +797,7 @@ SQL;
 		//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
 		$tatil 			= $giris_cikis_saat_getir[ 0 ]["tatil"] == 1  ?  'evet' : 'hayir';
 		$maasa_etki_edilsin = $giris_cikis_saat_getir[ 0 ]["maasa_etki_edilsin"] == 1  ?  'evet' : 'hayir';
-		
+		$saySaat = 0;
 		/*Personelin Hangi saat dilimler,nde maasın hesaplanacağını kontrol ediyoruz*/			
 		foreach ( $saatler as $alan => $saat ) {
 			if ( $SonCikisSaat[ 0 ] <= $saat[ "bitis" ] AND  $saat[ "baslangic" ] <= $SonCikisSaat[ 0 ]   ){
@@ -982,21 +980,21 @@ SQL;
 		}
 
 		$sonuc["KullanilanSaatler"] 			= $KullanilanSaatler; 			 // Hangi tarilerin uygulanacağını kontrol ediyoruz
-		$sonuc["kullanilacakMolalar"] 			= $kullanilacakMolalar; 		 //tarifelerer ait molalar
-		$sonuc["saatSay"] 						= $saatSay; 					
+		$sonuc["kullanilacakMolalar"] 		= $kullanilacakMolalar; 		 //tarifelerer ait molalar
+		$sonuc["saatSay"] 					= $saatSay; 					
 		$sonuc["asilkullanilanMolalar"] 		= $asilkullanilanMolalar;		 //Personelin Kullandığı molalar
 		$sonuc["calismasiGerekenToplamDakika"] 	= $calismasiGerekenToplamDakika;  //Calışması gereken toplam dakika
 		$sonuc["calisilanToplamDakika"] 		= $calisilanToplamDakika; 		 //Personelin çalıştığı toplam dakika
-		$sonuc["kullanilanToplamMola"] 			= $kullanilanToplamMola;		 //Asil Molaların Toplamı
-		$sonuc["kullanilmayanMolaToplami"] 		= $kullanilmayanMolaToplami;	 
-		$sonuc["islenenSaatler"] 				= $islenenSaatler;				 
-		$sonuc["ucretli"] 						= $izin[ "ucretli" ];			 
-		$sonuc["ucretsiz"] 						= $izin[ "ucretsiz" ];			 
+		$sonuc["kullanilanToplamMola"] 		= $kullanilanToplamMola;		 //Asil Molaların Toplamı
+		$sonuc["kullanilmayanMolaToplami"] 	= $kullanilmayanMolaToplami;	 
+		$sonuc["islenenSaatler"] 			= $islenenSaatler;				 
+		$sonuc["ucretli"] 					= $izin[ "ucretli" ];			 
+		$sonuc["ucretsiz"] 					= $izin[ "ucretsiz" ];			 
 		$sonuc["kullanilmasiGerekenToplamMola"] = $kullanilmasiGerekenToplamMola;
 		$sonuc["personel_giris_cikis_sayisi"] 	= $personel_giris_cikis_sayisi;
 		$sonuc["personel_giris_cikis_saatleri"] = $personel_giris_cikis_saatleri;
 		$sonuc["genelCalismaSuresiToplami"] 	= $genelCalismaSuresiToplami;
-		$sonuc["tatil"] 						= $tatil;
+		$sonuc["tatil"] 					= $tatil;
 		$sonuc["maasa_etki_edilsin"] 			= $maasa_etki_edilsin;
 		$sonuc["ilkUygulanacakSaat"] 			= $ilkUygulanacakSaat;
 
@@ -1018,10 +1016,10 @@ SQL;
 		$calisilanToplamDakika 		 	= $hesapla["calisilanToplamDakika"];
 		$kullanilmasiGerekenToplamMola 	= $hesapla["kullanilmasiGerekenToplamMola"];
 		$ilkUygulanacakSaat 		 	= $hesapla["ilkUygulanacakSaat"];
-		$tatil 							= $hesapla["tatil"] 			 == "hayir" ? 0 : 1;
-		$maasa_etki_edilsin 			= $hesapla["maasa_etki_edilsin"] == "hayir" ? 0 : 1;
+		$tatil 						= $hesapla["tatil"] 		    	== "hayir" ? 0 : 1;
+		$maasa_etki_edilsin 			= $hesapla["maasa_etki_edilsin"] 	== "hayir" ? 0 : 1;
 		$ucretli_izin 					= $hesapla["ucretli"];
-		$ucretsiz_izin 					= $hesapla["ucretsiz"];
+		$ucretsiz_izin 				= $hesapla["ucretsiz"];
 
 		$toplamIzın 					= $ucretli_izin + $ucretsiz_izin;
 		$cikarilacakMola 				= $kullanilmasiGerekenToplamMola;
@@ -1039,7 +1037,6 @@ SQL;
 			$tarih."-".$sayi,
 			$izin,
 			$calisma,
-			$hafta_tatili,
 			$ucretli_izin,
 			$ucretsiz_izin,
 			$toplam_kesinti, 

@@ -181,12 +181,12 @@ $personel_id 			= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'per
 
 $tek_personel 			= $vt->select($SQL_tek_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) )[ 2 ];
 
-$___islem_sonuc  		= array( 'hata' => true, 'mesaj' => 'Hatalı işlem : Hata kodu : 5001', 'id' => 0 );
+$___islem_sonuc  		= array( 'hata' => false, 'mesaj' => 'İşlem Başarılı');
 
 
 if ( count( $tek_personel )   < 1  ) {
 
-	$_SESSION[ 'sonuclar' ] = $___islem_sonuc;
+	$_SESSION[ 'sonuclar' ] = array( 'hata' => true, 'mesaj' => 'Hatalı İşlem Yapmaktasınız.', 'id' => 0 );
 	$_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
 	header( "Location:../../index.php?modul=giriscikis&personel_id=".$personel_id );
 	die();
@@ -233,7 +233,17 @@ switch( $islem ) {
 			$degerler[] 		= $baslangicSaat[0]; // Tarih Alanına Deger Atıyoruz
 
 			while ($i <= $ikiTarihArasindakFark) {
-				$sonuc 				= $vt->insert( $SQL_ekle, $degerler );
+				$sonuc 			= $vt->insert( $SQL_ekle, $degerler );
+
+				/*Başlangıc ve bitiş saati var ise paketi alıp hesaplama işlemi yapılacak*/
+				$tarihAl 	= date( "Y-m", strtotime( $gelenTarih ) );
+				$sayi 		= date( "d", strtotime( $gelenTarih ) );
+
+				$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarihAl, $sayi, $tek_personel[ 0 ][ 'grup_id' ] );
+
+				/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
+				$fn->puantajKaydet( $personel_id, $tarih ,$sayi, $hesapla);
+
 				$baslangicSaat[0] 	= date('Y-m-d', strtotime($baslangicSaat[0] . ' +1 day'));
 				array_pop($degerler);
 				$degerler[] 		= $baslangicSaat[0];
