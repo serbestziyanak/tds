@@ -131,7 +131,7 @@ if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
 	echo "Dosya Yazılmadı Eklenmesi gereken personel mevcut personel eklendikten sonra tekrar deneyiniz<br>
 	Personel Kayıt Numaraları Asağıdadır.<br>";
 	foreach ($_SESSION[ "bosOlanKayitNumalarari" ] as  $numara) {
-		echo "<h5>$numara</h5><br>";
+		echo "<h4>$numara</h4>";
 	}
 }else{
 	echo 'Dosya Okuma Başarılı Veriler Eklendi';
