@@ -30,8 +30,8 @@ $SQL_giris_cikis_kaydet = <<< SQL
 INSERT INTO
 	tb_giris_cikis
 SET
-	personel_id	= ?,
-	tarih		= ?,
+	personel_id		= ?,
+	tarih			= ?,
 	baslangic_saat	= ?
 SQL;
 
@@ -43,8 +43,9 @@ SELECT
 FROM
 	tb_personel AS p
 WHERE
-	p.firma_id = ? AND 
-	p.kayit_no = ?
+	p.firma_id 	= ? AND 
+	p.kayit_no 	= ? AND
+	p.aktif 	= 1
 SQL;
 
 //Çıkış Yapılıp Yapılmadığı Kontrolü
@@ -80,50 +81,65 @@ WHERE
 	id 			= ?  
 SQL;
 
-echo '<pre>';
-
+$_SESSION[ "bosOlanKayitNumalarari" ] = array();
 $Dosya = fopen( "../../dosyadanCek/".$_SESSION["firma_id"]."/".date('d-m-Y')."/".$firma, "r" ) or exit( "Dosya Açılamadı !" );
 
 $vt->islemBaslat();
 
 while( !feof( $Dosya ) )
 {	
-	
-  	$satir 		= fgets( $Dosya );
-  	$satir_bol 	= explode( ",", $satir );
-  	$tarih_bol  = explode( " ", $satir_bol[3] );
-  	$tarih 		= str_replace(".","-", $tarih_bol[0]  );
-  	$saat 		= $tarih_bol[1];
-  	$personel_kayit_numarasi = intval( $satir_bol[1] ); 
+	$satir 		= fgets( $Dosya );
+	$satir_bol 	= explode( ",", $satir );
+	$bosTemizle = array_filter($satir_bol);
 
-  	$time_input = strtotime($tarih); 
-	$date_input = getDate($time_input);    
+	if( count( $bosTemizle ) > 0 ){
 
-	$tarihAl 	= $date_input["year"]."-".$date_input["mon"];
-	$sayi 		= $date_input["mday"];
+		$tarih_bol  = explode( " ", $satir_bol[3] );
+		$tarih 		= str_replace(".","-", $tarih_bol[0]  );
+		$saat 		= $tarih_bol[1];
+		$personel_kayit_numarasi = intval( $satir_bol[1] ); 
 
-  	//Gelen kayıt numarasına göre personelli çağırıyoruz
-  	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
+		$time_input = strtotime($tarih); 
+		$date_input = getDate($time_input);    
 
-  	//Personel Varsa işlmelere devam ediliyor
-  	if ( count( $personel_varmi ) > 0 ){
-  		
-  		//Personel giriş yapıp cıkış yapmadığını kontrol ediyoruz
-  		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
-  		
-  		if ( count( $girisvarmi ) > 0 ){
-			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
-			$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
-			/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
-			$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
-  		}else{
-  			$ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
+		$tarihAl 	= $date_input["year"]."-".$date_input["mon"];
+		$sayi 		= $date_input["mday"];
+
+		//Gelen kayıt numarasına göre personelli çağırıyoruz
+		$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
+
+		//Personel Varsa işlmelere devam ediliyor
+		if ( count( $personel_varmi ) > 0 ){
+			
+			//Personel giriş yapıp cıkış yapmadığını kontrol ediyoruz
+			$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
+			
+			if ( count( $girisvarmi ) > 0 ){
+				$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
+				$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
+				/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
+				$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
+			}else{
+				$ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
+			}
+		}else{
+			if( !in_array( $personel_kayit_numarasi, $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
+				$_SESSION[ "bosOlanKayitNumalarari" ][ $personel_kayit_numarasi ] = $personel_kayit_numarasi;
+			}
 		}
-  	}else{
-		echo "----------------------------Personel Yok Kayıt no $personel_kayit_numarasi <br>";
 	}
 }
-$vt->islemBitir();
+if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
+	echo "Dosya Yazılmadı Eklenmesi gereken personel mevcut personel eklendikten sonra tekrar deneyiniz<br>
+	Personel Kayıt Numaraları Asağıdadır.<br>";
+	foreach ($_SESSION[ "bosOlanKayitNumalarari" ] as  $numara) {
+		echo "<h5>$numara</h5><br>";
+	}
+}else{
+	echo 'Dosya Okuma Başarılı Veriler Eklendi';
+}
 fclose($Dosya);
+$vt->islemKontrol();
+
 
 ?>

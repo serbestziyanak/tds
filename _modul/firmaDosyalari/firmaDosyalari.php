@@ -8,18 +8,19 @@ $dosyaTuru_id 	= array_key_exists( 'dosyaTuru_id', $_REQUEST ) ? $_REQUEST[ 'dos
 //Firma_Dosya Trurlerini ve toplasm dosya sayısı ile birlikte listelemek
 $SQL_tum_firma_dosyasi_oku = <<< SQL
 SELECT
-	tb_firma_dosya_turleri.id,
-	tb_firma_dosya_turleri.adi,
-	tb_firma_dosya_turleri.tarih,
+	fdt.id,
+	fdt.adi,
+	fdt.tarih,
 	(SELECT COUNT(tb_firma_dosyalari.id) 
 		FROM tb_firma_dosyalari 
-		WHERE tb_firma_dosyalari.dosya_turu_id = tb_firma_dosya_turleri.id 
+		WHERE tb_firma_dosyalari.dosya_turu_id = fdt.id 
 		) AS dosyaSayisi
 FROM
-	tb_firma_dosya_turleri
+	tb_firma_dosya_turleri AS fdt
 WHERE 
 	firma_id = ? AND 
 	kategori = ? 
+ORDER BY fdt.adi ASC
 SQL;
 
 $SQL_tek_dosya_turu_oku = <<< SQL
@@ -47,6 +48,7 @@ INNER JOIN
 WHERE
 	dt.id 		= ? AND
 	dt.firma_id = ?
+ORDER BY dt.adi ASC
 SQL;
 
 /*ANA KATEGORİLER*/
@@ -126,7 +128,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 
 									foreach( $dosyaTurleri[ 2 ] AS $dosyaTuru ) { 
 								?>
-										<tr  <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo "class = '$satir_renk'";?>>
+										<tr class=" <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk; ?> table-success">
 											<td><?php echo $sayi++; ?></td>
 											<td><?php echo $dosyaTuru[ 'adi' ]; ?></td>
 											<td>
@@ -159,8 +161,8 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 										$altDosya = $vt->select( $SQL_tum_firma_dosyasi_oku, array( $_SESSION[ 'firma_id' ], $dosyaTuru[ 'id' ] ) ) [ 2];
 										foreach ( $altDosya as $altDosyaTuru ) { 
 								?>
-											<tr  <?php if( $altDosyaTuru[ 'id' ] == $dosyaTuru_id ) echo "class = '$satir_renk'";?>>
-												<td><i class="fas fa-angle-double-right"></i></td>
+											<tr class=" <?php if( $altDosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk;?>">
+												<td><i class="fas fa-level-up-alt" style="transform: rotate(90deg);"></i></td>
 												<td><?php echo $altDosyaTuru[ 'adi' ]; ?></td>
 												<td>
 													<?php
