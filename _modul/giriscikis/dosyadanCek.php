@@ -5,10 +5,10 @@ $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
 
+$dizin1 =  "../../dosyadanCek/".$_SESSION["firma_id"];
 $dizin =  "../../dosyadanCek/".$_SESSION["firma_id"]."/".date("dmY");
-
 //personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
-if (!is_dir($dizin)) {
+if (!is_dir($dizin1)) {
 	if(!mkdir($dizin, '0777', true)){
 		$sonuc["sonuc"] = "hata - 2";
 	}else{	
@@ -16,6 +16,13 @@ if (!is_dir($dizin)) {
 	}
 }
 
+if (!is_dir($dizin)) {
+	if(!mkdir($dizin, '0777', true)){
+		$sonuc["sonuc"] = "hata - 2";
+	}else{	
+		chmod($dizin, 0777);
+	}
+}
 if( isset( $_FILES[ "file"]["tmp_name"] ) and $_FILES[ "file"][ 'size' ] > 0 ) {
 	$firma	= uniqid() ."." . pathinfo( $_FILES[ "file"][ 'name' ], PATHINFO_EXTENSION );
 	$hedef_yol		= $dizin.'/'.$firma;
