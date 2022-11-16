@@ -935,7 +935,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 					<form action="_modul/giriscikis/dosyadanCek.php" method="POST" enctype="multipart/form-data">
 						<input type="file" name="file">
 
-						<button type="submit" modul="giriscikis" yetki_islem="dosyadanCek" class="btn btn-outline-info col-sm-6 offset-sm-3"> Farklı İzin Kaydet</button>
+						<button type="submit" modul="giriscikis" yetki_islem="dosyadanCek" class="btn btn-outline-info col-sm-6 offset-sm-3">Dosyadan Çek</button>
 					</form>
 						
 				</div>

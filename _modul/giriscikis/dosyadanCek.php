@@ -1,11 +1,20 @@
 <?php 
-	error_reporting( E_ALL );
+	error_reporting( 0 );
 	include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
 
-$dizin =  "../../dosyadanCek";
+$dizin =  "../../dosyadanCek/".$_SESSION["firma_id"]."/".date("d-m-Y");
+
+//personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
+if (!is_dir($dizin)) {
+	if(!mkdir($dizin, '0777', true)){
+		$sonuc["sonuc"] = "hata - 2";
+	}else{	
+		chmod($dizin, 0777);
+	}
+}
 
 if( isset( $_FILES[ "file"]["tmp_name"] ) and $_FILES[ "file"][ 'size' ] > 0 ) {
 	$firma	= uniqid() ."." . pathinfo( $_FILES[ "file"][ 'name' ], PATHINFO_EXTENSION );
@@ -14,6 +23,8 @@ if( isset( $_FILES[ "file"]["tmp_name"] ) and $_FILES[ "file"][ 'size' ] > 0 ) {
 }else{
 	die("Dosya Yüklenmedi");
 }
+
+
 
 $SQL_giris_cikis_kaydet = <<< SQL
 INSERT INTO
@@ -71,7 +82,7 @@ SQL;
 
 echo '<pre>';
 
-$Dosya = fopen( "../../dosyadanCek/$firma", "r" ) or exit( "Dosya Açılamadı !" );
+$Dosya = fopen( "../../dosyadanCek/".$_SESSION["firma_id"]."/".date('d-m-Y')."/".$firma, "r" ) or exit( "Dosya Açılamadı !" );
 
 $vt->islemBaslat();
 
@@ -90,14 +101,9 @@ while( !feof( $Dosya ) )
 
 	$tarihAl 	= $date_input["year"]."-".$date_input["mon"];
 	$sayi 		= $date_input["mday"];
-	
-	echo "firma_id".$_SESSION['firma_id'];
-	echo "<br>Personel Kayıt No".$personel_kayit_numarasi."<br>";
 
   	//Gelen kayıt numarasına göre personelli çağırıyoruz
   	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
-
-	print_r($personel_varmi);
 
   	//Personel Varsa işlmelere devam ediliyor
   	if ( count( $personel_varmi ) > 0 ){
@@ -106,27 +112,18 @@ while( !feof( $Dosya ) )
   		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
   		
   		if ( count( $girisvarmi ) > 0 ){
-  			echo '--------------------------------------------Griş Var <br>';
 			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
-			echo 'Guncelleme  GEÇİLDİ';
 			$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
-			echo 'Hesaplama';
-			print_r($hesapla);
 			/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 			$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
-			print_r($sonuc);
-			echo "--------------------------------------------<br>";
   		}else{
   			$ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
-			print_r($ekle);
 		}
   	}else{
-		echo "----------------------------Personel Yok Kayıt no $personel_kayit_numarasi ";
+		echo "----------------------------Personel Yok Kayıt no $personel_kayit_numarasi <br>";
 	}
 }
 $vt->islemBitir();
 fclose($Dosya);
-unlink($dizin.'/'.$firma);
-
 
 ?>
