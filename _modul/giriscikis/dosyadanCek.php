@@ -106,7 +106,7 @@ while( !feof( $Dosya ) )
   		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
   		
   		if ( count( $girisvarmi ) > 0 ){
-  			echo 'Griş Var <br>';
+  			echo '--------------------------------------------Griş Var <br>';
 			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
 			echo 'Guncelleme  GEÇİLDİ';
 			$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
@@ -115,12 +115,13 @@ while( !feof( $Dosya ) )
 			/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 			$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
 			print_r($sonuc);
+			echo "--------------------------------------------<br>";
   		}else{
   			$ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
 			print_r($ekle);
 		}
   	}else{
-		echo 'Personel Yok';
+		echo "----------------------------Personel Yok Kayıt no $personel_kayit_numarasi ";
 	}
 }
 $vt->islemBitir();
