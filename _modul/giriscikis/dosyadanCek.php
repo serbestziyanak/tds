@@ -1,6 +1,6 @@
 <?php 
 	echo 'dosya Geldi';
-	error_reporting( 0 );
+	error_reporting( E_ALL );
 	include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
@@ -86,19 +86,17 @@ while( !feof( $Dosya ) )
   	$saat 		= $tarih_bol[1];
   	$personel_kayit_numarasi = intval( $satir_bol[1] ); 
 
-	
-
   	$time_input = strtotime($tarih); 
 	$date_input = getDate($time_input);    
 
 	$tarihAl 	= $date_input["year"]."-".$date_input["mon"];
 	$sayi 		= $date_input["mday"];
-
-
+	
   	//Gelen kayıt numarasına göre personelli çağırıyoruz
   	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
 
 	print_r($personel_varmi);
+	die;
 
   	//Personel Varsa işlmelere devam ediliyor
   	if ( count( $personel_varmi ) > 0 ){
