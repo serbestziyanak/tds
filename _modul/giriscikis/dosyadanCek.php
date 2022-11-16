@@ -122,14 +122,9 @@ while( !feof( $Dosya ) )
   	}else{
 		echo 'Personel Yok';
 	}
-	echo $satir;
-	die;
-
 }
- 
-fclose($Dosya);
 $vt->islemBitir();
-
+fclose($Dosya);
 unlink($dizin.'/'.$firma);
 
 
