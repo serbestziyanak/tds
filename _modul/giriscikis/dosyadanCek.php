@@ -98,7 +98,6 @@ while( !feof( $Dosya ) )
   	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
 
 	print_r($personel_varmi);
-	die;
 
   	//Personel Varsa işlmelere devam ediliyor
   	if ( count( $personel_varmi ) > 0 ){
