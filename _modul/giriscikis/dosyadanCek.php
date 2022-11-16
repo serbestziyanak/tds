@@ -12,6 +12,8 @@ if( isset( $_FILES[ "file"]["tmp_name"] ) and $_FILES[ "file"][ 'size' ] > 0 ) {
 	$firma	= uniqid() ."." . pathinfo( $_FILES[ "file"][ 'name' ], PATHINFO_EXTENSION );
 	$hedef_yol		= $dizin.'/'.$firma;
 	move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ], $hedef_yol );
+}else{
+	die("Dosya Yüklenmedi");
 }
 
 $SQL_giris_cikis_kaydet = <<< SQL
@@ -83,6 +85,8 @@ while( !feof( $Dosya ) )
   	$saat 		= $tarih_bol[1];
   	$personel_kayit_numarasi = intval( $satir_bol[1] ); 
 
+	echo $satir;
+	die;
 
   	$time_input = strtotime($tarih); 
 	$date_input = getDate($time_input);    
