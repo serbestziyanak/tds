@@ -109,16 +109,17 @@ while( !feof( $Dosya ) )
 		print_r($girisvarmi);
 
   		if ( count( $girisvarmi ) > 0 ){
-  			$vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
-
+  			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
+			print_r($update);
 			$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
-
+			print_r($hesapla);
 			/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
-			$fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
-
+			$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
+			print_r($sonuc);
   		}else{
-  			$vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
-  		}
+  			$ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
+			print_r($ekle);
+		}
   	}
 	echo $satir;
 	die;
