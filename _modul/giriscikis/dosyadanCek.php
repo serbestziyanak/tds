@@ -1,5 +1,4 @@
 <?php 
-	echo 'dosya Geldi';
 	error_reporting( E_ALL );
 	include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
@@ -92,6 +91,9 @@ while( !feof( $Dosya ) )
 	$tarihAl 	= $date_input["year"]."-".$date_input["mon"];
 	$sayi 		= $date_input["mday"];
 	
+	echo $_SESSION['firma_id'];
+	echo $personel_kayit_numarasi;
+
   	//Gelen kayıt numarasına göre personelli çağırıyoruz
   	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
 
@@ -105,6 +107,7 @@ while( !feof( $Dosya ) )
   		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
   		
 		print_r($girisvarmi);
+		die;
 
   		if ( count( $girisvarmi ) > 0 ){
   			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
@@ -118,7 +121,9 @@ while( !feof( $Dosya ) )
   			$ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
 			print_r($ekle);
 		}
-  	}
+  	}else{
+		echo 'Personel Yok';
+	}
 	echo $satir;
 	die;
 
