@@ -70,11 +70,12 @@ WHERE
 	id 			= ?  
 SQL;
 
-
+echo '<pre>';
 
 $Dosya = fopen( "../../dosyadanCek/$firma", "r" ) or exit( "Dosya Açılamadı !" );
 
- 
+$vt->islemBaslat();
+
 while( !feof( $Dosya ) )
 {	
 	
@@ -98,12 +99,16 @@ while( !feof( $Dosya ) )
   	//Gelen kayıt numarasına göre personelli çağırıyoruz
   	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
 
+	print_r($personel_varmi);
+
   	//Personel Varsa işlmelere devam ediliyor
   	if ( count( $personel_varmi ) > 0 ){
   		
   		//Personel giriş yapıp cıkış yapmadığını kontrol ediyoruz
   		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
   		
+		print_r($girisvarmi);
+
   		if ( count( $girisvarmi ) > 0 ){
   			$vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
 
@@ -120,6 +125,7 @@ while( !feof( $Dosya ) )
 }
  
 fclose($Dosya);
+$vt->islemBitir();
 
 unlink($dizin.'/'.$firma);
 
