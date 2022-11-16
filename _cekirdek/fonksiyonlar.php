@@ -1011,6 +1011,7 @@ SQL;
 	/*Puantajı Kaydetme Guncelleme işlemi */
 
 	public function puantajKaydet($personel_id,$tarih,$sayi,$hesapla = array()){
+		$this->vt->islemBaslat();
 		$izin = 0;
 		$calismasiGerekenToplamDakika  	= $hesapla["calismasiGerekenToplamDakika"];
 		$calisilanToplamDakika 		 	= $hesapla["calisilanToplamDakika"];
@@ -1051,9 +1052,7 @@ SQL;
 			/*Yeni puantaj ekelenecek*/
 			
 			$this->vt->insert( self::SQL_puantaj_kaydet, $veriler );
-
 		}
-
 		return true;
 	}
 

@@ -145,7 +145,5 @@ if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
 	echo 'Dosya Okuma Başarılı Veriler Eklendi';
 }
 fclose($Dosya);
-$vt->islemKontrol();
-
-
+echo $vt->islemKontrol();
 ?>
