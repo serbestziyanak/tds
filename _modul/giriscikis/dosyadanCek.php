@@ -140,7 +140,7 @@ if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
 	foreach ($_SESSION[ "bosOlanKayitNumalarari" ] as  $numara) {
 		echo "<h4>$numara</h4>";
 	}
-	unset($hedef_yol);
+	unlink($hedef_yol);
 }else{
 	echo 'Dosya Okuma Başarılı Veriler Eklendi';
 }
