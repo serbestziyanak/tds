@@ -91,8 +91,8 @@ while( !feof( $Dosya ) )
 	$tarihAl 	= $date_input["year"]."-".$date_input["mon"];
 	$sayi 		= $date_input["mday"];
 	
-	echo $_SESSION['firma_id'];
-	echo $personel_kayit_numarasi;
+	echo "firma_id".$_SESSION['firma_id'];
+	echo "<br>Personel Kayıt No".$personel_kayit_numarasi."<br>";
 
   	//Gelen kayıt numarasına göre personelli çağırıyoruz
   	$personel_varmi = $vt->select( $SQL_personel_oku, array($_SESSION['firma_id'], $personel_kayit_numarasi ) ) [2];
@@ -106,13 +106,12 @@ while( !feof( $Dosya ) )
   		//Personel giriş yapıp cıkış yapmadığını kontrol ediyoruz
   		$girisvarmi  = $vt->select($SQL_personel_gun_cikis, array( $personel_varmi[ 0 ][ 'id' ], $tarih ))[ 2 ];
   		
-		print_r($girisvarmi);
-		die;
-
   		if ( count( $girisvarmi ) > 0 ){
-  			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
-			print_r($update);
+  			echo 'Griş Var <br>';
+			$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
+			echo 'Guncelleme  GEÇİLDİ';
 			$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
+			echo 'Hesaplama';
 			print_r($hesapla);
 			/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 			$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
