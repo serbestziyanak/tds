@@ -86,8 +86,7 @@ while( !feof( $Dosya ) )
   	$saat 		= $tarih_bol[1];
   	$personel_kayit_numarasi = intval( $satir_bol[1] ); 
 
-	echo $satir;
-	die;
+	
 
   	$time_input = strtotime($tarih); 
 	$date_input = getDate($time_input);    
@@ -121,6 +120,8 @@ while( !feof( $Dosya ) )
   			$vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
   		}
   	}
+	echo $satir;
+	die;
 
 }
  
