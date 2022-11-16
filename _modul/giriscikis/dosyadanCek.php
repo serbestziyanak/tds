@@ -5,7 +5,7 @@ $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
 
-$dizin =  "../../dosyadanCek/".$_SESSION["firma_id"]."/".date("d-m-Y");
+$dizin =  "../../dosyadanCek/".$_SESSION["firma_id"]."/".date("dmY");
 
 //personel id sine göre klasor oluşturulmu diye kontrol edip yok ise klador oluşturuyoruz
 if (!is_dir($dizin)) {
@@ -23,8 +23,6 @@ if( isset( $_FILES[ "file"]["tmp_name"] ) and $_FILES[ "file"][ 'size' ] > 0 ) {
 }else{
 	die("Dosya Yüklenmedi");
 }
-
-
 
 $SQL_giris_cikis_kaydet = <<< SQL
 INSERT INTO
@@ -82,7 +80,7 @@ WHERE
 SQL;
 
 $_SESSION[ "bosOlanKayitNumalarari" ] = array();
-$Dosya = fopen( "../../dosyadanCek/".$_SESSION["firma_id"]."/".date('d-m-Y')."/".$firma, "r" ) or exit( "Dosya Açılamadı !" );
+$Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
 
 $vt->islemBaslat();
 
