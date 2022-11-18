@@ -93,6 +93,7 @@ $contents = fread($Dosya, filesize($hedef_yol));
 while( !feof( $Dosya ) )
 {
 	$satir 		= fgets( $Dosya );
+	echo $satir."<br>";
 	$satir_bol 	= explode( ",", $satir );
 	$dizi_test[]=$satir_bol;
 }
