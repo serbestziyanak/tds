@@ -138,15 +138,26 @@ foreach($dizi_test as $alt_dizi){
 	}
 }
 if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
-	echo "Dosya Yazılmadı Eklenmesi gereken personel mevcut personel eklendikten sonra tekrar deneyiniz<br>
+	$mesaj = "Dosya Yazılmadı Eklenmesi gereken personel mevcut personel eklendikten sonra tekrar deneyiniz<br>
 	Personel Kayıt Numaraları Asağıdadır.<br>";
 	foreach ($_SESSION[ "bosOlanKayitNumalarari" ] as  $numara) {
-		echo "<h4>$numara</h4>";
+		$mesaj .= "<h4>$numara</h4>";
 	}
 	unlink($hedef_yol);
 }else{
-	echo 'Dosya Okuma Başarılı Veriler Eklendi';
+	$mesaj = 'Dosya Okuma Başarılı Veriler Eklendi';
 }
 fclose($Dosya);
-echo $vt->islemKontrol();
+$vt->islemKontrol();
 ?>
+
+<html>
+	<head>
+		<title>
+
+		</title>
+	</head>
+	<body>
+		<div class="mesaj"><?php echo $mesaj ?></div>
+	</body>
+</html>
