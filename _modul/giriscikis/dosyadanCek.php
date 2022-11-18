@@ -158,6 +158,6 @@ $vt->islemKontrol();
 		</title>
 	</head>
 	<body>
-		<div class="mesaj" style='width: 650px; margin: auto; text-align: center;'><?php echo $mesaj ?></div>
+		<div class="mesaj" style='width: 650px; margin: auto; text-align: center;font-size: 21px;'><?php echo $mesaj ?></div>
 	</body>
 </html>
