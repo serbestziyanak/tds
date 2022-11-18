@@ -89,7 +89,14 @@ SQL;
 $_SESSION[ "bosOlanKayitNumalarari" ] = array();
 $Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
 $contents = fread($Dosya, filesize($hedef_yol));
-echo $contents;
+
+while( !feof( $Dosya ) )
+{
+	$satir 		= fgets( $Dosya );
+	$satir_bol 	= explode( ",", $satir );
+	$dizi_test[]=$satir_bol;
+}
+var_dump($dizi_test);
 exit;
 $vt->islemBaslat();
 
