@@ -88,7 +88,9 @@ SQL;
 
 $_SESSION[ "bosOlanKayitNumalarari" ] = array();
 $Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
-
+$contents = fread($Dosya, filesize($hedef_yol));
+echo $contents;
+exit;
 $vt->islemBaslat();
 
 while( !feof( $Dosya ) )
