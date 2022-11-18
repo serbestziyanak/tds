@@ -97,6 +97,7 @@ while( !feof( $Dosya ) )
 	$satir_bol 	= explode( ",", $satir );
 	$dizi_test[]=$satir_bol;
 }
+fclose($Dosya);
 //var_dump($dizi_test);
 foreach($dizi_test as $alt_dizi){
 	echo $alt_dizi[3]."<br>";
@@ -157,6 +158,6 @@ if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
 }else{
 	echo 'Dosya Okuma Başarılı Veriler Eklendi';
 }
-fclose($Dosya);
+
 echo $vt->islemKontrol();
 ?>
