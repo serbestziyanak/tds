@@ -93,11 +93,14 @@ $Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
 while( !feof( $Dosya ) )
 {
 	$satir 		= fgets( $Dosya );
-	echo $satir."<br>";
+	//echo $satir."<br>";
 	$satir_bol 	= explode( ",", $satir );
 	$dizi_test[]=$satir_bol;
 }
-var_dump($dizi_test);
+//var_dump($dizi_test);
+foreach($dizi_test as $alt_dizi){
+	echo $alt_dizi[3]."<br>";
+}
 exit;
 $vt->islemBaslat();
 
