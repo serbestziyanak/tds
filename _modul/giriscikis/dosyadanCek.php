@@ -88,7 +88,7 @@ SQL;
 
 $_SESSION[ "bosOlanKayitNumalarari" ] = array();
 $Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
-$contents = fread($Dosya, filesize($hedef_yol));
+//$contents = fread($Dosya, filesize($hedef_yol));
 
 while( !feof( $Dosya ) )
 {
