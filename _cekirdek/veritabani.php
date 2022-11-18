@@ -132,7 +132,7 @@ class VeriTabani {
 	}
 	public function islemKontrol() {
 		$vt = $this->vt;
-		if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) > 0 OR $this->hataTopluIslem ) {
+		if( ( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) > 0 ) OR $this->hataTopluIslem ) {
 			$vt->rollBack();
 			unset( $_SESSION[ "bosOlanKayitNumalarari" ] );
 		}else{
