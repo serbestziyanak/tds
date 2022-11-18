@@ -239,6 +239,7 @@ SQL;
 	/* Kurucu metod  */
 	public function __construct() {
 		$this->vt = new VeriTabani();
+		$this->vt->islemBaslat();
 	}
 
 	/* Kullanıcı süper değilse rolünün görebileceği roller dizisi döner. */
@@ -1011,7 +1012,7 @@ SQL;
 	/*Puantajı Kaydetme Guncelleme işlemi */
 
 	public function puantajKaydet($personel_id,$tarih,$sayi,$hesapla = array()){
-		$this->vt->islemBaslat();
+		
 		$izin = 0;
 		$calismasiGerekenToplamDakika  	= $hesapla["calismasiGerekenToplamDakika"];
 		$calisilanToplamDakika 		 	= $hesapla["calisilanToplamDakika"];

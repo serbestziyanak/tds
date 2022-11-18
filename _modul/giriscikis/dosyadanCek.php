@@ -88,35 +88,24 @@ SQL;
 
 $_SESSION[ "bosOlanKayitNumalarari" ] = array();
 $Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
-//$contents = fread($Dosya, filesize($hedef_yol));
 
 while( !feof( $Dosya ) )
 {
 	$satir 		= fgets( $Dosya );
-	//echo $satir."<br>";
 	$satir_bol 	= explode( ",", $satir );
 	$dizi_test[]=$satir_bol;
 }
 fclose($Dosya);
-//var_dump($dizi_test);
-foreach($dizi_test as $alt_dizi){
-	echo $alt_dizi[3]."<br>";
-}
-exit;
 $vt->islemBaslat();
-
-while( !feof( $Dosya ) )
-{	
-	$satir 		= fgets( $Dosya );
-	$satir_bol 	= explode( ",", $satir );
-	$bosTemizle = array_filter($satir_bol);
+foreach($dizi_test as $alt_dizi){
+	$bosTemizle = array_filter($alt_dizi);
 
 	if( count( $bosTemizle ) > 0 ){
 
-		$tarih_bol  = explode( " ", $satir_bol[3] );
+		$tarih_bol  = explode( " ", $alt_dizi[3] );
 		$tarih 		= str_replace(".","-", $tarih_bol[0]  );
 		$saat 		= $tarih_bol[1];
-		$personel_kayit_numarasi = intval( $satir_bol[1] ); 
+		$personel_kayit_numarasi = intval( $alt_dizi[1] ); 
 
 		$time_input = strtotime($tarih); 
 		$date_input = getDate($time_input);    
@@ -158,6 +147,6 @@ if( count( $_SESSION[ "bosOlanKayitNumalarari" ] ) ){
 }else{
 	echo 'Dosya Okuma Başarılı Veriler Eklendi';
 }
-
+fclose($Dosya);
 echo $vt->islemKontrol();
 ?>
