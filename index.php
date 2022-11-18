@@ -13,8 +13,6 @@ if ( session_status() == PHP_SESSION_NONE ) {
 	}
 
 ?>
-<?php phpinfo(); die;?>
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
