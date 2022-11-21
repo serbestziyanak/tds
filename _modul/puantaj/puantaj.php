@@ -673,20 +673,20 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 								<?php
 									/*Hangi Çarpanda Ne kadar Çalıştığını Hesaplıyoruz*/
 									foreach ( $carpan_listesi as $carpan ) {
-										echo '<th>'.$fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ $carpan[ "carpan" ] ] ).'</th>';
+										echo '<th>'.$fn->dakikaSaatCevirString( $genelCalismaSuresiToplami[ $carpan[ "carpan" ] ] ).'</th>';
 									}
 
 									/*Hafta Tatili Toplam Saat Hesaplama*/
-									echo '<th>'.$fn->dakikaSaatCevir( $tatilGunleriToplamDakika ).'</th>';
+									echo '<th>'.$fn->dakikaSaatCevirString( $tatilGunleriToplamDakika ).'</th>';
 
 									/* Toplamda Kullandığı Ücretsiz izni Hesaplıyoruz*/
-									echo '<th>'.$fn->dakikaSaatCevir( $ucretliIzinGenelToplam ).'</th>';
+									echo '<th>'.$fn->dakikaSaatCevirString( $ucretliIzinGenelToplam ).'</th>';
 
 									/* Toplamda Kullandığı Ücretsiz izni Hesaplıyoruz*/
-									echo '<th>'.$fn->dakikaSaatCevir( $ucretsizIzinGenelToplam ).'</th>';
+									echo '<th>'.$fn->dakikaSaatCevirString( $ucretsizIzinGenelToplam ).'</th>';
 
 									/*Toplam Kesinti Yapılan Toplam Suues*/
-									echo '<th>'.$fn->dakikaSaatCevir( $genelToplamKesintiSuresi ).'</th>';
+									echo '<th>'.$fn->dakikaSaatCevirString( $genelToplamKesintiSuresi ).'</th>';
 
 								?>
 								<th></th>

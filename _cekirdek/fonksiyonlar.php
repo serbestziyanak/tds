@@ -1008,6 +1008,13 @@ SQL;
 		return $saat.".".$dakika;
 	}
 
+	public function dakikaSaatCevirString($dakika){
+		$ham_dakika = intVal($dakika);
+		$saat 	= floor( $dakika / 60 );
+		$dakika 	= $this->ikiHaneliVer(floor( $dakika % 60 ));
+		return $saat."sa ".$dakika."dk (".$ham_dakika." dk)";
+	}
+
 	/*Puantajı Kaydetme Guncelleme işlemi */
 
 	public function puantajKaydet($personel_id,$tarih,$sayi,$hesapla = array()){
@@ -1059,6 +1066,8 @@ SQL;
 		$donem = $this->vt->select( self::SQL_donem_kontrol, array( $_SESSION[ 'firma_id' ], $yil, $ay ) )[ 3 ];
 		return $donem;
 	}
+
+	
 
 
 }
