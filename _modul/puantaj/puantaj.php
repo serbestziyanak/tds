@@ -788,7 +788,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 				</tr>
 				<tr>
 					<td>Bordro</td>
-					<td><?php  echo $personel_maas; ?></td>
+					<td><?php  echo $fn->parabirimi( $personel_maas ); ?></td>
 				</tr>
 				<tr>
 					<td>Günlük</td>
@@ -820,7 +820,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 				</tr>
 				<tr>
 					<td>Normal Çalışma</td>
-					<td><?php echo $personel_maas; ?></td>
+					<td><?php echo $fn->parabirimi( $personel_maas ); ?></td>
 				</tr>
 				<tr>
 					<td>Gelmeme Kesintisi</td>

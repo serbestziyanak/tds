@@ -734,7 +734,7 @@ SQL;
 
 	/* 1000,2546 sekindeki parayı 1,000.25 şeklinde vermektedir sayı virgülden sonra kaç basamak oluşturacağını belirler*/
 	public function parabirimi($tutar,$sayi=2){
-	    return number_format($tutar,$sayi,".","");
+	    return number_format($tutar,$sayi,".","")." &#8378;";
 	}
 
 	/* Belirli bir tarihin yılın kacıncı haftası olduğunu sorgular Tarih formatı tarih içindeki karekter " - (kısacizgi) " veya  " . (nokta) " olmalı */
@@ -1005,7 +1005,7 @@ SQL;
 	public function dakikaSaatCevir($dakika){
 		$saat 	= floor( $dakika / 60 );
 		$dakika 	= $this->ikiHaneliVer(floor( $dakika % 60 ));
-		return $saat.".".$dakika;
+		return $saat.":".$dakika;
 	}
 
 	public function dakikaSaatCevirString($dakika){
