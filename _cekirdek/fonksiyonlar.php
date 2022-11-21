@@ -1012,7 +1012,10 @@ SQL;
 		$ham_dakika = intVal($dakika);
 		$saat 	= floor( $dakika / 60 );
 		$dakika 	= $this->ikiHaneliVer(floor( $dakika % 60 ));
-		return $saat."sa ".$dakika."dk (".$ham_dakika." dk)";
+		if($ham_dakika==0)
+			return "-";
+		else
+			return $saat."sa ".$dakika."dk (".$ham_dakika." dk)";
 	}
 
 	/*Puantajı Kaydetme Guncelleme işlemi */
