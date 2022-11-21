@@ -824,13 +824,13 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 				</tr>
 				<tr>
 					<td>Gelmeme Kesintisi</td>
-					<td><?php echo  $fn->parabirimi( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );  ?></td>
+					<td><?php echo  $gelmeme_kesintisi = $fn->parabirimi( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );  ?></td>
 				</tr>
 				<tr>
 					<td>Normal Hakediş</td>
 					<td>	
 						<?php
-							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * $genelCalismaSuresiToplami["1.00"] * 1;
+							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($genelCalismaSuresiToplami["1.00"]+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
 						 
