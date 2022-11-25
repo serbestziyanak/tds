@@ -48,7 +48,7 @@ INNER JOIN
 WHERE
 	dt.id 		= ? AND
 	dt.firma_id = ?
-ORDER BY dt.adi ASC
+ORDER BY dt.adi ASC, fd.aciklama ASC
 SQL;
 
 /*ANA KATEGORİLER*/
