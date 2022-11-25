@@ -217,14 +217,8 @@ $ise_giris_tarihi   = date( "m-d" );
 $bes_yil_once 		= date( "Y-m-d", strtotime( date( "Y-m-d").'-5 year' ) );
 $onbes_yil_once 	= date( "Y-m-d", strtotime( date( "Y-m-d").'-15 year' ) );
 
-echo $onsekiz_yas_alti."<br>";
-echo $elli_yas_ustu."<br>";
-echo $bir_yil_once."<br>";
-
 $onsekiz_elli_izin_kazanan 	= $vt->select( $SQL_18_50_izin_kazanan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once ) )[ 2 ];
-echo '<pre>';
-print_r($onsekiz_elli_izin_kazanan);
-die;
+
 $onsekiz_elli_izin_kazanmayan	= $vt->select( $SQL_18_50_izin_kazanmayan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
 /*1 Yıl ile 5 Yıl Çalışan Personelin İzin Durumu*/
 $bir_bes_yil_cal_kazanan   	= $vt->select( $SQL_1_5_yil_izin_kazanan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti,  $bes_yil_once ,  $bir_yil_once,$ise_giris_tarihi  ) )[ 2 ];
