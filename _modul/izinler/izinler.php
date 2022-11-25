@@ -18,8 +18,9 @@ LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
 LEFT JOIN tb_subeler AS s ON p.sube_id = s.id
 LEFT JOIN tb_bolumler AS b ON p.bolum_id = b.id
 WHERE
-	(dogum_tarihi  >= ? OR dogum_tarihi <= ? ) AND
-	ise_giris_tarihi <= ?  AND 
+	p.firma_id 			 = ? AND
+	(dogum_tarihi  		 >= ? OR dogum_tarihi <= ? ) AND
+	ise_giris_tarihi 	 <= ?  AND 
 	p.aktif 			 = 1 
 
 SQL;
@@ -216,7 +217,14 @@ $ise_giris_tarihi   = date( "m-d" );
 $bes_yil_once 		= date( "Y-m-d", strtotime( date( "Y-m-d").'-5 year' ) );
 $onbes_yil_once 	= date( "Y-m-d", strtotime( date( "Y-m-d").'-15 year' ) );
 
-$onsekiz_elli_izin_kazanan 	= $vt->select( $SQL_18_50_izin_kazanan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
+echo $onsekiz_yas_alti."<br>";
+echo $elli_yas_ustu."<br>";
+echo $bir_yil_once."<br>";
+
+$onsekiz_elli_izin_kazanan 	= $vt->select( $SQL_18_50_izin_kazanan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once ) )[ 2 ];
+echo '<pre>';
+print_r($onsekiz_elli_izin_kazanan);
+die;
 $onsekiz_elli_izin_kazanmayan	= $vt->select( $SQL_18_50_izin_kazanmayan, array( $_SESSION[ "firma_id" ], $onsekiz_yas_alti, $elli_yas_ustu,  $bir_yil_once  ) )[ 2 ];
 /*1 Yıl ile 5 Yıl Çalışan Personelin İzin Durumu*/
 $bir_bes_yil_cal_kazanan   	= $vt->select( $SQL_1_5_yil_izin_kazanan, array( $_SESSION[ "firma_id" ], $elli_yas_ustu, $onsekiz_yas_alti,  $bes_yil_once ,  $bir_yil_once,$ise_giris_tarihi  ) )[ 2 ];
@@ -291,7 +299,7 @@ $onbes_yil_cal_kazanmayan 	= $vt->select( $SQL_15_yildan_fazla_izin_kazanmayan, 
 											<div class="icheck-success">
 												<input 
 													type 	="checkbox" <?php echo $izinVerildiMi > 0 ? 'checked' : ''; ?>  
-													onclick 	= "izinKullanim(this,<?php echo $personel[ 'id' ]; ?>);" 
+													onclick = "izinKullanim(this,<?php echo $personel[ 'id' ]; ?>);" 
 													id 		= "dosyaDurumu<?php echo $personel[ 'id' ] ?>" >
 												<label for="dosyaDurumu<?php echo $personel[ 'id' ] ?>"  ></label>
 											</div>
