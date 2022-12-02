@@ -830,6 +830,9 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 					<td>Normal Hakediş</td>
 					<td>	
 						<?php
+
+$toplamdakika = 225 - $genelCalismaSuresiToplami["1.00"] - $tatilGunleriToplamDakika;
+echo "asdas".($toplamdakika / 60);
 							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($genelCalismaSuresiToplami["1.00"]+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
