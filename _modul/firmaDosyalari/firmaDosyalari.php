@@ -11,10 +11,16 @@ SELECT
 	fdt.id,
 	fdt.adi,
 	fdt.tarih,
-	(SELECT COUNT(tb_firma_dosyalari.id) 
+	(
+		SELECT COUNT(tb_firma_dosyalari.id) 
 		FROM tb_firma_dosyalari 
 		WHERE tb_firma_dosyalari.dosya_turu_id = fdt.id 
-		) AS dosyaSayisi
+	) AS dosyaSayisi,
+	(
+		SELECT count(id) 
+		FROM tb_firma_dosya_turleri
+		WHERE kategori = fdt.id
+	) AS altKategoriSayisi
 FROM
 	tb_firma_dosya_turleri AS fdt
 WHERE 
@@ -113,10 +119,11 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 						<table id="tbl_personelOzlukDosyalari" class="table table-sm table-bordered table-hover">
 							<thead>
 								<tr>
-									<th style="width: 15px">#</th>
+									<th style="width: 20px">#</th>
 									<th>Adı</th>
 									<th style="width: 80px">Kalan G.S.</th>
 									<th style="width: 80px">Dosya Sayısı</th>
+									<th style="width: 80px">Kategori Sayısı</th>
 									<th data-priority=" 1" style="width: 20px">Evraklar</th>
 									<th data-priority=" 1" style="width: 20px">Düzenle</th>
 									<th data-priority=" 1" style="width: 20px">Sil</th>
@@ -127,11 +134,11 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 									$sayi = 1;  
 
 									foreach( $dosyaTurleri[ 2 ] AS $dosyaTuru ) { 
-								?>
-										<tr class=" <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk; ?> table-success">
+								?>	
+										<tr class=" <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk; ?>" data-widget="expandable-table" aria-expanded="false">
 											<td><?php echo $sayi++; ?></td>
 											<td><?php echo $dosyaTuru[ 'adi' ]; ?></td>
-											<td>
+											<td style="width: 80px">
 												<?php
 													$suanki_tarih 		= date_create(date('Y-m-d'));
 													$hatirlanacak_tarih = date_create($dosyaTuru[ 'tarih' ]);
@@ -141,30 +148,37 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 													}
 												?>
 											</td>
-											<td><?php echo $dosyaTuru[ 'dosyaSayisi' ]; ?></td>
-											<td align = "center">
+											<td style="width: 80px"><?php echo $dosyaTuru[ 'dosyaSayisi' ]; ?></td>
+											<td style="width: 80px"><?php echo $dosyaTuru[ 'altKategoriSayisi' ]; ?></td>
+											<td align = "center" style="width: 20px">
 												<a modul = 'firmaDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-dark btn-xs" href = "?modul=firmaDosyalari&islem=evraklar&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
 													Evraklar
 												</a>
 											</td>
-											<td align = "center">
+											<td align = "center" style="width: 20px">
 												<a modul = 'firmaDosyalari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" >
 													Düzenle
 												</a>
 											</td>
 											
-											<td>
+											<td style="width: 20px">
 												<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $dosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
 											</td>
 										</tr>
+										
 								<?php 
 										$altDosya = $vt->select( $SQL_tum_firma_dosyasi_oku, array( $_SESSION[ 'firma_id' ], $dosyaTuru[ 'id' ] ) ) [ 2];
-										foreach ( $altDosya as $altDosyaTuru ) { 
-								?>
-											<tr class=" <?php if( $altDosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk;?>">
-												<td><i class="fas fa-level-up-alt" style="transform: rotate(90deg);"></i></td>
+										if( count( $altDosya ) > 1){
+											echo "<tr class='expandable-body d-none'><td colspan='8'><table class='table-striped table-hover w-100'>";
+
+											foreach ( $altDosya as $altDosyaTuru ) { 
+										
+								?>		
+										</td>
+											<tr class="  table-info <?php if( $altDosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk;?>">
+												<td style="width: 20px"><i class="fas fa-level-up-alt" style="transform: rotate(90deg);"></i></td>
 												<td><?php echo $altDosyaTuru[ 'adi' ]; ?></td>
-												<td>
+												<td style="width: 80px">
 													<?php
 														$suanki_tarih 		= date_create(date('Y-m-d'));
 														$hatirlanacak_tarih = date_create($altDosyaTuru[ 'tarih' ]);
@@ -174,23 +188,25 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 														}
 													?>
 												</td>
-												<td><?php echo $altDosyaTuru[ 'dosyaSayisi' ]; ?></td>
-												<td align = "center">
+												<td style="width: 80px"><?php echo $altDosyaTuru[ 'dosyaSayisi' ]; ?></td>
+												<td align = "center" style="width: 20px">
 													<a modul = 'firmaDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-dark btn-xs" href = "?modul=firmaDosyalari&islem=evraklar&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
 														Evraklar
 													</a>
 												</td>
-												<td align = "center">
+												<td align = "center" style="width: 20px">
 													<a modul = 'firmaDosyalari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
 														Düzenle
 													</a>
 												</td>
 												
-												<td>
+												<td style="width: 20px">
 													<button modul= 'firmaDosyalari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil">Sil</button>
 												</td>
 											</tr>
 								<?php		
+											} 
+											echo "</table></td></tr>";
 										}
 									} 
 								?>
