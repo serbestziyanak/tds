@@ -426,6 +426,10 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 										$ToplamKesintiSaati 		 = $gunHesapla["ToplamKesintiSaati"];
 										$ilkUygulanacakSaat 		 = $gunHesapla["ilkUygulanacakSaat"];
 
+										if( $genelCalismaSuresiToplami[ '1.00' ] > 11700){
+											$genelCalismaSuresiToplami[ '1.00' ] = 11700;
+										}
+
 										/*Normal Çalışma Gününü sayıyoruz*/
 										if ( $tatil == 'hayir' AND $personel_giris_cikis_sayisi > 0 )
 											$normalGun++;
@@ -830,10 +834,8 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 					<td>Normal Hakediş</td>
 					<td>	
 						<?php
-
-$toplamdakika = 225 - $genelCalismaSuresiToplami["1.00"] - $tatilGunleriToplamDakika;
-echo "asdas".($toplamdakika / 60);
-							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($genelCalismaSuresiToplami["1.00"]+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
+							$toplam_calisma = (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi );
+							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($toplam_calisma+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
 						 
