@@ -92,31 +92,31 @@ $(document).ready(function() {
                                 {text: 'ÖĞRENCİ VELİSİNİN BİLGİLERİ ', style: 'tableHeader', colSpan: 3, alignment: 'center'},{},{},{text: 'İŞYERİ (İŞLETME) BİLGİLERİ', style: 'tableHeader', colSpan: 3, alignment: 'center'},{},{}
                             ],
                             [
-                                {text: 'Adı Soyadı', colSpan: 2,},{},{},{text: 'Adı', colSpan: 2,},{},{},
+                                {text: 'Adı Soyadı', colSpan: 2,},{},{},{text: 'Adı', colSpan: 2,},{},{text:'Akyol Denim Tekstil Sanayi ve Ticaret LTD.STİ.'},
                             ],
                             [
-                                {text: 'ikamet Adresi', colSpan: 2,rowSpan:2},{},{text:'',rowSpan:2},{text: 'Adresi', colSpan: 2,},{},{},
+                                {text: 'ikamet Adresi', colSpan: 2,rowSpan:2},{},{text:'',rowSpan:2},{text: 'Adresi', colSpan: 2,},{},{text:'Şemsibey OSB Mahallesi Ahtamara Caddesi No:17 Tuşba / VAN'},
                             ],
                             [
-                                {},{},{},{text: 'İşletme Temsilcisinin\nAdı Soyadı', colSpan: 2,},{},{},
+                                {},{},{},{text: 'İşletme Temsilcisinin\nAdı Soyadı', colSpan: 2,},{},{text:'Serdar ÇAÇA'},
                             ],
                             [
-                                {text: 'Yakınlığı', colSpan: 2,},{},{},{text: 'Telefon Numarası', colSpan: 2,},{},{},
+                                {text: 'Yakınlığı', colSpan: 2,},{},{},{text: 'Telefon Numarası', colSpan: 2,},{},{text:'90 537 612 4543'},
                             ],
                             [
                                 {text: 'Telefonu', rowSpan:2},{text:'Ev'},{},{text: 'Fax Numarası', colSpan: 2,},{},{},
                             ],
                             [
-                                {text: 'Telefonu'},{text:'Cep'},{},{text: 'E-Posta adresi', colSpan: 2,},{},{},
+                                {text: 'Telefonu'},{text:'Cep'},{},{text: 'E-Posta adresi', colSpan: 2,},{},{text:'akyoldenimmuhasebe@gmail.com'},
                             ],
                             [
-                                {text: 'E Posta', colSpan: 2,},{},{},{text: 'Vergi No', colSpan: 2,},{},{},
+                                {text: 'E Posta', colSpan: 2,},{},{},{text: 'Vergi No', colSpan: 2,},{},{text:'8720627945'},
                             ],
                             [
                                 {text: '\nÖğrencinin 18 yaşından \nbüyük olması ve velisi\nbulunmaması halinde\nirtibat sağlanacak kişinin\n\n', colSpan: 2,rowSpan:3},{},{text:'Adı Soyadı : \nİletişim Bilgileri:',rowSpan:3},{text: 'SGK İşyeri Sicil No/Bağkur No', colSpan: 3,alignment: 'center',},{},{},
                             ],
                             [
-                                {},{},{},{text: ' ', colSpan: 3,},{},{},
+                                {},{},{},{text: '2 1413 01 01 1045408 065 14 32 000', colSpan: 3, alignment: 'center'},{},{},
                             ],
                             [
                                 {},{},{},{text: 'İŞLETME IBAN NO', colSpan: 3,alignment: 'center',},{},{},
