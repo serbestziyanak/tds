@@ -12,10 +12,10 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 }
 
 $islem			= array_key_exists( 'islem'		,$_REQUEST ) 		? $_REQUEST[ 'islem' ]			: 'ekle';
-$personel_id		= array_key_exists( 'personel_id'	,$_REQUEST ) 		? $_REQUEST[ 'personel_id' ]		: 0;
+$personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) 	? $_REQUEST[ 'personel_id' ]	: 0;
 $detay			= array_key_exists( 'detay'		,$_REQUEST ) 		? $_REQUEST[ 'detay' ]			: null;
 //Personele Ait Listelenecek Hareket Ay
-@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) 			? $_REQUEST[ 'tarih' ]			: date("Y-m");
+@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) 		? $_REQUEST[ 'tarih' ]			: date("Y-m");
  
 $tarih = $listelenecekAy;
 
@@ -426,6 +426,10 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 										$ToplamKesintiSaati 		 = $gunHesapla["ToplamKesintiSaati"];
 										$ilkUygulanacakSaat 		 = $gunHesapla["ilkUygulanacakSaat"];
 
+										if( $genelCalismaSuresiToplami[ '1.00' ] > 11700){
+											$genelCalismaSuresiToplami[ '1.00' ] = 11700;
+										}
+
 										/*Normal Çalışma Gününü sayıyoruz*/
 										if ( $tatil == 'hayir' AND $personel_giris_cikis_sayisi > 0 )
 											$normalGun++;
@@ -659,7 +663,12 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 										<td><?php echo $aciklama; ?></td>
 										
 									</tr>
-								<?php $sayi++;} ?>
+								<?php 
+									$sayi++;} 
+									//Normal Çalışma Suresini Ayarladık
+									$normalCalismaSuresi 					= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi );
+									$genelCalismaSuresiToplami[ '1.00' ] 	= $normalCalismaSuresi;
+								?>
 							</tbody>
 							<tfoot>
 								<?php 
@@ -830,7 +839,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 					<td>Normal Hakediş</td>
 					<td>	
 						<?php
-							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($genelCalismaSuresiToplami["1.00"]+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
+							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($normalCalismaSuresi+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
 						 
