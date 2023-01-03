@@ -10,7 +10,7 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
-echo "asdas";
+
 $islem			= array_key_exists( 'islem'		,$_REQUEST ) 		? $_REQUEST[ 'islem' ]			: 'ekle';
 $personel_id	= array_key_exists( 'personel_id'	,$_REQUEST ) 	? $_REQUEST[ 'personel_id' ]	: 0;
 $detay			= array_key_exists( 'detay'		,$_REQUEST ) 		? $_REQUEST[ 'detay' ]			: null;
@@ -372,7 +372,6 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 									?>
 									<th>İzin</th>
 									<?php 
-										var_dump($carpan_listesi);
 										foreach ( $carpan_listesi as $carpan ) {
 											echo '<th>'.$carpan[ "carpan" ].'</th>';
 										}
