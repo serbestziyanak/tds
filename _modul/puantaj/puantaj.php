@@ -159,14 +159,14 @@ SQL;
 //TÜM ÇARPANLARIN LİSTESİ
 $SQL_carpan_oku = <<< SQL
 SELECT 
-	tb_tarife_saati.* 
+	tb_tarife_saati.carpan 
 FROM 
 	tb_tarife_saati
 INNER JOIN tb_tarifeler ON tb_tarifeler.id = tb_tarife_saati.tarife_id
 WHERE 
-	firma_id = ?
-GROUP BY carpan
-ORDER BY carpan ASC
+	tb_tarifeler.firma_id = ?
+GROUP BY tb_tarife_saati.carpan
+ORDER BY tb_tarife_saati.carpan ASC
 SQL;
 
 /*AVANS KAZANÇ KESİNTİ TOPLAM TUTARI GETİRME*/
