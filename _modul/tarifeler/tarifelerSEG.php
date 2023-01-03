@@ -4,13 +4,14 @@ $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
 $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
-
 $yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "tarifeler", $islem );
 
 if ( $yetiKontrol == 0 ) {
 	include '../../yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
 	die();
 }
+
+
 
 $tarife_id		= array_key_exists( 'tarife_id', $_REQUEST )		? $_REQUEST[ 'tarife_id' ]		: 0;
 $alanlar		= array();
