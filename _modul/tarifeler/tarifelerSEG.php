@@ -39,10 +39,10 @@ foreach( $_REQUEST as $alan => $deger ) {
 		else $deger	= date( 'Y-m-d', strtotime( $deger ) );
 	}
 	if ( $alan == 'tatil' ){
-		$deger = $deger == on ? 1 : 0;
+		$deger = $deger == "on" ? 1 : 0;
 	}
 	if ( $alan == 'maasa_etki_edilsin' ){
-		$deger = $deger == on ? 1 : 0;
+		$deger = $deger == "on" ? 1 : 0;
 	}
 	
 	if ( $alan == 'grup_id') {
