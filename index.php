@@ -5,8 +5,8 @@ if ( session_status() == PHP_SESSION_NONE ) {
 	define("ADMIN", true);
 	error_reporting( 0 );
 	// Bu sayfa için önbellekleme yapmamaya zorla
-	header( 'Pragma: no-cache' );
-	header( 'Cache-Control: no-cache, must revalidate' );
+	//header( 'Pragma: no-cache' );
+	//header( 'Cache-Control: no-cache, must revalidate' );
 	
 	if( isset( $_REQUEST['sistem_yil'] ) ){
 		$_SESSION['yil'] = $_REQUEST['sistem_yil'];

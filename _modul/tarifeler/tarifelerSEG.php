@@ -3,6 +3,8 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
+$islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
+
 $yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "tarifeler", $islem );
 
 if ( $yetiKontrol == 0 ) {
@@ -10,8 +12,6 @@ if ( $yetiKontrol == 0 ) {
 	die();
 }
 
-
-$islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
 $tarife_id		= array_key_exists( 'tarife_id', $_REQUEST )		? $_REQUEST[ 'tarife_id' ]		: 0;
 $alanlar		= array();
 $degerler		= array();

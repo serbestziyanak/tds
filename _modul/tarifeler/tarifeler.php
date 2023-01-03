@@ -321,10 +321,6 @@ foreach ( $gruplar as $grup ) {
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="control-label">Minimum Çalışma</label>
-										<input required type="text" class="form-control" name ="min_calisma_saati" value = "<?php echo $tek_tarife[ "min_calisma_saati" ]; ?>" placeholder="25, 30, 40, 60, 120 vs.">
-									</div>
-									<div class="form-group">
 										<label class="control-label">Gün Dönümü</label>
 										<input required type="text" class="form-control" name ="gun_donumu" value = "<?php echo date( 'H:i', strtotime($tek_tarife[ "gun_donumu" ])); ?>" placeholder="06:59, 18:45 vs.">
 									</div>
