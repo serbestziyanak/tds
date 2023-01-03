@@ -372,7 +372,7 @@ if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
 									?>
 									<th>İzin</th>
 									<?php 
-
+										var_dump($carpan_listesi);
 										foreach ( $carpan_listesi as $carpan ) {
 											echo '<th>'.$carpan[ "carpan" ].'</th>';
 										}
