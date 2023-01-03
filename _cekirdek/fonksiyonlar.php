@@ -719,6 +719,12 @@ SQL;
 	}
 
 	public function saatfarkiver( $baslangic, $bitis ) {
+		// $baslangic = new DateTimeImmutable('12:12:10');
+		// $bitis = new DateTimeImmutable('12:12:12');
+		// $interval = $baslangic->diff($bitis);
+		// echo intVal($interval->format('%R%s'));
+
+
 		//baslangicSaati => o zamana kadar geçen saniyesini buluyoruz.
 		$baslangicSaati = strtotime($baslangic);
 		
