@@ -6,7 +6,7 @@ $vt = new VeriTabani();
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
 	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
-	$_REQUEST[ 'personel_id' ]				= $_SESSION[ 'sonuclar' ][ 'id' ];
+	$_REQUEST[ 'personel_id' ]			= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
@@ -23,9 +23,9 @@ $tarihBol = explode("-", $tarih);
 $ay = intval($tarihBol[1]);
 $yil = $tarihBol[0];
 
-$satir_renk				= $personel_id > 0	? 'table-warning'						: '';
+$satir_renk					= $personel_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi			= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
-$kaydet_buton_cls			= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'		: 'btn btn-success btn-sm pull-right';
+$kaydet_buton_cls			= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
@@ -209,7 +209,7 @@ SQL;
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
-$donem					= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
+$donem						= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
 
 if ( $detay == "tumPersonel" ) {
 	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=tumPersonel&tarih='.$tarih.'">';
@@ -220,9 +220,9 @@ if ( $detay == "tumPersonel" ) {
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
-$giris_cikislar			= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
+$giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
 $tek_personel				= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
-$carpan_listesi			= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"]) )[ 2 ];
+$carpan_listesi				= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"]) )[ 2 ];
 $genel_ayarlar				= $vt->select( $SQL_genel_ayarlar, array( $_SESSION["firma_id"] ) )[ 2 ];
 
 /*
@@ -230,7 +230,7 @@ Seçili ay için AVANS KESNİNTİ ÜZERİNDEN EKLENECEK ÖDEMELER VAR İSE ÜCRE
 MAAŞ KESİNTİ DEGERİ 0 OLURSA MAAŞA EKLEMESİ YAPILACAKTIR 1 OLMASI HALİNDE MAASTAN DÜŞÜM YAPILACAKTIR
 */
 
-$kazanilan 				= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 0 ) ) [ 2 ][ 0 ];
+$kazanilan 					= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 0 ) ) [ 2 ][ 0 ];
 $kesinti 					= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 1 ) ) [ 2 ][ 0 ];
 
 //Bir günde en fazla kaç giriş çıkış yapıldığını bulma
@@ -242,9 +242,9 @@ foreach($giris_cikislar AS $giriscikis){
 
 $aylik_calisma_saati		= $genel_ayarlar[ 0 ][ 'aylik_calisma_saati' ];
 $pazar_kesinti_sayisi		= $genel_ayarlar[ 0 ][ 'pazar_kesinti_sayisi' ];
-$personel_maas 			= $tek_personel[ 'ucret' ];
+$personel_maas 				= $tek_personel[ 'ucret' ];
 $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
-if ( $beyaz_yakali_personel  == $tek_personel[ 'grup_id' ] ) {
+if ( $beyaz_yakali_personel == $tek_personel[ 'grup_id' ] ) {
 	$beyaz_yakali = "evet";
 }
 ?>
