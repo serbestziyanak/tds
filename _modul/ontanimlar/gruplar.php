@@ -39,8 +39,10 @@ $gruplar	= $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
 $tek_grup	= $vt->select( $SQL_tek_grup_oku, array( $grup_id ) );
 
 $grup_bilgileri = array(
-	 'id'		=> $grup_id > 0 ? $grup_id : 0
-	,'adi'		=> $grup_id > 0 ? $tek_grup[ 2 ][ 0 ][ 'adi' ] : ''
+	 'id'							=> $grup_id > 0 ? $grup_id : 0
+	,'adi'							=> $grup_id > 0 ? $tek_grup[ 2 ][ 0 ][ 'adi' ] : ''
+	,'aylik_calisma_suresi'			=> $grup_id > 0 ? $tek_grup[ 2 ][ 0 ][ 'aylik_calisma_suresi' ] : ''
+	,'haftalik_calisma_suresi'		=> $grup_id > 0 ? $tek_grup[ 2 ][ 0 ][ 'haftalik_calisma_suresi' ] : ''
 );
 
 
@@ -88,6 +90,8 @@ $kaydet_buton_cls		= $grup_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn b
 						<tr>
 						<th style="width: 15px">#</th>
 						<th>Adı</th>
+						<th>A.Ç.S</th>
+						<th>H.Ç.S</th>
 						<th data-priority="1" style="width: 20px">Düzenle</th>
 						<th data-priority="1" style="width: 20px">Sil</th>
 						</tr>
@@ -97,6 +101,8 @@ $kaydet_buton_cls		= $grup_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn b
 				<tr <?php if( $grup[ 'id' ] == $grup_id ) echo "class = '$satir_renk'"; ?>>
 					<td><?php echo $sayi++; ?></td>
 					<td><?php echo $grup[ 'adi' ]; ?></td>
+					<td><?php echo $grup[ 'aylik_calisma_suresi' ]; ?></td>
+					<td><?php echo $grup[ 'haftalik_calisma_suresi' ]; ?></td>
 					<td align = "center">
 						<a modul = 'gruplar' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=gruplar&islem=guncelle&grup_id=<?php echo $grup[ 'id' ]; ?>" >
 							Düzenle
@@ -124,8 +130,16 @@ $kaydet_buton_cls		= $grup_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn b
 			<input type = "hidden" name = "grup_id" value = "<?php echo $grup_id; ?>">
 			<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 			<div class="form-group">
-				<label  class="control-label">Bölüm Adı</label>
+				<label  class="control-label">Grup Adı</label>
 				<input type="text" class="form-control" name ="grup_adi" value = "<?php echo $grup_bilgileri[ 'adi' ]; ?>" required placeholder="">
+			</div>
+			<div class="form-group">
+				<label class="control-label">Aylık Çalışma Süresi</label>
+				<input required type="text" class="form-control" name ="aylik_calisma_suresi" value = "<?php echo $grup_bilgileri[ "aylik_calisma_suresi" ]; ?>"  autocomplete="off">
+			</div>
+			<div class="form-group">
+				<label class="control-label">Haftalık Çalışma Süresi</label>
+				<input required type="text" class="form-control" name ="haftalik_calisma_suresi" value = "<?php echo $grup_bilgileri[ "haftalik_calisma_suresi" ]; ?>"  autocomplete="off">
 			</div>
 			</div>
 			<div class="card-footer">

@@ -128,8 +128,14 @@ WHERE
 	aktif 	   	= 1
 SQL;
 
-
-
+$SQL_carpanlar = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_carpanlar
+WHERE 
+	firma_id	= ?
+SQL;
 
 
 $tarifeler					= $vt->select( $SQL_tum_tarife_oku, array($_SESSION['firma_id'] ) )[ 2 ];
@@ -138,6 +144,8 @@ $gruplar					= $vt->select( $SQL_gruplar			,array( $_SESSION[ "firma_id" ] ) )[ 
 $mesai_turleri				= $vt->select( $SQL_mesai_turleri	,array( $_SESSION['firma_id'] ) )[ 2 ];
 $tarifeyeAitmolaGetir 		= $vt->select( $SQL_mola_getir, array( $tarife_id ) )[ 2 ];
 $tarifeyeAitsaatGetir 		= $vt->select( $SQL_tarife_saat_getir, array( $tarife_id ) )[ 2 ];
+$carpanlar					= $vt->select( $SQL_carpanlar	,array( $_SESSION['firma_id'] ) )[ 2 ];
+
 
 //Günlük En fazla Mola Sayısı
 foreach($tarifeler AS $mola){
@@ -188,7 +196,7 @@ foreach ( $gruplar as $grup ) {
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-8">
+			<div class="col-md-7">
 				<div class="card card-secondary" id = "card_personeller">
 					<div class="card-header">
 						<h3 class="card-title">Tarifeler</h3>
@@ -206,7 +214,6 @@ foreach ( $gruplar as $grup ) {
 									<th>Mesai Türü</th>
 									<th>Baş. Tar.</th>
 									<th>Bit. Tar.</th>
-									<th>min. Çal. S.</th>
 									<th>Gün Dön.</th>
 									<th data-priority="1" style="width: 20px">Düzenle</th>
 									<th data-priority="1" style="width: 20px">Sil</th>
@@ -234,7 +241,6 @@ foreach ( $gruplar as $grup ) {
 										<td><?php echo $tarife[ 'mesai_adi' ]; ?></td>
 										<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'baslangic_tarih' ] ); ?></td>
 										<td><?php echo $fn->tarihFormatiDuzelt( $tarife[ 'bitis_tarih' ] ); ?></td>
-										<td><?php echo $tarife[ 'min_calisma_saati' ].' dk'; ?></td>
 										<td><?php echo date( 'H:i', strtotime( $tarife[ 'gun_donumu' ] ) );  ?></td>
 										
 										<td align = "center">
@@ -252,7 +258,7 @@ foreach ( $gruplar as $grup ) {
 					</div>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-5">
 				<div class="card <?php if( $tarife_id == 0 ) echo 'card-secondary' ?>">
 					<div class="card-header p-2">
 						<ul class="nav nav-pills tab-container">
@@ -324,6 +330,18 @@ foreach ( $gruplar as $grup ) {
 										<label class="control-label">Gün Dönümü</label>
 										<input required type="text" class="form-control" name ="gun_donumu" value = "<?php echo date( 'H:i', strtotime($tek_tarife[ "gun_donumu" ])); ?>" placeholder="06:59, 18:45 vs.">
 									</div>
+									<div class="form-group">
+										<label class="control-label">Geç Gelme Toleransı</label>
+										<input required type="text" class="form-control" name ="gec_gelme_tolerans" value = "<?php echo $tek_tarife[ "gec_gelme_tolerans" ]; ?>"  autocomplete="off">
+									</div>
+									<div class="form-group">
+										<label class="control-label">Erken Çıkma Toleransı</label>
+										<input required type="text" class="form-control" name ="erken_cikma_tolerans" value = "<?php echo $tek_tarife[ "erken_cikma_tolerans" ]; ?>"  autocomplete="off">
+									</div>
+									<div class="form-group">
+										<label class="control-label">Normal Tolerans</label>
+										<input required type="text" class="form-control" name ="normal_tolerans" value = "<?php echo $tek_tarife[ "normal_tolerans" ]; ?>"  autocomplete="off">
+									</div>
 									<label class="control-label">Mesai Durumu</label>
 									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
 										<div class="bootstrap-switch-container" >
@@ -352,7 +370,13 @@ foreach ( $gruplar as $grup ) {
 									<?php 
 										$saatSay = 1;
 										if ( count( $tarifeyeAitsaatGetir ) > 0 ){
+											
 											foreach ($tarifeyeAitsaatGetir as $saat) {
+												$carpanSelect = "<select name ='carpan[]' class='form-control'>";
+												foreach ($carpanlar as $carpan) {
+													$carpanSelect .= "<option value='$carpan[id]' ".( $carpan['id'] == $saat['carpan'] ? 'selected': '' )." >$carpan[adi]</option>";
+												}
+												$carpanSelect .="</select>"; 
 												echo '<input type="hidden" name="id[]" value="'.$saat[ 'id' ].'">';
 												echo '<div class="row saat">
 														<div class="col-sm-1">
@@ -361,22 +385,22 @@ foreach ( $gruplar as $grup ) {
 																<span href="" class="btn btn-default">'.$saatSay.'</span>
 															</div>
 														</div>
-														<div class="col-sm-4">
+														<div class="col-sm-3">
 															<div class="form-group">
 																<label class="control-label">Başlangıç Saati</label>
 																<input type="text" class="form-control" name ="baslangic[]" value = "'.date( "H:i", strtotime($saat[ "baslangic" ] ) ).'" required placeholder="Örk: 08:00 ">
 															</div>
 														</div>
-														<div class="col-sm-4">
+														<div class="col-sm-3">
 															<div class="form-group">
 																<label class="control-label">Bitiş Saati</label>
 																<input type="text" class="form-control" name ="bitis[]" value = "'.date( "H:i", strtotime( $saat[ "bitis" ] ) ).'" required placeholder="Örk: 18:30 ">
 															</div>
 														</div>
-														<div class="col-sm-2">
+														<div class="col-sm-4">
 															<div class="form-group">
 																<label class="control-label">Çarpan</label>
-																<input type="number" step="0.01" class="form-control" name ="carpan[]"  required value="'.$saat["carpan"].'">
+																'.$carpanSelect.'
 															</div>
 														</div>
 														<div class="col-sm-1">
@@ -485,6 +509,14 @@ foreach ( $gruplar as $grup ) {
 	}
 	
 </style>
+
+<?php
+	$carpanSelectSatirEkle = '<select name ="carpan[]" class="form-control">';
+	foreach ($carpanlar as $carpan) {
+		$carpanSelectSatirEkle .= '<option value="'.$carpan["id"].'">'.$carpan["adi"].'</option>';
+	}
+	$carpanSelectSatirEkle .='</select>'; 
+?>
 <script type="text/javascript">
 
 
@@ -511,7 +543,7 @@ $( "body" ).on('click', '.saatSatirEkle', function() {
     });
     satirSay = satirSay + 1;
 
-	var ekleneceksatir = '<div class="row '+tur+'"><div class="col-sm-1"><div class="form-group"><label class="control-label">#</label><br><span href="" class="btn btn-default">'+satirSay+'</span></div></div><div class="col-sm-4"><div class="form-group"><label class="control-label">Başlangıç Saati</label><input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 "></div></div><div class="col-sm-4"><div class="form-group"><label class="control-label">Bitiş Saati</label><input type="text" class="form-control" name ="bitis[]" required placeholder="Örk: 18:30 "></div></div><div class="col-sm-2"><div class="form-group"><label class="control-label">Çarpan</label><input type="number" step="0.01" class="form-control" name ="carpan[]"  required placeholder="Örk: 1, 1,5, 2"></div></div><div class="col-sm-1"><div class="form-group"><label class="control-label">Sil</label><br><span class="btn btn-danger yenisil" data-tur="'+tur+'" id="yenisil'+tur+'"><i class="fas fa-trash"></i></span></div></div></div>';
+	var ekleneceksatir = '<div class="row '+tur+'"><div class="col-sm-1"><div class="form-group"><label class="control-label">#</label><br><span href="" class="btn btn-default">'+satirSay+'</span></div></div><div class="col-sm-3"><div class="form-group"><label class="control-label">Başlangıç Saati</label><input type="text" class="form-control" name ="baslangic[]" required placeholder="Örk: 08:00 "></div></div><div class="col-sm-3"><div class="form-group"><label class="control-label">Bitiş Saati</label><input type="text" class="form-control" name ="bitis[]" required placeholder="Örk: 18:30 "></div></div><div class="col-sm-4"><div class="form-group"><label class="control-label">Çarpan</label><?php echo $carpanSelectSatirEkle; ?></div></div><div class="col-sm-1"><div class="form-group"><label class="control-label">Sil</label><br><span class="btn btn-danger yenisil" data-tur="'+tur+'" id="yenisil'+tur+'"><i class="fas fa-trash"></i></span></div></div></div>';
 	
 	document.getElementById(tur+"SatirEkle").removeAttribute("data-sayi");
 	document.getElementById(tur+"SatirEkle").setAttribute("data-sayi", satirSay); 

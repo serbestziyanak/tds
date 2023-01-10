@@ -718,7 +718,7 @@ SQL;
 		return $sonuc;
 	}
 
-	public function saatfarkiver( $baslangic, $bitis ) {
+	public function saatfarkiver( $baslangic, $bitis, $fonksiyon = "asagi" ) {
 		// $baslangic = new DateTimeImmutable('12:12:10');
 		// $bitis = new DateTimeImmutable('12:12:12');
 		// $interval = $baslangic->diff($bitis);
@@ -736,6 +736,7 @@ SQL;
 
 		$dakika = $fark / 60;
 		return $dakika;
+	
 	}
 
 	/* 1000,2546 sekindeki parayı 1,000.25 şeklinde vermektedir sayı virgülden sonra kaç basamak oluşturacağını belirler*/
@@ -751,24 +752,27 @@ SQL;
 	}
 
 	/*Puantaj Hesaplama İşlemleri tarih formatı => 2022-07, $sayi => gün 01, 05, 30, */
-	public function puantajHesapla($personel_id,$tarih,$sayi, $grup_id,$genelCalismaSuresiToplami = array()){
+	public function puantajHesapla($personel_id,$tarih,$sayi, $grup_id,$genelCalismaSuresiToplami = array(),$tatil_mesaisi_carpan_id,$normal_carpan_id ){
 
-		$KullanilanSaatler 			= array(); // Hangi tarilerin uygulanacağını kontrol ediyoruz
-		$kullanilacakMolalar 		= array(); //tarifelerer ait molalar
-		$saatSay 					= 0;
-		$asilkullanilanMolalar		= array(); //Personelin Kullandığı molalar
-		$calismasiGerekenToplamDakika = array(); //Calışması gereken toplam dakika
-		$calisilanToplamDakika 		= array(); //Personelin çalıştığı toplam dakika
-		$kullanilanToplamMola		= array(); //Asil Molaların Toplamı
-		$kullanilmayanMolaToplami	= array(); 
-		$islenenSaatler				= array(); 
-		$izin[ "ucretli" ]			= 0; 
-		$izin[ "ucretsiz" ]			= 0; 
-		$kullanilmasiGerekenToplamMola= 0; 
+		$KullanilanSaatler 				= array(); 	// Hangi tarilerin uygulanacağını kontrol ediyoruz
+		$kullanilacakMolalar 			= array(); 	//tarifelerer ait molalar
+		$saatSay 						= 0;
+		$asilkullanilanMolalar			= array(); 	//Personelin Kullandığı molalar
+		$calismasiGerekenToplamDakika 	= array(); 	//Calışması gereken toplam dakika
+		$calisilanToplamDakika 			= array(); 	//Personelin çalıştığı toplam dakika
+		$kullanilanToplamMola			= array(); 	//Asil Molaların Toplamı
+		$kullanilmayanMolaToplami		= array(); 
+		$islenenSaatler					= array(); 
+		$izin[ "ucretli" ]				= 0; 
+		$izin[ "ucretsiz" ]				= 0; 
+		$kullanilmasiGerekenToplamMola	= 0; 
+		$tatil_mesaisi	 				= 0; 		//Tatil Mesaisinin toplam kaç dakika olduğunu gönderilecek Genellikle Yarım Gün Çalışılacak Günler İçin Hesaplanacak
+		$gecGelmeTolerans 				= 0;		//Personelin Toplam Geç Gelme Toleransı aktarılacak (Dakika Hesaplaması)
+		$erkenCikmaTolerans				= 0;		//Personelin Toplam Erken Çıkma Tolaransı aktarılacak (Dakika Hesaplaması)
 
-		$personel_giris_cikis_saatleri = $this->vt->select( self::SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih."-".$sayi))[2];
-		$personel_giris_cikis_sayisi   = count($personel_giris_cikis_saatleri);
-		$rows = $personel_giris_cikis_sayisi == 0 ?  1 : $personel_giris_cikis_sayisi;
+		$personel_giris_cikis_saatleri 			= $this->vt->select( self::SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih."-".$sayi))[2];
+		$personel_giris_cikis_sayisi   			= count($personel_giris_cikis_saatleri);
+		$rows = $personel_giris_cikis_sayisi 	== 0 ?  1 : $personel_giris_cikis_sayisi;
 
 		/*Perosnel Giriş Yapmış ise tatilden Satılmayacak Ek mesai oalrak hesaplanacaktır. */
 		if($personel_giris_cikis_sayisi > 0) {
@@ -777,8 +781,6 @@ SQL;
 
 		//Personelin En erken giriş saati ve en geç çıkış saatini alıyoruz ona göre tutanak olusturulacak
 		$son_cikis_index 	= $personel_giris_cikis_sayisi - 1;
-		$ilk_islemtipi 		= $personel_giris_cikis_saatleri[0]['islem_tipi'];
-		$son_islemtipi 		= $personel_giris_cikis_saatleri[$son_cikis_index]['islem_tipi'];
 
 		$ilkGirisSaat 		= $this->saatKarsilastir($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ], $personel_giris_cikis_saatleri[0]["baslangic_saat_guncellenen"]);
 
@@ -789,48 +791,46 @@ SQL;
 		$giris_cikis_saat_getir = $this->vt->select( self::SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$grup_id.',%' ) ) [ 2 ];
 		//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
 
-		/*tarifeye ait mesai saatleri */
-		$saatler = $this->vt->select( self::SQL_tarife_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
-
-		/*tarifeye ait mola saatleri */
-		$molalar = $this->vt->select( self::SQL_mola_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
 		
-
+		/*tarifeye ait mesai saatleri */
+		$saatler 			= $this->vt->select( self::SQL_tarife_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
+		
+		/*tarifeye ait mola saatleri */
+		$molalar 			= $this->vt->select( self::SQL_mola_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
+		
 		$mesai_baslangic 	= date("H:i",  strtotime( $saatler[ 0 ]["baslangic"] )  );
+		$mesai_bitis 		= date("H:i",  strtotime( $saatler[ 0 ]["bitis"] ) );
 
-		//Personel 5 DK  erken çıkabilir
-		$mesai_bitis 		= date("H:i", strtotime( $saatler[ 0 ]["bitis"] )  );
+		if( $saatler[ 0 ][ "carpan" ] == $normal_carpan_id ){
+		
+			//Geç Gelme Toleransını karsılaştıryoruz tolerabstan küçük veya eşşit işe farkı saate ekliyoruz
+			$gecGelmeFark 		= $this->saatfarkiver( $mesai_baslangic, $ilkGirisSaat[ 0 ]);
+			if( $gecGelmeFark >  0 AND $gecGelmeFark 	<=  $giris_cikis_saat_getir[ 0 ][ 'gec_gelme_tolerans' ] ){
+				$gecGelmeTolerans += $gecGelmeFark;
+			}
+			//Erken Çıkma Toleransını karsılaştıryoruz tolerabstan küçük veya eşşit işe farkı saate ekliyoruz
+			$erkenCikmaFark 	= $this->saatfarkiver( $SonCikisSaat[ 0 ], $mesai_bitis); 
+			if( $erkenCikmaFark >  0 AND $erkenCikmaFark <= $giris_cikis_saat_getir[ 0 ][ 'erken_cikma_tolerans' ]){
+				$erkenCikmaTolerans += $erkenCikmaFark;
+			}
+		}
+		$toplamTolerans = $erkenCikmaTolerans + $gecGelmeTolerans;
+		
 		//Eger Tatil Olarak İsaretlenmisse Giriş Zorunluluğu bulunmayıp mesaiye gelmisse mesai yazdıracaktır.
-		$tatil 			= $giris_cikis_saat_getir[ 0 ]["tatil"] == 1  ?  'evet' : 'hayir';
-		$maasa_etki_edilsin = $giris_cikis_saat_getir[ 0 ]["maasa_etki_edilsin"] == 1  ?  'evet' : 'hayir';
+		$tatil 				= $giris_cikis_saat_getir[ 0 ]["tatil"] 			 == 1  	?  'evet' : 'hayir';
+		$maasa_etki_edilsin = $giris_cikis_saat_getir[ 0 ]["maasa_etki_edilsin"] == 1  	?  'evet' : 'hayir';
 		$saySaat = 0;
-		/*Personelin Hangi saat dilimler,nde maasın hesaplanacağını kontrol ediyoruz*/			
+		/*Personelin Hangi saat dilimler,nde maasın hesaplanacağını kontrol ediyoruz*/	
 		foreach ( $saatler as $alan => $saat ) {
 			if ( $SonCikisSaat[ 0 ] <= $saat[ "bitis" ] AND  $saat[ "baslangic" ] <= $SonCikisSaat[ 0 ]   ){
 				$saySaat = $alan;
 			}
 		}
 
-		/*Personelin HaNGİ saat dilimine kadar çalışmiş ise o zaman dilimlerini siziye aktarıyoruz*/
+		/*Personelin HaNGİ saat dilimine kadar çalışmiş ise o zaman dilimlerini diziye aktarıyoruz*/
 		while ($saatSay <= $saySaat ) {
 			$KullanilanSaatler[] = $saatler[ $saatSay ];
 			$saatSay++;
-		}
-		/*Personelin il mesai basşalngı ve son çıkış saatini alıyoruz*/
-		if ( $personel_giris_cikis_sayisi > 0){
-			if ($ilkGirisSaat[0] < $mesai_baslangic AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
-				
-			}else{
-				$gunluk_baslangic = $ilkGirisSaat[0];
-			}
-			if ($SonCikisSaat[0] > $mesai_bitis AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
-				
-			}else{
-				$gunluk_bitis	   = $SonCikisSaat[0];
-			}
-		}else{
-			$gunluk_baslangic = $mesai_baslangic;
-			$gunluk_bitis	   = $mesai_bitis;
 		}
 
 		/*Personelin Çalıştığı saat dilimleri arasında kullandığı mola saatlerinizi alıyoruz*/
@@ -841,9 +841,11 @@ SQL;
 				}
 			}
 		}
-
 		/*Personelin tarifeye ait saat dilimleri arasında kaç saat çalışması gerektigini kotrol ediyoruz*/
 	 	foreach ( $KullanilanSaatler as $saatkey => $saat ) {
+			if( $saat[ "carpan" ] 	== $tatil_mesaisi_carpan_id ){
+				$tatil_mesaisi 		+= $this->saatfarkiver( $saat[ "baslangic" ], $saat[ "bitis" ] );
+			}
 	 		$calismasiGerekenToplamDakika[ $saat[ "carpan" ] ] += $this->saatfarkiver( $saat[ "baslangic" ], $saat[ "bitis" ] );
 	 	}
 
@@ -942,7 +944,6 @@ SQL;
 			 						$calisilanToplamDakika[ $KullanilanSaatler[$i - 1]["carpan"] ] += $fark;
 			 					}
 			 					
-			 					
 			 				}else{
 			 					$calisilanToplamDakika[ $saat["carpan"] ] += $this->saatfarkiver( date("H:i",strtotime($giris[ "baslangic_saat" ])), date("H:i",strtotime($giris[ "bitis_saat" ] ) ) );
 			 				}
@@ -984,27 +985,33 @@ SQL;
 		foreach ($kullanilacakMolalar[ $ilkUygulanacakSaat ] as $molakey => $mola) {
 			$kullanilmasiGerekenToplamMola += $this->saatfarkiver($mola[ "baslangic" ], $mola[ "bitis" ]);
 		}
-
+		
+		$calisilanToplamDakika[ $saatler[0][ "carpan" ] ] += $toplamTolerans;
+		
 		$sonuc["KullanilanSaatler"] 			= $KullanilanSaatler; 			 // Hangi tarilerin uygulanacağını kontrol ediyoruz
-		$sonuc["kullanilacakMolalar"] 		= $kullanilacakMolalar; 		 //tarifelerer ait molalar
-		$sonuc["saatSay"] 					= $saatSay; 					
+		$sonuc["kullanilacakMolalar"] 			= $kullanilacakMolalar; 		 //tarifelerer ait molalar
+		$sonuc["saatSay"] 						= $saatSay; 					
 		$sonuc["asilkullanilanMolalar"] 		= $asilkullanilanMolalar;		 //Personelin Kullandığı molalar
 		$sonuc["calismasiGerekenToplamDakika"] 	= $calismasiGerekenToplamDakika;  //Calışması gereken toplam dakika
 		$sonuc["calisilanToplamDakika"] 		= $calisilanToplamDakika; 		 //Personelin çalıştığı toplam dakika
-		$sonuc["kullanilanToplamMola"] 		= $kullanilanToplamMola;		 //Asil Molaların Toplamı
-		$sonuc["kullanilmayanMolaToplami"] 	= $kullanilmayanMolaToplami;	 
-		$sonuc["islenenSaatler"] 			= $islenenSaatler;				 
-		$sonuc["ucretli"] 					= $izin[ "ucretli" ];			 
-		$sonuc["ucretsiz"] 					= $izin[ "ucretsiz" ];			 
+		$sonuc["kullanilanToplamMola"] 			= $kullanilanToplamMola;		 //Asil Molaların Toplamı
+		$sonuc["kullanilmayanMolaToplami"] 		= $kullanilmayanMolaToplami;	 
+		$sonuc["islenenSaatler"] 				= $islenenSaatler;				 
+		$sonuc["ucretli"] 						= $izin[ "ucretli" ];			 
+		$sonuc["ucretsiz"] 						= $izin[ "ucretsiz" ];			 
 		$sonuc["kullanilmasiGerekenToplamMola"] = $kullanilmasiGerekenToplamMola;
 		$sonuc["personel_giris_cikis_sayisi"] 	= $personel_giris_cikis_sayisi;
 		$sonuc["personel_giris_cikis_saatleri"] = $personel_giris_cikis_saatleri;
 		$sonuc["genelCalismaSuresiToplami"] 	= $genelCalismaSuresiToplami;
-		$sonuc["tatil"] 					= $tatil;
+		$sonuc["tatil"] 						= $tatil;
 		$sonuc["maasa_etki_edilsin"] 			= $maasa_etki_edilsin;
 		$sonuc["ilkUygulanacakSaat"] 			= $ilkUygulanacakSaat;
+		$sonuc["tatil_mesaisi"] 				= $tatil_mesaisi;
 
+		
 		return $sonuc;
+
+		
 	}
 
 	/*Verilen dakikayı Saate Çevirir.  300 DK => 3.00 Saat Şeklinde verir*/
@@ -1032,10 +1039,10 @@ SQL;
 		$calisilanToplamDakika 		 	= $hesapla["calisilanToplamDakika"];
 		$kullanilmasiGerekenToplamMola 	= $hesapla["kullanilmasiGerekenToplamMola"];
 		$ilkUygulanacakSaat 		 	= $hesapla["ilkUygulanacakSaat"];
-		$tatil 						= $hesapla["tatil"] 		    	== "hayir" ? 0 : 1;
+		$tatil 							= $hesapla["tatil"] 		    	== "hayir" ? 0 : 1;
 		$maasa_etki_edilsin 			= $hesapla["maasa_etki_edilsin"] 	== "hayir" ? 0 : 1;
 		$ucretli_izin 					= $hesapla["ucretli"];
-		$ucretsiz_izin 				= $hesapla["ucretsiz"];
+		$ucretsiz_izin 					= $hesapla["ucretsiz"];
 
 		$toplamIzın 					= $ucretli_izin + $ucretsiz_izin;
 		$cikarilacakMola 				= $kullanilmasiGerekenToplamMola;

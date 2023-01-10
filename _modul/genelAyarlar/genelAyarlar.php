@@ -42,10 +42,21 @@ WHERE
 	firma_id = ? AND
 	aktif = 1
 SQL;
+/* Carpanlar */
+$SQL_carpanlar = <<< SQL
+SELECT
+	*
+FROM
+	tb_carpanlar
+WHERE
+	firma_id = ?
+SQL;
+
 
 
 $ayar						= $vt->select( $SQL_ayar_oku, array( $_SESSION[ 'firma_id' ] ) )[ 2 ][ 0 ];
 $gruplar					= $vt->select( $SQL_gruplar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
+$carpanlar					= $vt->select( $SQL_carpanlar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
 
 $giris_cikis_denetimi_grubu = array_filter( explode( ",", $ayar[ "giris_cikis_denetimi_grubu" ] ) );
 $puantaj_hesaplama_grubu 	= array_filter( explode( ",", $ayar[ "puantaj_hesaplama_grubu" ] ) );
@@ -69,14 +80,25 @@ $beyaz_yakali_personel 		= $ayar[ "beyaz_yakali_personel" ];
 							<div class="tab-pane active" id="_genel">
 								<form class="form-horizontal" action = "_modul/genelAyarlar/genelAyarlarSEG.php" method = "POST" enctype="multipart/form-data">
 									<h3 class="profile-username text-center"><b> </b></h3>
-									<div class="form-group col-sm-6 float-left">
+									<div class="form-group col-sm-3 float-left">
 										<label class="control-label">Aylık Çalışma Saati</label>
 										<input required type="text" class="form-control" name ="aylik_calisma_saati" value = "<?php echo $ayar[ "aylik_calisma_saati" ]; ?>" id = "txt_adi">
 									</div>
-									<div class="form-group col-sm-6 float-left">
+									<div class="form-group col-sm-3 float-left">
 										<label class="control-label">Haftalık Çalışma Saati</label>
 										<input required type="text" class="form-control" name ="haftalik_calisma_saati" value = "<?php echo $ayar[ "haftalik_calisma_saati" ]; ?>" id = "txt_soyadi">
 									</div>
+									
+									<div class="form-group col-sm-3 float-left">
+										<label class="control-label">Günlük Çalışma Süresi(Dakika)</label>
+										<input required type="text" class="form-control" name ="gunluk_calisma_suresi" value = "<?php echo $ayar[ "gunluk_calisma_suresi" ]; ?>" id = "txt_soyadi">
+									</div>
+									
+									<div class="form-group col-sm-3 float-left">
+										<label class="control-label">Yarım Gün Tatil Süresi(Dakika)</label>
+										<input required type="text" class="form-control" name ="yarim_gun_tatil_suresi" value = "<?php echo $ayar[ "yarim_gun_tatil_suresi" ]; ?>" id = "txt_soyadi">
+									</div>
+									
 									<div class="form-group">
 										<label  class="control-label">Hangi Gruplara Giriş Çıkış Denetimi Yapılsın </label>
 										<select  class="form-control select2"  multiple="multiple" name = "giris_cikis_denetimi_grubu[]" required>
@@ -105,6 +127,23 @@ $beyaz_yakali_personel 		= $ayar[ "beyaz_yakali_personel" ];
 											<?php } ?>
 										</select>
 									</div>
+									<div class="form-group col-sm-6 float-left">
+										<label  class="control-label">Normal Çalışma Çarpanı</label>
+										<select  class="form-control select2"   name = "normal_carpan_id" required>
+											<?php foreach( $carpanlar as $carpan ) { ?>
+												<option value = "<?php echo $carpan[ 'id' ]; ?>" <?php echo $carpan[ 'id' ] == $ayar[ "normal_carpan_id" ]  ? 'selected' : ''; ?>><?php echo $carpan['adi'] ." - ".$carpan['carpan']; ?></option>
+											<?php } ?>
+										</select>
+									</div>
+									<div class="form-group col-sm-6 float-left">
+										<label  class="control-label">Tatil Mesaisi Çarpanı</label>
+										<select  class="form-control select2"   name = "tatil_mesai_carpan_id" required>
+											<?php foreach( $carpanlar as $carpan ) { ?>
+												<option value = "<?php echo $carpan[ 'id' ]; ?>" <?php echo $carpan[ 'id' ] == $ayar[ "tatil_mesai_carpan_id" ]  ? 'selected' : ''; ?>><?php echo $carpan['adi'] ." - ".$carpan['carpan']; ?></option>
+											<?php } ?>
+										</select>
+									</div>
+
 
 									<label class="control-label col-sm-6">Giriş Çıkış Listeleri Gösterilsin Mi? ( Anasayfada Bulunan Gelmeyenler, Geç Gelenler ve Erken  Çıkanlar Listesi )</label>
 									<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
@@ -133,8 +172,6 @@ $beyaz_yakali_personel 		= $ayar[ "beyaz_yakali_personel" ];
 									</div>
 								</form>
 							</div>
-
-							
 						</div>
 					</div>
 				</div>
