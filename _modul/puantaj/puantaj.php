@@ -207,7 +207,11 @@ $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
 $donem						= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
-
+/*if ( $donem > 0 ) {
+	echo 'Donem Kapatılmış';
+	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=kapatilmisDonem&personel_id='.$personel_id.'&tarih='.$tarih.'">';
+	die();
+}*/
 if ( $detay == "tumPersonel" ) {
 	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=tumPersonel&tarih='.$tarih.'">';
 	die();
@@ -920,6 +924,7 @@ foreach ($carpan_listesi as $carpan) {
 		$('#datetimepickerAy').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -931,12 +936,12 @@ foreach ($carpan_listesi as $carpan) {
 
 	function personelpuantaj(personel_id){
 		var tarih 		= $("#tarihSec").val();
-		var  url 			= window.location;
+		var  url 		= window.location;
 		var origin		= url.origin;
-		var path			= url.pathname;
+		var path		= url.pathname;
 		var search		= (new URL(document.location)).searchParams;
-		var modul   		= search.get('modul');
-		var personel_id  	= "&personel_id="+personel_id;
+		var modul   	= search.get('modul');
+		var personel_id = "&personel_id="+personel_id;
 		
 		window.location.replace(origin + path+'?modul='+modul+''+personel_id+'&tarih='+tarih);
 	}	

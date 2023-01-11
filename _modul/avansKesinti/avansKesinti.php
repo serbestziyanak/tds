@@ -354,6 +354,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 		$('#verilisTarihi').datetimepicker({
 			//defaultDate: simdi,
 			format: 'DD.MM.yyyy',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -365,6 +366,7 @@ $kaydet_buton_yazi		= $islem 		== "guncelle"	? 'Güncelle'							: 'Kaydet';
 		$('#topluVerilisTarihi').datetimepicker({
 			//defaultDate: simdi,
 			format: 'DD.MM.yyyy',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",

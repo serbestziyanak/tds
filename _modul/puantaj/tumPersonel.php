@@ -568,6 +568,7 @@ $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
 		$('#datetimepickerAy').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",

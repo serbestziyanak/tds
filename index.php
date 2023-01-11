@@ -115,6 +115,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <script src="plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <!-- Tempusdominus Bootstrap 4 -->
+<script src="plugins/moment/moment-with-locales.min.js"></script>
 <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <!-- Summernote -->
 <script src="plugins/summernote/summernote-bs4.min.js"></script>

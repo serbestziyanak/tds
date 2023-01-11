@@ -349,8 +349,20 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 
 
 <script> 
-	<?php if ( $islem =="guncelle" OR $islem =="ekle" ) {?> $('#dosyaTuru').modal( "show" ) <?php } ?>
-
+	<?php if ( $islem =="guncelle" OR $islem =="ekle" ) {?> $('#dosyaTuru').modal( "show" ); <?php } ?>
+	$(function () {
+		$('#tarih').datetimepicker({
+			//defaultDate: simdi,
+			format: 'yyyy.MM.DD',
+			locale:'tr',
+			icons: {
+				time: "far fa-clock",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down"
+			}
+		});
+	});
 	$('#tbl_personelOzlukDosyalari').DataTable({
 		"paging": true,
 		"lengthChange": true,
@@ -365,21 +377,5 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 			'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json'
 		}
 	});
-
-	$(function () {
-		$('#tarih').datetimepicker({
-			//defaultDate: simdi,
-			format: 'yyyy.MM.DD',
-			icons: {
-				time: "far fa-clock",
-				date: "fa fa-calendar",
-				up: "fa fa-arrow-up",
-				down: "fa fa-arrow-down"
-			}
-		});
-	});
-
-
-
 
 </script>

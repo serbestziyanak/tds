@@ -766,11 +766,12 @@ $(function () {
 	$('#datetimepicker1').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });
@@ -780,11 +781,12 @@ $(function () {
 	$('#datetimepicker2').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });
@@ -793,11 +795,12 @@ $(function () {
 	$('#datetimepicker3').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });
@@ -807,11 +810,12 @@ $(function () {
 	$('#datetimepicker4').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });
@@ -821,11 +825,12 @@ $(function () {
 	$('#datetimepicker5').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });
@@ -835,11 +840,12 @@ $(function () {
 	$('#datetimepicker6').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });
@@ -849,11 +855,12 @@ $(function () {
 	$('#datetimepicker7').datetimepicker({
 		//defaultDate: simdi,
 		format: 'DD.MM.yyyy',
+		locale:'tr',
 		icons: {
-		time: "far fa-clock",
-		date: "fa fa-calendar",
-		up: "fa fa-arrow-up",
-		down: "fa fa-arrow-down"
+			time: "far fa-clock",
+			date: "fa fa-calendar",
+			up: "fa fa-arrow-up",
+			down: "fa fa-arrow-down"
 		}
 	});
 });

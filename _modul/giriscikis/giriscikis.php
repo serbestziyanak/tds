@@ -993,6 +993,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 		$('#datetimepickerAy').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -1006,6 +1007,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 		$('#datetimepickerGun').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM-DD',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -1020,6 +1022,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 		$('#baslangicDateTime').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM-DD HH:mm',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -1033,6 +1036,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 		$('#bitisDateTime').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM-DD HH:mm',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -1047,6 +1051,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 		$('#toplubaslangicDateTime').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM-DD HH:mm',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
@@ -1060,6 +1065,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 		$('#toplubitisDateTime').datetimepicker({
 			//defaultDate: simdi,
 			format: 'yyyy-MM-DD HH:mm',
+			locale:'tr',
 			icons: {
 				time: "far fa-clock",
 				date: "fa fa-calendar",
