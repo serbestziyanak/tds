@@ -267,7 +267,7 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 															<?php
 																$suanki_tarih 		= date_create(date('Y-m-d'));
 																$hatirlanacak_tarih = date_create($dosya[ 'evrakTarihi' ]);
-																if ( $dosya[ 'evrakTarihi' ] != '' ) {
+																if ( $dosya[ 'evrakTarihi' ] != '0000-00-00' ) {
 																	$kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
 																	$isaret = $kalan_gun->format("%R") == "+" ? 'Kaldı' : 'Geçti';
 																	$renk = $kalan_gun->format("%R") == "+" ? 'success' : 'danger';
