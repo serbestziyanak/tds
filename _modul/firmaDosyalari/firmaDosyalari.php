@@ -4,6 +4,7 @@ $vt = new VeriTabani();
 
 $islem 			= array_key_exists( 'islem', $_REQUEST ) 		? $_REQUEST[ 'islem' ] 			: '';
 $dosyaTuru_id 	= array_key_exists( 'dosyaTuru_id', $_REQUEST ) ? $_REQUEST[ 'dosyaTuru_id' ] 	: 0;
+$ust_id 		= array_key_exists( 'ust_id', $_REQUEST ) 		? $_REQUEST[ 'ust_id' ] 		: 0;
 
 //Firma_Dosya Trurlerini ve toplasm dosya sayısı ile birlikte listelemek
 $SQL_tum_firma_dosyasi_oku = <<< SQL
@@ -135,8 +136,9 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 									$sayi = 1;  
 
 									foreach( $dosyaTurleri[ 2 ] AS $dosyaTuru ) { 
+										$expanded 		= $ust_id == $dosyaTuru[ 'id' ] ? "true" : "false";
 								?>	
-										<tr class=" <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk; ?>" data-widget="expandable-table" aria-expanded="false">
+										<tr class=" <?php if( $dosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk; ?>" data-widget="expandable-table" aria-expanded="<?php echo $expanded; ?>">
 											<td><?php echo $sayi++; ?></td>
 											<td><?php echo $dosyaTuru[ 'adi' ]; ?></td>
 											<td style="width: 80px">
@@ -168,14 +170,19 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 										</tr>
 										
 								<?php 
-										$altDosya = $vt->select( $SQL_tum_firma_dosyasi_oku, array( $_SESSION[ 'firma_id' ], $dosyaTuru[ 'id' ] ) ) [ 2];
-										if( count( $altDosya ) > 1){
-											echo "<tr class='expandable-body d-none'><td colspan='8'><table class='table-striped table-hover w-100'>";
+										$altDosya 		= $vt->select( $SQL_tum_firma_dosyasi_oku, array( $_SESSION[ 'firma_id' ], $dosyaTuru[ 'id' ] ) ) [ 2];
+										if( count( $altDosya ) > 0){
+											
+											$display 	= $ust_id == $dosyaTuru[ 'id' ] ? "" : "";
+											$style 		= $ust_id == $dosyaTuru[ 'id' ] ? "display:table !important; sdfsdf" : "";
+
+											echo "<tr class='expandable-body ' style='$display'>
+													<td colspan='8'>
+														<table class='table-striped table-hover w-100' style='$style'>";
 
 											foreach ( $altDosya as $altDosyaTuru ) { 
 										
 								?>		
-										</td>
 											<tr class="  table-info <?php if( $altDosyaTuru[ 'id' ] == $dosyaTuru_id ) echo $satir_renk;?>">
 												<td style="width: 20px"><i class="fas fa-level-up-alt" style="transform: rotate(90deg);"></i></td>
 												<td><?php echo $altDosyaTuru[ 'adi' ]; ?></td>
@@ -191,12 +198,12 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 												</td>
 												<td style="width: 80px"><?php echo $altDosyaTuru[ 'dosyaSayisi' ]; ?></td>
 												<td align = "center" style="width: 20px">
-													<a modul = 'firmaDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-dark btn-xs" href = "?modul=firmaDosyalari&islem=evraklar&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
+													<a modul = 'firmaDosyalari' yetki_islem="evraklar" class = "btn btn-sm btn-dark btn-xs" href = "?modul=firmaDosyalari&islem=evraklar&ust_id=<?php echo $dosyaTuru[ 'id' ]; ?>&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
 														Evraklar
 													</a>
 												</td>
 												<td align = "center" style="width: 20px">
-													<a modul = 'firmaDosyalari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
+													<a modul = 'firmaDosyalari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=firmaDosyalari&islem=guncelle&ust_id=<?php echo $dosyaTuru[ 'id' ]; ?>&dosyaTuru_id=<?php echo $altDosyaTuru[ 'id' ]; ?>" >
 														Düzenle
 													</a>
 												</td>
