@@ -141,7 +141,7 @@ if ( $konu == 'dosya' ) {
     			//Gelen Dosyaları Yüklemesini Yapıyoruz
 				foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 					$aciklama   	= $aciklama == '' ? $_FILES[ "file"][ 'name' ][$key] : $aciklama;
-					$evrakTarih  	= $evrakTarih == '' ? "" : date("Y-m-d", strtotime($evrakTarih));
+					$evrakTarih  	= $evrakTarih == '' ? null : date("Y-m-d", strtotime($evrakTarih));
 					if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
 						$dosya_adi	= uniqid() ."_".$fn->tumuKucukHarf( $fn-> turkceKarakterSil( $tekDosyaTuru[ 0 ] [ "adi" ] ) ) ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
 						$hedef_yol	= $dizin . '/'.$dosya_adi;
