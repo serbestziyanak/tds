@@ -1,7 +1,9 @@
 <?php
+
 include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
+error_reporting(E_ALL);
 
 $konu			= array_key_exists( 'konu', $_REQUEST )			    ? $_REQUEST[ 'konu' ]			: 'ekle';
 $islem			= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
@@ -10,6 +12,7 @@ $dosyaTuru_id 	= array_key_exists( 'dosyaTuru_id', $_REQUEST )	 	? $_REQUEST[ 'd
 $dosya_id 		= array_key_exists( 'dosya_id', $_REQUEST )	 		? $_REQUEST[ 'dosya_id' ] 		: 0;
 $adi 			= array_key_exists( 'adi', $_REQUEST )	 			? trim($_REQUEST[ 'adi' ]) 		: '';
 $tarih 			= array_key_exists( 'tarih', $_REQUEST )	 		? trim($_REQUEST[ 'tarih' ]) 	: '';
+$evrakTarih 	= array_key_exists( 'evrakTarih', $_REQUEST )	 	? trim($_REQUEST[ 'evrakTarih' ]) : '';
 $kategori 		= array_key_exists( 'kategori', $_REQUEST )	 		? trim($_REQUEST[ 'kategori' ]) : '';
 
 
@@ -72,6 +75,7 @@ SET
 	dosya_turu_id		= ?
 	,dosya				= ?
 	,aciklama			= ?
+	,evrakTarihi		= ?
 SQL;
 
 
@@ -137,11 +141,12 @@ if ( $konu == 'dosya' ) {
     			//Gelen Dosyaları Yüklemesini Yapıyoruz
 				foreach ($_FILES['file']["tmp_name"] as $key => $value) {
 					$aciklama   	= $aciklama == '' ? $_FILES[ "file"][ 'name' ][$key] : $aciklama;
+					$evrakTarih  	= $evrakTarih == '' ? Null : date("Y-m-d", strtotime($evrakTarih));
 					if( isset( $_FILES[ "file"]["tmp_name"][$key] ) and $_FILES[ "file"][ 'size' ][$key] > 0 ) {
-						$dosya_adi	= rand() ."_".$tekDosyaTuru[ 0 ] [ "adi" ] ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
+						$dosya_adi	= uniqid() ."_".$fn->tumuKucukHarf( $fn-> turkceKarakterSil( $tekDosyaTuru[ 0 ] [ "adi" ] ) ) ."." . pathinfo( $_FILES[ "file"][ 'name' ][$key], PATHINFO_EXTENSION );
 						$hedef_yol	= $dizin . '/'.$dosya_adi;
 						if( move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ][$key], $hedef_yol ) ) {
-							$vt->insert( $SQL_dosya_kaydet, array( $dosyaTuru_id, $dosya_adi, $aciklama ) );
+							$vt->insert( $SQL_dosya_kaydet, array( $dosyaTuru_id, $dosya_adi, $aciklama,$evrakTarih ) );
 							$sonuc["sonuc"] = 'ok';
 						}
 					}

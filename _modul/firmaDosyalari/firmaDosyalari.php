@@ -45,6 +45,7 @@ SELECT
 	fd.id AS dosya_id,
 	fd.dosya,
 	fd.aciklama,
+	fd.evrakTarihi,
 	dt.id AS tur_id,
 	dt.adi
 FROM
@@ -226,6 +227,12 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 		                        <div class="form-group">
 		                            <input type="text" name="aciklama" id="aciklama" class="form-control" placeholder="Acıklama Kısmı">
 		                        </div>
+								<div class="form-group">
+									<div class="input-group date" id="evrakTarih" data-target-input="nearest">
+										<input type="text" name="evrakTarih" class="form-control datetimepicker-input" data-target="#evrakTarih" data-target="#evrakTarih" data-toggle="datetimepicker" placeholder = "Evrak Uyarı Tarihi"/>
+									</div>
+									<!-- /.input group -->
+								</div>
 		                        <div class="dropzone" action="_modul/firmaDosyalari/firmaDosyalariSEG.php"  id="dropzone" style="min-height: 236px;">
 		                            <div class="dz-message">
 		                                <h3 class="m-h-lg">Yüklemek istediğiniz dosyaları buyara sürükleyiniz</h3>
@@ -255,6 +262,18 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 													<tr>
 														<td>
 															<?php echo $dosya[ 'aciklama' ] == '' ? $dosya[ 'adi' ] : $dosya[ 'aciklama' ]; ?>
+														</td>
+														<td>
+															<?php
+																$suanki_tarih 		= date_create(date('Y-m-d'));
+																$hatirlanacak_tarih = date_create($dosya[ 'evrakTarihi' ]);
+																if ( $dosya[ 'evrakTarihi' ] != '' ) {
+																	$kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
+																	$isaret = $kalan_gun->format("%R") == "+" ? 'Kaldı' : 'Geçti';
+																	$renk = $kalan_gun->format("%R") == "+" ? 'success' : 'danger';
+																	echo "<span class='text-$renk'>".$kalan_gun->format("%a Gün ").$isaret."</span>";
+																}
+															?>
 														</td>
 														<td align = "right" width = "5%">
 															<a href = "firmaDosyalari/<?php echo $dosyaTuru_id; ?>/<?php echo $dosya[ 'dosya' ]; ?>"
@@ -363,6 +382,21 @@ $satir_renk			= $dosyaTuru_id > 0	? 'table-warning' : '';
 			}
 		});
 	});
+	
+	$(function () {
+		$('#evrakTarih').datetimepicker({
+			//defaultDate: simdi,
+			format: 'DD.MM.yyyy',
+			locale:'tr',
+			icons: {
+				time: "far fa-clock",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down"
+			}
+		});
+	});
+
 	$('#tbl_personelOzlukDosyalari').DataTable({
 		"paging": true,
 		"lengthChange": true,
