@@ -3,10 +3,7 @@
 include "../../_cekirdek/fonksiyonlar.php";
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
-
-
-
-
+error_reporting(E_ALL);
 $SQL_tum_personel = <<< SQL
 SELECT
     id
@@ -24,14 +21,14 @@ SQL;
 /*Belirli tarihte hangi */
 $SQL_giris_cikis_grup_id = <<< SQL
 SELECT 
-    g.grup_id,
-    p.ucret
+    g.grup_id
 FROM 
     tb_giris_cikis AS g
 INNER JOIN tb_personel AS p ON p.id = g.personel_id
 WHERE 
     g.tarih     = ? AND 
     p.firma_id  = ?  AND 
+    g.grup_id  IS NOT NULL AND  
     g.aktif     = 1
 GROUP BY g.grup_id
 SQL;
@@ -49,7 +46,6 @@ WHERE
     aktif       = 1
 SQL;
 
-
 /*
 Bugunkü Tarifeye ait giriş cıkış saatlerini veya tatil durumunu getiriyor
 */
@@ -66,7 +62,8 @@ WHERE
     t1.grup_id LIKE ? AND
     t1.aktif = 1
 ORDER BY t1.id DESC
-LIMIT 1      
+
+LIMIT 1    
 SQL;
 
 //TARİFEYE AİT SAAT LİSTESİ
@@ -128,6 +125,15 @@ WHERE
     firma_id = ?
 SQL;
 
+/*Carpanlar listesi*/
+$SQL_carpanlar = <<< SQL
+SELECT 
+    *
+FROM 
+    tb_carpanlar
+WHERE 
+    firma_id = ?
+SQL;
 
 /*Dönem Kapatma giriş çıkış saatlerine */
 $SQL_tarife_ekle = <<< SQL
@@ -157,11 +163,18 @@ $SQL_kapatilan_tarife_ekle = <<< SQL
 INSERT INTO 
     tb_kapatilan_tarifeler
 SET 
-    firma_id            = ?,
-    min_calisma_saati   = ?,
-    gun_donumu          = ?,
-    tatil               = ?,
-    maasa_etki_edilsin  = ?
+    firma_id                = ?,
+    grup_id                 = ?,
+    baslangic_tarih         = ?,
+    bitis_tarih             = ?,
+    mesai_turu              = ?,
+    min_calisma_saati       = ?,
+    gun_donumu              = ?,
+    tatil                   = ?,
+    maasa_etki_edilsin      = ?,
+    gec_gelme_tolerans      = ?,
+    erken_cikma_tolerans    = ?,
+    normal_tolerans         = ?
 SQL;
 
 $SQL_kapatilan_tarife_saati = <<< SQL
@@ -188,13 +201,23 @@ $SQL_donem_ekle = <<< SQL
 INSERT INTO 
     tb_donem
 SET 
-    firma_id                = ?,
-    yil                     = ?,
-    ay                      = ?,
-    aylik_calisma_saati     = ?,
-    haftalik_calisma_saati  = ?,
-    pazar_kesinti_sayisi    = ?,
-    beyaz_yakali_personel   = ?
+    firma_id                    = ?,
+    aylik_calisma_saati         = ?,
+    haftalik_calisma_saati      = ?,
+    giris_cikis_denetimi_grubu  = ?,
+    pazar_kesinti_sayisi        = ?,
+    puantaj_hesaplama_grubu     = ?,
+    beyaz_yakali_personel       = ?,
+    giris_cikis_liste_goster    = ?,
+    giris_cikis_tutanak_kaydet  = ?,
+    tutanak_olustur             = ?,
+    normal_carpan_id            = ?,
+    tatil_mesai_carpan_id       = ?,
+    gunluk_calisma_suresi       = ?,
+    yarim_gun_tatil_suresi      = ?,
+    yil                         = ?,
+    ay                          = ?,
+    ekleyen_id                  = ?
 SQL;
 
 /*Kapatılan Maaşlara veri ekleme*/
@@ -206,19 +229,32 @@ SET
     maas        = ?
 SQL;
 
+/*Kapatılan Carpanlara veri ekleme*/
+$SQL_kapanan_carpan_ekle = <<< SQL
+INSERT INTO 
+    tb_kapatilan_carpanlar
+SET 
+    firma_id    = ?,
+    adi         = ?,
+    carpan      = ?,
+    eski_id     = ?,
+    yil         = ?,
+    ay          = ?
+SQL;
+
 $vt->islemBaslat();
 
     $olmayan_maaslar            = $vt->select( $SQL_olmayan_maaslar, array( $_SESSION[ 'firma_id' ], $_SESSION[ 'firma_id' ] ) )[ 2 ];
     $tum_personel               = $vt->select( $SQL_tum_personel, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
     $genel_ayarlar              = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ][ 0 ];
 
-    
-
     $kapanacakAy        = $_REQUEST[ 'ay' ];
     $kapanacakYil       = $_REQUEST[ 'yil' ];
     $suankiAy           = date( "m" ); 
+    $suankiYil          = date( "Y" ); 
     //Gegerleri integeri ceviriyoruz 06 olan deger 6 olarak gelecektir.
     settype( $suankiAy, "integer" );
+    settype( $suankiYil, "integer" );
 
     /*Kapatılacak Olan Ayın Onceden Kapatılıp Kapatılmadığını Kontrol ediyoruz*/
     $kapananAyVarmi     = $vt->select( $SQL_donem_oku, array( $kapanacakYil, $kapanacakAy, $_SESSION[ 'firma_id' ] ) )[ 2 ];
@@ -232,7 +268,7 @@ $vt->islemBaslat();
     }
 
     /*Gelecek olan ayı kapatmak isterse izin verilmiyor*/
-    if( $kapanacakAy > $suankiAy ){
+    if( ($kapanacakAy > $suankiAy) AND ( $kapanacakYil > $suankiYil ) ){
 
         $___islem_sonuc = array( 'hata' => true, 'mesaj' => 'Belirtmiş Oldugunuz ay için Dönem suan için kapatılmaz.' ); 
 
@@ -252,6 +288,22 @@ $vt->islemBaslat();
             $eklenenMaaslar[ $maas[ 'maas' ] ]  = $maas[ 'id' ];
         }
 
+        /*AKTİF OLAN ÇARPANLARI KAPANCAK AY İÇİN YEDEKLEDİK*/
+        $carpanlar  = $vt->select( $SQL_carpanlar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ];
+        foreach ($carpanlar as $carpan) {
+            $carpan_ekle = $vt->insert( $SQL_kapanan_carpan_ekle, array( 
+                $_SESSION[ 'firma_id' ],
+                $carpan[ 'adi' ],
+                $carpan[ 'carpan' ],
+                $carpan[ 'id' ],
+                $kapanacakYil,
+                $kapanacakAy
+            ) );
+
+            $eklenenCarpanlar[ $carpan["id"] ]  = $carpan_ekle[ 2 ];
+        }
+
+
         /*Giriş Çıkış tablsunda pesonelin maaşını tanımlıyoruz*/
         foreach ( $tum_personel as $personel ) {
             
@@ -262,59 +314,87 @@ $vt->islemBaslat();
         $gunSayisi = $fn->ikiHaneliVer($kapanacakAy) == date("m") ? date("d") - 1  : date("t",mktime(0,0,0,$kapanacakAy,01,$kapanacakYil));
 
         $sayi               = 1; 
-        $eklenenTarifeler   = array(); 
+        $eklenenTarifeler   = array();  
         
         while( $sayi <= $gunSayisi ) {
             
-            $gruplar = $vt->select( $SQL_giris_cikis_grup_id, array( $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi, $_SESSION[ "firma_id" ] ) )[ 2 ];  
+            $gruplar = $vt->select( $SQL_giris_cikis_grup_id, array( $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi, $_SESSION[ "firma_id" ] ) )[ 2 ]; 
+
             foreach ($gruplar as $grup) {
-                
-                /*Tairhin hangi güne denk oldugunu getirdik*/
-                $gun = $fn->gunVer( $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi );
+                if( $grup[ "grup_id" ] != "" ){
 
-                $tarife = $vt->select( $SQL_giris_cikis_saat, array( $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi , $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi , '%,'.$gun.',%', '%,'.$grup["grup_id"].',%' ) ) [ 2 ][ 0 ];
-                //Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
-
-                /*tarifeye ait mesai saatleri */
-                $saatler = $vt->select( $SQL_tarife_saati, array( $tarife[ 'id' ] ) )[ 2 ];
-
-                /*tarifeye ait mola saatleri */
-                $molalar = $vt->select( $SQL_mola_saati, array( $tarife[ 'id' ] ) )[ 2 ];
-
-                if ( !array_key_exists($tarife[ "id" ], $eklenenTarifeler) ) {
-                    /*Tarifeyi kapatılan tarifeler saatler ve molaları kapatılan tablolara eklıyoruz*/
-                    $tarife_ekle = $vt->insert( $SQL_kapatilan_tarife_ekle, array( $_SESSION[ 'firma_id' ], $tarife[ "min_calisma_saati" ],$tarife[ "gun_donumu" ],$tarife[ "tatil" ],$tarife[ "maasa_etki_edilsin" ] ) );
+                    /*Tarihin hangi güne denk oldugunu getirdik*/
+                    $gun = $fn->gunVer( $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi );
+                    //O Günün Hangi Tarifeye denk olduğunu getirdik
+                    $tarife = $vt->select( $SQL_giris_cikis_saat, array( $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi , $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi , '%,'.$gun.',%', '%,'.$grup["grup_id"].',%' ) ) [ 2 ][ 0 ];
                     
-                    $eklenenTarifeler[ $tarife["id"] ]  = $tarife_ekle[ 2 ];
-                    $eklenenTarifeId                    = $eklenenTarifeler[ $tarife[ "id" ] ]; 
+                    /*tarifeye ait mesai saatleri */
+                    $saatler = $vt->select( $SQL_tarife_saati, array( $tarife[ 'id' ] ) )[ 2 ];
+                    
+                    /*tarifeye ait mola saatleri */
+                    $molalar = $vt->select( $SQL_mola_saati, array( $tarife[ 'id' ] ) )[ 2 ];
+                    
+                    if ( !array_key_exists($tarife[ "id" ], $eklenenTarifeler) ) {
+                        /*Tarifeyi kapatılan tarifeler saatler ve molaları kapatılan tablolara eklıyoruz*/
+                        $tarife_ekle = $vt->insert( $SQL_kapatilan_tarife_ekle, array( 
+                            $_SESSION[ 'firma_id' ],
+                            $tarife[ "grup_id" ],
+                            $tarife[ "baslangic_tarih" ],
+                            $tarife[ "bitis_tarih" ],
+                            $tarife[ "mesai_turu" ],
+                            $tarife[ "min_calisma_saati" ],
+                            $tarife[ "gun_donumu" ],
+                            $tarife[ "tatil" ],
+                            $tarife[ "maasa_etki_edilsin" ],
+                            $tarife[ "gec_gelme_tolerans" ],
+                            $tarife[ "erken_cikma_tolerans" ],      
+                            $tarife[ "normal_tolerans" ]
+                        ) ); 
+                        
+                        $eklenenTarifeler[ $tarife["id"] ]  = $tarife_ekle[ 2 ];
+                        $eklenenTarifeId                    = $eklenenTarifeler[ $tarife[ "id" ] ]; 
+                        
+                        foreach ($saatler as $saat) {
+                            $vt->insert( $SQL_kapatilan_tarife_saati, array( $eklenenTarifeId, $saat[ "baslangic" ], $saat[ "bitis" ], $eklenenCarpanlar[ $saat[ "carpan" ] ] ) );
+                        }
 
-                    foreach ($saatler as $saat) {
-                        $vt->insert( $SQL_kapatilan_tarife_saati, array( $eklenenTarifeId, $saat[ "baslangic" ], $saat[ "bitis" ], $saat[ "carpan" ] ) );
+                        foreach ($molalar as $mola) {
+                            $vt->insert( $SQL_kapatilan_molalar, array( $eklenenTarifeId, $mola[ "baslangic" ], $mola[ "bitis" ] ) );
+                        }
                     }
 
-                    foreach ($molalar as $mola) {
-                        $vt->insert( $SQL_kapatilan_molalar, array( $eklenenTarifeId, $mola[ "baslangic" ], $mola[ "bitis" ] ) );
-                    }
+                    $eklenenTarifeId  = $eklenenTarifeler[ $tarife[ "id" ] ]; 
+                    /*Personelin yaptığı giriş çıkışlara tarifeyi ekliyoruz*/
+                    $vt->update( $SQL_tarife_ekle, array( $eklenenTarifeId, $grup[ "grup_id" ], $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi ) );
                 }
-
-                $eklenenTarifeId  = $eklenenTarifeler[ $tarife[ "id" ] ]; 
-                /*Personelin yaptığı giriş çıkışlara tarifeyi ekliyoruz*/
-                $vt->update( $SQL_tarife_ekle, array( $eklenenTarifeId, $grup[ "grup_id" ], $kapanacakYil.'-'.$kapanacakAy.'-'.$sayi ) );
-
             }
             $sayi++;
+            
         }
         /*Kapatılan donemi genel ayarlardan verileri ekliyoruz*/
-        $vt->insert( $SQL_donem_ekle, array( $_SESSION[ 'firma_id' ], $kapanacakYil, $kapanacakAy, $genel_ayarlar[ "aylik_calisma_saati" ], $genel_ayarlar[ "haftalik_calisma_saati" ], $genel_ayarlar[ "pazar_kesinti_sayisi" ],$genel_ayarlar[ "beyaz_yakali_personel" ] ) );
+        $vt->insert( $SQL_donem_ekle, array( 
+            $_SESSION[ 'firma_id' ], 
+            $genel_ayarlar[ "aylik_calisma_saati" ],
+            $genel_ayarlar[ "haftalik_calisma_saati" ],
+            $genel_ayarlar[ "giris_cikis_denetimi_grubu" ],
+            $genel_ayarlar[ "pazar_kesinti_sayisi" ],
+            $genel_ayarlar[ "puantaj_hesaplama_grubu" ],
+            $genel_ayarlar[ "beyaz_yakali_personel" ],
+            $genel_ayarlar[ "giris_cikis_liste_goster" ],
+            $genel_ayarlar[ "giris_cikis_tutanak_kaydet" ],
+            $genel_ayarlar[ "tutanak_olustur" ],
+            $eklenenCarpanlar[ $genel_ayarlar[ "normal_carpan_id" ] ],
+            $eklenenCarpanlar[ $genel_ayarlar[ "tatil_mesai_carpan_id" ] ],
+            $genel_ayarlar[ "gunluk_calisma_suresi" ],
+            $genel_ayarlar[ "yarim_gun_tatil_suresi" ],
+            $kapanacakYil,
+            $kapanacakAy,
+            $_SESSION[ "kullanici_id" ],
+         ) );
         $vt->islemBitir();
 
         $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'Belirtmiş Oldugunuz ay kapatıldı.' ); 
 
         $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
-        header( "Location:../../index.php?modul=anasayfa");
+        //header( "Location:../../index.php?modul=anasayfa");
     }
-    
-
-
-
-        

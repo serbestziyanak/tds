@@ -1,8 +1,9 @@
 <?php 
-	error_reporting( 0 );
+	
 	include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
+error_reporting( E_ALL );
 
 
 $dizin1 =  "../../dosyadanCek/".$_SESSION["firma_id"];
@@ -86,6 +87,22 @@ WHERE
 	id 			= ?  
 SQL;
 
+/*Genel Ayarlar*/
+$SQL_genel_ayarlar = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_genel_ayarlar
+WHERE 
+	firma_id 	= ?
+SQL;
+
+$genel_ayarlar				= $vt->select( $SQL_genel_ayarlar, array( $_SESSION["firma_id"] ) )[ 2 ];
+
+$tatil_mesai_carpan_id 		= $genel_ayarlar[ 0 ][ "tatil_mesai_carpan_id" ];
+$normal_carpan_id 			= $genel_ayarlar[ 0 ][ "normal_carpan_id" ];
+
+
 $_SESSION[ "bosOlanKayitNumalarari" ] = array();
 $Dosya = fopen( $hedef_yol, "r" ) or exit( "Dosya Açılamadı !" );
 
@@ -124,7 +141,7 @@ foreach($dizi_test as $alt_dizi){
 			
 			if ( count( $girisvarmi ) > 0 ){
 				$update = $vt->update($SQL_bitis_saat_guncelle, array( $saat, $girisvarmi[0][ 'id' ] ));
-				$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ] );
+				$hesapla 	= $fn->puantajHesapla(  $personel_varmi[ 0 ][ 'id' ], $tarihAl, $sayi, $personel_varmi[0][ 'grup_id' ], array(), $tatil_mesai_carpan_id, $normal_carpan_id );
 				/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 				$sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
 			}else{

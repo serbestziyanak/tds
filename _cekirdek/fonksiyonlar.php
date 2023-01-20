@@ -155,6 +155,17 @@ ORDER BY t1.id DESC
 LIMIT 1
 SQL;
 
+/*Kapatilmış Olan tarifeyi Getirme*/
+const SQL_kapatilmis_tarife_getir = <<< SQL
+SELECT 
+	*
+from
+	tb_kapatilan_tarifeler 
+WHERE 
+	id = ?
+LIMIT 1
+SQL;
+
 //TARİFEYE AİT SAAT LİSTESİ
 	const SQL_tarife_saati = <<< SQL
 SELECT 
@@ -178,6 +189,31 @@ WHERE
 	aktif = 1
 ORDER BY baslangic ASC
 SQL;
+
+//KAPATILAN TARİFEYE AİT SAAT LİSTESİ
+const SQL_kapatilan_tarife_saati = <<< SQL
+SELECT 
+	*
+from
+	tb_kapatilan_tarife_saati 
+WHERE 
+	tarife_id = ? AND 
+	aktif = 1
+ORDER BY baslangic ASC
+SQL;
+
+//KAPATILAN TARİFEYE AİT SAAT LİSTESİ
+	const SQL_kapatilan_mola_saati = <<< SQL
+SELECT 
+	*
+from
+	tb_kapatilan_molalar
+WHERE 
+	tarife_id = ? AND 
+	aktif = 1
+ORDER BY baslangic ASC
+SQL;
+
 
 //Giriş Çıkış id sine göre listeleme 
 	const SQL_puantaj_oku = <<< SQL
@@ -236,6 +272,20 @@ WHERE
 	ay 		= ? AND 
 	aktif 	= 1 
 SQL;
+
+/*Personelin Kapatilmış olan tarihe göre tarifesini öğrenme*/
+const SQL_tarife_ogren = <<< SQL
+SELECT 
+	id,
+	tarife
+FROM 
+	tb_giris_cikis
+WHERE
+	personel_id = ? AND
+	tarih 		= ? AND
+	aktif 		= 1 
+SQL;
+
 	/* Kurucu metod  */
 	public function __construct() {
 		$this->vt = new VeriTabani();
@@ -752,7 +802,7 @@ SQL;
 	}
 
 	/*Puantaj Hesaplama İşlemleri tarih formatı => 2022-07, $sayi => gün 01, 05, 30, */
-	public function puantajHesapla($personel_id,$tarih,$sayi, $grup_id,$genelCalismaSuresiToplami = array(),$tatil_mesaisi_carpan_id,$normal_carpan_id ){
+	public function puantajHesapla($personel_id,$tarih,$sayi, $grup_id,$genelCalismaSuresiToplami = array(),$tatil_mesaisi_carpan_id,$normal_carpan_id,$kapatilmis = 0 ){
 
 		$KullanilanSaatler 				= array(); 	// Hangi tarilerin uygulanacağını kontrol ediyoruz
 		$kullanilacakMolalar 			= array(); 	//tarifelerer ait molalar
@@ -769,7 +819,8 @@ SQL;
 		$tatil_mesaisi	 				= 0; 		//Tatil Mesaisinin toplam kaç dakika olduğunu gönderilecek Genellikle Yarım Gün Çalışılacak Günler İçin Hesaplanacak
 		$gecGelmeTolerans 				= 0;		//Personelin Toplam Geç Gelme Toleransı aktarılacak (Dakika Hesaplaması)
 		$erkenCikmaTolerans				= 0;		//Personelin Toplam Erken Çıkma Tolaransı aktarılacak (Dakika Hesaplaması)
-
+		
+		/*Personele Ait Giriş Çıkış Saatleri*/
 		$personel_giris_cikis_saatleri 			= $this->vt->select( self::SQL_belirli_tarihli_giris_cikis,array($personel_id,$tarih."-".$sayi))[2];
 		$personel_giris_cikis_sayisi   			= count($personel_giris_cikis_saatleri);
 		$rows = $personel_giris_cikis_sayisi 	== 0 ?  1 : $personel_giris_cikis_sayisi;
@@ -788,15 +839,30 @@ SQL;
 
 		/*Tairhin hangi güne denk oldugunu getirdik*/
 		$gun = $this->gunVer($tarih."-".$sayi);
-		$giris_cikis_saat_getir = $this->vt->select( self::SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$grup_id.',%' ) ) [ 2 ];
-		//Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
 
-		
-		/*tarifeye ait mesai saatleri */
-		$saatler 			= $this->vt->select( self::SQL_tarife_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
-		
-		/*tarifeye ait mola saatleri */
-		$molalar 			= $this->vt->select( self::SQL_mola_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
+		if( $kapatilmis == 0){
+			/*Belirtilen Tarihe uyan tarifeyi getirdik*/
+			$giris_cikis_saat_getir = $this->vt->select( self::SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$grup_id.',%' ) ) [ 2 ];
+			
+			/*tarifeye ait mesai saatleri */
+			$saatler 			= $this->vt->select( self::SQL_tarife_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
+			
+			/*tarifeye ait mola saatleri */
+			$molalar 			= $this->vt->select( self::SQL_mola_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];	
+		}else{
+			
+			/*Belirtilen Tarihe uyan tarifeyi getirdik*/
+			$tarifeOgren = $this->vt->select( self::SQL_tarife_ogren, array( $personel_id, $tarih."-".$sayi ) ) [ 2 ][ 0 ];
+			
+			/*Belirtilen Tarihe uyan tarifeyi getirdik*/
+			$giris_cikis_saat_getir = $this->vt->select( self::SQL_kapatilmis_tarife_getir, array( $tarifeOgren[ "tarife" ] ) ) [ 2 ];
+
+			/*tarifeye ait mesai saatleri */
+			$saatler 			= $this->vt->select( self::SQL_kapatilan_tarife_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];
+			
+			/*tarifeye ait mola saatleri */
+			$molalar 			= $this->vt->select( self::SQL_kapatilan_mola_saati, array( $giris_cikis_saat_getir[ 0 ][ 'id' ] ) )[ 2 ];	
+		}
 		
 		$mesai_baslangic 	= date("H:i",  strtotime( $saatler[ 0 ]["baslangic"] )  );
 		$mesai_bitis 		= date("H:i",  strtotime( $saatler[ 0 ]["bitis"] ) );
@@ -805,7 +871,7 @@ SQL;
 		
 			//Geç Gelme Toleransını karsılaştıryoruz tolerabstan küçük veya eşşit işe farkı saate ekliyoruz
 			$gecGelmeFark 		= $this->saatfarkiver( $mesai_baslangic, $ilkGirisSaat[ 0 ]);
-			if( $gecGelmeFark >  0 AND $gecGelmeFark 	<=  $giris_cikis_saat_getir[ 0 ][ 'gec_gelme_tolerans' ] ){
+			if( $gecGelmeFark 	>  0 AND $gecGelmeFark 	<=  $giris_cikis_saat_getir[ 0 ][ 'gec_gelme_tolerans' ] ){
 				$gecGelmeTolerans += $gecGelmeFark;
 			}
 			//Erken Çıkma Toleransını karsılaştıryoruz tolerabstan küçük veya eşşit işe farkı saate ekliyoruz
@@ -1007,7 +1073,6 @@ SQL;
 		$sonuc["maasa_etki_edilsin"] 			= $maasa_etki_edilsin;
 		$sonuc["ilkUygulanacakSaat"] 			= $ilkUygulanacakSaat;
 		$sonuc["tatil_mesaisi"] 				= $tatil_mesaisi;
-
 		
 		return $sonuc;
 
