@@ -26,6 +26,17 @@ WHERE
 	personel_id = ? AND tarih = ? 
 SQL;
 
+//Çıkış Yapılıp Yapılmadığı Kontrolü
+$SQL_firma_oku = <<< SQL
+SELECT
+	*
+FROM
+	tb_firmalar
+WHERE
+	id 	= ?
+SQL;
+
+$firma 			= $vt->select( $SQL_firma_oku, array( $_SESSION['firma_id'] ) )[ 2 ][ 0 ];
 $personel 		= $vt->select( $SQL_tek_personel_oku, array($personel_id,$_SESSION['firma_id']) )[2];
 $giriscikis 	= $vt->select( $SQL_personel_gun_giris_cikis, array($personel_id,$tarih) )[2];
 
@@ -99,7 +110,7 @@ $(document).ready(function() {
 							text: [
 						        {text:'İŞVERENİN\n\n', style:'isveren'},
 						        {text:'Ünvanı\n\n', style:'unvan'},
-						        {text:'Adresi\n\n', style:'adres'},
+						        {text:'Adresi\n\n\n', style:'adres'},
 						        {text:'SGK İşyeri Sicil Numarası', style:'sicil'}
 							],
 						},
@@ -108,7 +119,7 @@ $(document).ready(function() {
 						    text: [
 						        {text:'\n\n', style:''},
 						        {text:':\n\n', style:''},
-						        {text:':\n\n', style:''},
+						        {text:':\n\n\n', style:''},
 						        {text:':', style:''}
 							],
 						},
@@ -116,9 +127,9 @@ $(document).ready(function() {
 						   width: 'auto',
 						   text: [
 						        {text:'\n\n', style:''},
-						        {text:'TUŞBA KONUT İNŞ.TUR.SAN. VE TİC.LTD.ŞTİ.\n\n', style:''},
-						        {text:'Şemsibey Osb Mahallesi Ahtamar Caddesi No:17\n\n', style:''},
-						        {text:'2 1413 01 01 1045408 065 14 32 000', style:''}
+						        {text:'<?php echo $firma[ "firma" ]; ?>\n\n', style:''},
+						        {text:'<?php echo $firma[ "adres" ];  ?>\n\n', style:''},
+						        {text:'<?php echo $firma[ "ticaret_sicil_no" ]?>', style:''}
 							],
 						}
 					],
