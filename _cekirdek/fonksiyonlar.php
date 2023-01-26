@@ -231,15 +231,16 @@ SQL;
 	const SQL_puantaj_guncelle = <<< SQL
 UPDATE tb_puantaj
 SET 
-	personel_id		= ?,
-	tarih			= ?,
+	personel_id			= ?,
+	tarih				= ?,
 	izin				= ?,
-	calisma			= ?,
+	calisma				= ?,
 	ucretli_izin		= ?,
 	ucretsiz_izin		= ?,
 	toplam_kesinti		= ?,
-	tatil			= ?,
-	maasa_etki_edilsin	= ?
+	tatil				= ?,
+	maasa_etki_edilsin	= ?,
+	yarim_gun_tatil		= ?
 WHERE
 	id 					= ?  
 SQL;
@@ -249,15 +250,16 @@ SQL;
 INSERT INTO
 	tb_puantaj
 SET
-	personel_id		= ?,
-	tarih			= ?,
+	personel_id			= ?,
+	tarih				= ?,
 	izin				= ?,
-	calisma			= ?,
+	calisma				= ?,
 	ucretli_izin		= ?,
 	ucretsiz_izin		= ?,
 	toplam_kesinti		= ?,
 	tatil				= ?,
-	maasa_etki_edilsin	= ?
+	maasa_etki_edilsin	= ?,
+	yarim_gun_tatil		= ?
 SQL;
 
 /*İşlem Yapılan donemin kapatılıp kapatılmadığını kntrol etme*/
@@ -284,6 +286,66 @@ WHERE
 	personel_id = ? AND
 	tarih 		= ? AND
 	aktif 		= 1 
+SQL;
+
+/*Personelin Kapatilmış olan tarihe göre tarifesini öğrenme*/
+const SQL_eksik_gun_say = <<< SQL
+SELECT 
+	COUNT(toplam_kesinti) AS toplam
+FROM 
+	tb_puantaj
+WHERE
+	personel_id 	 = ? AND
+	tarih 			>= ? AND
+	tarih 			< ? AND
+	toplam_kesinti 	>= 450;
+SQL;
+
+/*Personelin Kapatilmış olan tarihe göre tarifesini öğrenme*/
+const SQL_genel_ayarlar = <<< SQL
+SELECT 
+	aylik_calisma_saati,
+	haftalik_calisma_saati,
+	giris_cikis_denetimi_grubu,
+	pazar_kesinti_sayisi,
+	puantaj_hesaplama_grubu,
+	beyaz_yakali_personel,
+	giris_cikis_liste_goster,
+	giris_cikis_tutanak_kaydet,
+	tutanak_olustur,
+	normal_carpan_id,
+	tatil_mesai_carpan_id,
+	gunluk_calisma_suresi,
+	yarim_gun_tatil_suresi
+FROM 
+	tb_genel_ayarlar
+WHERE
+	firma_id 	 = ?
+SQL;
+
+/*Personelin Kapatilmış olan tarihe göre tarifesini öğrenme*/
+const SQL_donem_ayarlar = <<< SQL
+SELECT 
+	aylik_calisma_saati,
+	haftalik_calisma_saati,
+	giris_cikis_denetimi_grubu,
+	pazar_kesinti_sayisi,
+	puantaj_hesaplama_grubu,
+	beyaz_yakali_personel,
+	giris_cikis_liste_goster,
+	giris_cikis_tutanak_kaydet,
+	tutanak_olustur,
+	normal_carpan_id,
+	tatil_mesai_carpan_id,
+	gunluk_calisma_suresi,
+	yarim_gun_tatil_suresi
+FROM 
+	tb_donem
+WHERE
+	firma_id 	= ? AND 
+	yil 		= ? AND
+	ay 			= ? AND 
+	aktif 		= 1
 SQL;
 
 	/* Kurucu metod  */
@@ -791,7 +853,7 @@ SQL;
 
 	/* 1000,2546 sekindeki parayı 1,000.25 şeklinde vermektedir sayı virgülden sonra kaç basamak oluşturacağını belirler*/
 	public function parabirimi($tutar,$sayi=2){
-	    return number_format($tutar,$sayi,".","")." &#8378;";
+	    return number_format($tutar,$sayi,".","");
 	}
 
 	/* Belirli bir tarihin yılın kacıncı haftası olduğunu sorgular Tarih formatı tarih içindeki karekter " - (kısacizgi) " veya  " . (nokta) " olmalı */
@@ -980,7 +1042,7 @@ SQL;
 		$i 				= 0; //Saatlere ait index
 		$kullanildi 		= 0; // ilk giriş şim hesaplanması yapıldımı kontrol için 
 		/*Tarifenin başlangıc saati yani normal mesai saat aralığı*/
-		$ilkUygulanacakSaat = $KullanilanSaatler[ 0 ][ "carpan" ];
+		$ilkUygulanacakSaat = $normal_carpan_id;
 		/*Personelin Toplam Çalışma Sürelerini Hesaplama*/
 	 	foreach ( $personel_giris_cikis_saatleri as $girisKey => $giris ) {
 	 		$i = 0;	
@@ -1052,7 +1114,43 @@ SQL;
 			$kullanilmasiGerekenToplamMola += $this->saatfarkiver($mola[ "baslangic" ], $mola[ "bitis" ]);
 		}
 		
-		$calisilanToplamDakika[ $saatler[0][ "carpan" ] ] += $toplamTolerans;
+		$calisilanToplamDakika[ $ilkUygulanacakSaat ] += $toplamTolerans;
+
+		/*
+		Eger Tatil ve Maaşa Etki edilecekse ve pazar gününe eşit ise toplam hafta byunca gelmediği günü hesaplıyoruz
+		Genel Ayarlarda kaç gün gelmediğinde pazar verilmeyeceği bilgisini alıp hesaba göre kesinti yapılacak
+		*/
+		$gun = $this->gunVer("$tarih-$sayi");
+		if( $tatil == "evet" AND $maasa_etki_edilsin == "evet" AND $gun == "Pazar" ){	
+			/*Tarihi AYıl ve ve ay olarak boluyoruz*/
+			$tarihBol 	= explode("-",$tarih);
+			$yil 		= $tarihBol[0];
+			$ay 		= $tarihBol[1];
+
+			/*O Haftaya ait tüm puantaj bilgisini çekiyoruz*/
+			$KacinciGun = intval(date("N", strtotime("$tarih-$sayi")));
+
+			$KacinciGun = intval($KacinciGun -1 );
+
+			$haftaBaslangici 	= date("Y-m-d", strtotime("$tarih-$sayi -$KacinciGun day"));
+			
+			/*
+				Dönem Sonucu 1 Den büyük ise Dönemin kapatılmış oldugunu belirtir. ve genel ayarları tb_donem tablsundan çekeceğiz.
+				0 ise donemin kapatılmadıgını belirtil genel ayarları tb_genel_ayarlar tablsoundan çekeceğiz.
+				Kaç Gün gelmediğinden pazar verilmesin degerini alıp karsılatırma yapıp kesinti uygulayacağız"
+			*/
+			$donem	 		= $this->donemKontrol($yil, $ay); 
+			if( $donem > 0 ){
+				$ayarlar  	= $this->vt->select( self::SQL_donem_ayarlar, array( $_SESSION[ 'firma_id' ], $yil, $ay ) )[ 2 ][0]; 
+			}else{
+				$ayarlar 	= $this->vt->select( self::SQL_genel_ayarlar, array( $_SESSION[ 'firma_id' ] ) )[ 2 ][ 0 ];  
+			}
+			$eksikGunSay 	= $this->vt->select( self::SQL_eksik_gun_say, array( $personel_id, $haftaBaslangici, "$tarih-$sayi"  ) )[ 2 ][ 0 ][ "toplam" ];
+			if( $eksikGunSay >= $ayarlar[ "pazar_kesinti_sayisi" ] ){
+				$pazar_kesintisi = $ayarlar[ "gunluk_calisma_suresi" ];
+			}
+
+		}
 		
 		$sonuc["KullanilanSaatler"] 			= $KullanilanSaatler; 			 // Hangi tarilerin uygulanacağını kontrol ediyoruz
 		$sonuc["kullanilacakMolalar"] 			= $kullanilacakMolalar; 		 //tarifelerer ait molalar
@@ -1073,6 +1171,7 @@ SQL;
 		$sonuc["maasa_etki_edilsin"] 			= $maasa_etki_edilsin;
 		$sonuc["ilkUygulanacakSaat"] 			= $ilkUygulanacakSaat;
 		$sonuc["tatil_mesaisi"] 				= $tatil_mesaisi;
+		$sonuc["pazar_kesintisi"] 				= $pazar_kesintisi;
 		
 		return $sonuc;
 
@@ -1108,11 +1207,18 @@ SQL;
 		$maasa_etki_edilsin 			= $hesapla["maasa_etki_edilsin"] 	== "hayir" ? 0 : 1;
 		$ucretli_izin 					= $hesapla["ucretli"];
 		$ucretsiz_izin 					= $hesapla["ucretsiz"];
+		$pazarKesintisi 				= $hesapla["pazar_kesintisi"];
+		$tatilMesaisi 					= $hesapla["tatil_mesaisi"];
+		
+		if( $tatilMesaisi > 0 ){
+			$tatilMesaisi = 1;
+		}
+													
 
-		$toplamIzın 					= $ucretli_izin + $ucretsiz_izin;
+		$toplamIzin 					= $ucretli_izin + $ucretsiz_izin;
 		$cikarilacakMola 				= $kullanilmasiGerekenToplamMola;
 
-		$toplam_kesinti 				= $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzın  - $cikarilacakMola;
+		$toplam_kesinti 				= $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzin  - $cikarilacakMola + $pazarKesintisi;
 
 		/*Hesaplama işleminin Veri Tabanına Kaydedilme İşlemi*/
 
@@ -1129,7 +1235,8 @@ SQL;
 			$ucretsiz_izin,
 			$toplam_kesinti, 
 			$tatil,
-			$maasa_etki_edilsin
+			$maasa_etki_edilsin,
+			$tatilMesaisi
 		);
 
 		if( count($puantaj_varmi) > 0 ){
@@ -1142,7 +1249,7 @@ SQL;
 		}
 		return true;
 	}
-
+	
 	public function donemKontrol( $yil, $ay ){
 		$donem = $this->vt->select( self::SQL_donem_kontrol, array( $_SESSION[ 'firma_id' ], $yil, $ay ) )[ 3 ];
 		return $donem;

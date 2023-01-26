@@ -80,6 +80,17 @@ WHERE
 	aktif 		= 1 
 SQL;
 
+//Tatil ve normal Mesai id Getirme
+$SQL_genel_ayarlar = <<< SQL
+SELECT
+	tatil_mesai_carpan_id,
+	normal_carpan_id
+FROM
+	tb_genel_ayarlar
+WHERE 
+	firma_id = ?
+SQL;
+
 $SQL_sil = <<< SQL
 UPDATE tb_giris_cikis
 SET 
@@ -175,10 +186,13 @@ if($islem == "ekle"){
 	}
 }
 
-$personeller 			= $vt->select($SQL_tum_personel_oku, array($_SESSION['firma_id']))[2];
+
+$genel_ayarlar 			= $vt->select( $SQL_genel_ayarlar, array($_SESSION['firma_id'] ) )[ 2 ][ 0 ];
+$normal_carpan_id		= $genel_ayarlar[ "normal_carpan_id" ];
+$tatil_mesai_carpan_id	= $genel_ayarlar[ "tatil_mesai_carpan_id" ];
 
 $personel_id 			= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
-
+$personeller 			= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'] ) )[ 2 ];
 $tek_personel 			= $vt->select($SQL_tek_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) )[ 2 ];
 
 $___islem_sonuc  		= array( 'hata' => false, 'mesaj' => 'İşlem Başarılı');
@@ -239,7 +253,7 @@ switch( $islem ) {
 				$tarihAl 	= date( "Y-m", strtotime( $gelenTarih ) );
 				$sayi 		= date( "d", strtotime( $gelenTarih ) );
 
-				$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarihAl, $sayi, $tek_personel[ 0 ][ 'grup_id' ] );
+				$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarihAl, $sayi, $tek_personel[ 0 ][ 'grup_id' ], array(), $tatil_mesaisi_carpan_id, $normal_carpan_id );
 
 				/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 				$fn->puantajKaydet( $personel_id, $tarih ,$sayi, $hesapla);
@@ -338,7 +352,7 @@ switch( $islem ) {
 		$tarih 		= date( "Y-m", strtotime( $gelenTarih ) );
 		$sayi 		= date( "d", strtotime( $gelenTarih ) );
 
-		$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarih, $sayi, $tek_personel[ 0 ][ 'grup_id' ] );
+		$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarih, $sayi, $tek_personel[ 0 ][ 'grup_id' ],array(),$tatil_mesai_carpan_id,$normal_carpan_id);
 
 		/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 		$fn->puantajKaydet( $personel_id, $tarih ,$sayi, $hesapla);

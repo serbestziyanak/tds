@@ -4,18 +4,18 @@ $vt = new VeriTabani();
 
 /* SEG dosyalarından gelen mesaj */
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
-	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
-	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
-	$_REQUEST[ 'personel_id' ]				= $_SESSION[ 'sonuclar' ][ 'id' ];
+	$mesaj							= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
+	$mesaj_turu						= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
+	$_REQUEST[ 'personel_id' ]		= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
-$islem			= array_key_exists( 'islem'		,$_REQUEST ) 		? $_REQUEST[ 'islem' ]			: 'ekle';
-$personel_id		= array_key_exists( 'personel_id'	,$_REQUEST ) 		? $_REQUEST[ 'personel_id' ]		: 0;
-$detay			= array_key_exists( 'detay'		,$_REQUEST ) 		? $_REQUEST[ 'detay' ]			: null;
+$islem				= array_key_exists( 'islem'			,$_REQUEST ) 		? $_REQUEST[ 'islem' ]			: 'ekle';
+$personel_id		= array_key_exists( 'personel_id'	,$_REQUEST ) 		? $_REQUEST[ 'personel_id' ]	: 0;
+$detay				= array_key_exists( 'detay'			,$_REQUEST ) 		? $_REQUEST[ 'detay' ]			: null;
 //Personele Ait Listelenecek Hareket Ay
-@$listelenecekAy	= array_key_exists( 'tarih'	,$_REQUEST ) 			? $_REQUEST[ 'tarih' ]			: date("Y-m");
+@$listelenecekAy	= array_key_exists( 'tarih'			,$_REQUEST ) 		? $_REQUEST[ 'tarih' ]			: date("Y-m");
  
 $tarih = $listelenecekAy;
 
@@ -23,9 +23,9 @@ $tarihBol = explode("-", $tarih);
 $ay = intval($tarihBol[1] );
 $yil = $tarihBol[0];
 
-$satir_renk				= $personel_id > 0	? 'table-warning'						: '';
+$satir_renk					= $personel_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi			= $personel_id > 0	? 'Güncelle'							: 'Kaydet';
-$kaydet_buton_cls			= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'		: 'btn btn-success btn-sm pull-right';
+$kaydet_buton_cls			= $personel_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
@@ -166,19 +166,6 @@ WHERE
 ORDER BY baslangic ASC
 SQL;
 
-//TÜM ÇARPANLARIN LİSTESİ
-$SQL_carpan_oku = <<< SQL
-SELECT 
-	tb_tarife_saati.* 
-FROM 
-	tb_tarife_saati
-INNER JOIN tb_tarifeler ON tb_tarifeler.id = tb_tarife_saati.tarife_id
-WHERE 
-	firma_id = ?
-GROUP BY carpan
-ORDER BY carpan ASC
-SQL;
-
 /*AVANS KAZANÇ KESİNTİ TOPLAM TUTARI GETİRME*/
 $SQL_toplam_avans_kesinti = <<< SQL
 SELECT 
@@ -196,14 +183,16 @@ SQL;
 /*Donem Kontrolu Kapatılıp Kapatılmadığı kontrol edilecek*/
 $SQL_donum_oku = <<< SQL
 SELECT 
-	*
+	tb_donem.*
+	tb_kapatilan_carpanlar.eski_id
 FROM 
 	tb_donem
+LEFT JOIN tb_kapatilan_carpanlar ON tb_kapatilan_carpanlar.id = tb_donem.normal_carpan_id
 WHERE 
 	firma_id 	= ?  AND 
 	yil 		= ? AND
-	ay 		= ? AND 
-	aktif 	= 1 
+	ay 			= ? AND 
+	aktif 		= 1 
 SQL;
 
 /*Genel Ayarlar*/
@@ -229,13 +218,63 @@ GROUP BY tb_giris_cikis.maas
 LIMIT 1
 SQL;
 
-/*Firmaya Ait Kullanılan Çarpan Listelerini Cektik*/
-$carpan_listesi = $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"] ) )[ 2 ];
+//TÜM KAPATILAN ÇARPANLARIN LİSTESİ
+$SQL_kapatilan_carpan_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_kapatilan_carpanlar
+WHERE 
+	firma_id  	= ? AND
+	yil 		= ? AND 
+	ay 			= ? 
+SQL;
+
+//TÜM ÇARPANLARIN LİSTESİ
+$SQL_carpan_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_carpanlar
+WHERE 
+	firma_id = ?
+SQL;
 
 $sorgu = "";
-foreach ( $carpan_listesi as $carpan ) {
-	$sorgu .= 'sum(JSON_EXTRACT(calisma, \'$."'.$carpan[ "carpan" ].'"\')) AS "'.$carpan[ "carpan" ].'",';
+
+/*Kapatılmış Donem Kontrolü ve Çarpanları Ayrı bir Array içinde alip düzenleme işlemi*/
+$guncel_carpan_listesi = array();
+$donem						= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) );
+if ( $donem[ 3 ] > 0 ) {
+
+	$carpan_listesi			= $vt->select( $SQL_kapatilan_carpan_oku, array($_SESSION["firma_id"], $yil, $ay) )[ 2 ];
+	foreach ( $carpan_listesi as $carpan ) {
+		$sorgu .= 'sum(JSON_EXTRACT(calisma, \'$."'.$carpan[ "eski_id" ].'"\')) AS "'.$carpan[ "eski_id" ].'",';
+	}
+
+	foreach ($carpan_listesi as $key => $carpan) {
+		$guncel_carpan_listesi[ $key ][ "id" ] 		= $carpan["eski_id"];
+		$guncel_carpan_listesi[ $key ][ "adi" ] 	= $carpan["adi"];
+		$guncel_carpan_listesi[ $key ][ "carpan" ] 	= $carpan["carpan"];
+	}
+	$genel_ayarlar = $donem[2];
+	$genel_ayarlar[ 0 ][ "normal_carpan_id" ] = $donem[2][ 0 ][ "eski_id" ];
+}else{
+
+	/*Firmaya Ait Kullanılan Çarpan Listelerini Cektik*/
+	$carpan_listesi = $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"] ) )[ 2 ];
+	foreach ( $carpan_listesi as $carpan ) {
+		$sorgu .= 'sum(JSON_EXTRACT(calisma, \'$."'.$carpan[ "id" ].'"\')) AS "'.$carpan[ "id" ].'",';
+	}
+
+	foreach ($carpan_listesi as $key => $carpan) {
+		$guncel_carpan_listesi[ $key ][ "id" ] 		= $carpan["id"];
+		$guncel_carpan_listesi[ $key ][ "adi" ] 	= $carpan["adi"];
+		$guncel_carpan_listesi[ $key ][ "carpan" ] 	= $carpan["carpan"];
+	}
+	$genel_ayarlar 	= $vt->select( $SQL_genel_ayarlar, array( $_SESSION["firma_id"] ) )[ 2 ];
 }
+
 
 /*Personelin Aylık Puantaj Hesaplaması */
 $SQL_puantaj_aylik = 
@@ -243,9 +282,11 @@ $SQL_puantaj_aylik =
 	p.*,
 	g.adi AS grup_adi,
 	".$sorgu."
-	sum(IF( tatil < 1, toplam_kesinti , null) ) AS toplam_kesinti,
-	sum(IF( tatil = 1, IF( maasa_etki_edilsin = 1 , toplam_kesinti ,  0 )   , null) ) AS tatilGun,
-	count(IF( tatil = 1, IF( maasa_etki_edilsin = 1 , toplam_kesinti ,  0 )   , null) ) AS tatilSayisi,
+	SUM( toplam_kesinti ) AS toplam_kesinti,
+	COUNT( IF( tatil = 1, IF( maasa_etki_edilsin = 1 , toplam_kesinti ,  NULL )   , null) ) AS tatil_gun,
+	COUNT( IF( tatil = 1, IF( maasa_etki_edilsin = 1 , IF( toplam_kesinti > 0, toplam_kesinti, NULL ) ,  NULL )   , NULL) ) AS tatil_kesinti_sayisi,
+	count( IF( tatil = 1, IF( maasa_etki_edilsin = 1 , toplam_kesinti ,  NULL ) , NULL) ) AS tatil_sayisi,
+	COUNT( IF( yarim_gun_tatil = 1, yarim_gun_tatil ,  NULL ) ) AS yarim_gun_tatil_sayisi,
 	(SELECT 
 		tb_kapatilan_maas.maas
 	from 
@@ -266,9 +307,9 @@ $SQL_puantaj_aylik =
 		LEFT JOIN tb_avans_kesinti_tipi AS t ON a.islem_tipi = t.id
 		WHERE
 			DATE_FORMAT(a.verilis_tarihi,'%Y-%m') 	= ?  AND
-			a.personel_id 						= tb_puantaj.personel_id AND
-			t.maas_kesintisi 					= 0 AND 
-			a.aktif 							= 1 
+			a.personel_id 							= tb_puantaj.personel_id AND
+			t.maas_kesintisi 						= 0 AND 
+			a.aktif 								= 1 
 	) AS kazanc,
 	(
 		SELECT 
@@ -278,9 +319,9 @@ $SQL_puantaj_aylik =
 		LEFT JOIN tb_avans_kesinti_tipi AS t ON a.islem_tipi = t.id
 		WHERE 
 			DATE_FORMAT(a.verilis_tarihi,'%Y-%m') 	= ?  AND 
-			a.personel_id 						= tb_puantaj.personel_id AND
-			t.maas_kesintisi 					= 1 AND 
-			a.aktif 							= 1 
+			a.personel_id 							= tb_puantaj.personel_id AND
+			t.maas_kesintisi 						= 1 AND 
+			a.aktif 								= 1 
 	) AS kesinti
 
 FROM 
@@ -289,24 +330,18 @@ LEFT JOIN tb_personel AS p ON p.id = tb_puantaj.personel_id
 LEFT JOIN tb_gruplar  AS g ON g.id = p.grup_id
 where 
 	p.firma_id = ? AND
-	DATE_FORMAT(tb_puantaj.tarih,'%Y-%m') = ? AND
-	p.aktif = 1
+	DATE_FORMAT(tb_puantaj.tarih,'%Y-%m') = ? 
 GROUP BY p.id";
 
 
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'] ) )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
-$donem						= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
-
 $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'] ) )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $personel					= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
-$carpan_listesi			= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"] ) )[ 2 ];
-$genel_ayarlar				= $vt->select( $SQL_genel_ayarlar, array( $_SESSION["firma_id"] ) )[ 2 ];
 
-
-$kazanilan 				= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 0 ) ) [ 2 ][ 0 ];
+$kazanilan 					= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 0 ) ) [ 2 ][ 0 ];
 $kesinti 					= $vt->select( $SQL_toplam_avans_kesinti, array( $listelenecekAy, $personel_id, 1 ) ) [ 2 ][ 0 ];
 
 //Bir günde en fazla kaç giriş çıkış yapıldığını bulma
@@ -316,10 +351,21 @@ foreach($giris_cikislar AS $giriscikis){
 
 @$tarihSayisi = max($tarihSayisi); 
 
-$aylik_calisma_saati		= $genel_ayarlar[ 0 ][ 'aylik_calisma_saati' ];
-$pazar_kesinti_sayisi		= $genel_ayarlar[ 0 ][ 'pazar_kesinti_sayisi' ];
-$personel_maas 			= $tek_personel[ 'ucret' ];
-$beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
+$aylik_calisma_saati 		= $genel_ayarlar[0][ "aylik_calisma_saati" ];
+$haftalik_calisma_saati 	= $genel_ayarlar[0][ "haftalik_calisma_saati" ];
+$giris_cikis_denetimi_grubu = $genel_ayarlar[0][ "giris_cikis_denetimi_grubu" ];
+$pazar_kesinti_sayisi 		= $genel_ayarlar[0][ "pazar_kesinti_sayisi" ];
+$puantaj_hesaplama_grubu 	= $genel_ayarlar[0][ "puantaj_hesaplama_grubu" ];
+$beyaz_yakali_personel 		= $genel_ayarlar[0][ "beyaz_yakali_personel" ];
+$giris_cikis_liste_goster 	= $genel_ayarlar[0][ "giris_cikis_liste_goster" ];
+$giris_cikis_tutanak_kaydet = $genel_ayarlar[0][ "giris_cikis_tutanak_kaydet" ];
+$tutanak_olustur 			= $genel_ayarlar[0][ "tutanak_olustur" ];
+$normal_carpan_id 			= $genel_ayarlar[0][ "normal_carpan_id" ];
+$tatil_mesai_carpan_id 		= $genel_ayarlar[0][ "tatil_mesai_carpan_id" ];
+$gunluk_calisma_suresi 		= $genel_ayarlar[0][ "gunluk_calisma_suresi" ];
+$yarim_gun_tatil_suresi 	= $genel_ayarlar[0][ "yarim_gun_tatil_suresi" ];
+
+$personel_maas 				= $tek_personel[ 'ucret' ];
 
 ?>
 
@@ -367,10 +413,10 @@ $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
 									<th>Çalışma Günü</th>
 									<th>Hakediş Günü</th>
 									<?php 
-										$ekle = count( $carpan_listesi );
-										foreach ( $carpan_listesi as $carpan ) {
-											echo '<th>"'.$carpan[ "carpan" ].'"<br>Çalışma Saati</th>';
-											echo '<th>"'.$carpan[ "carpan" ].'"<br>Hak Ediş</th>';
+										$ekle = count( $guncel_carpan_listesi );
+										foreach ( $guncel_carpan_listesi as $carpan ) {
+											echo '<th>'.$carpan[ "adi" ].'<br>Çalışma Saati</th>';
+											echo '<th>"'.$carpan[ "adi" ].'"<br>Hak Ediş</th>';
 										}
 									?>
 									<th>Hafta Tatili</th>
@@ -378,68 +424,89 @@ $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
 									<th>Ücretsiz İzin S.</th>
 									<th>Toplam Kesinti Saati</th>
 									<th>Toplam Kesinti Ücreti</th>
-            							<th>Toplam Kazanç</th>
-            							<th>Ek Kazanç</th>
-            							<th>Kesintiler</th>
-            							<th>Net Ücret</th>
-            							<th>Borç Tutarı</th>
-            							<th>İmza</th>
-            							<th>Bodro Ayı</th>
-            							<th>Sicil No</th>
-            							<th>Grup Adı</th>
-            							<th>İşe Giriş Tarihi</th>
-            							<th>işten Çıkış Tarihi</th>
-            							<th>Ücret</th>
-            							<th>Şubesi</th>
-            							<th>Bölümü</th>
-            							<th>Servis</th>
-            							<th>Özel Kod 1</th>
-            							<th>Özel Kod 2</th>
-            							<th>Uyruk</th>
-            							<th>Cinsiyet</th>
-            							<th>Baba Adı</th>
-            							<th>Anne Adı</th>
-            							<th>Doğum Yeri</th>
-            							<th>Doğum Tarihi</th>
-            							<th>Medeni Hali</th>
-            							<th>Kan Grubu</th>
-            							<th>Öğrenim Düzeyi</th>
-            							<th>Sabit Telefon</th>
-            							<th>Mobil Telefon</th>
-            							<th>Sigorta Başlangıcı</th>
-            							<th>Sigorta Sonu</th>
-            							<th>Diğer Ödemeler</th>
-            							<th>Günlük Ödeme</th>
-            							<th>Aylık Ek Ödeme</th>
-            							<th>Banka Şubesi</th>
-            							<th>Banka Hesap No</th>
-            							<th>Iban</th>
-            							<th>İzin Başlama Tarihi</th>
-            							<th>Kalan İzin</th>
-            							<th>Ödenen İzin</th>
-            							<th>Adres</th>
+									<th>Toplam Kazanç</th>
+									<th>Ek Kazanç</th>
+									<th>Kesintiler</th>
+									<th>Net Ücret</th>
+									<th>Borç Tutarı</th>
+									<th>İmza</th>
+									<th>Bodro Ayı</th>
+									<th>Sicil No</th>
+									<th>Grup Adı</th>
+									<th>İşe Giriş Tarihi</th>
+									<th>işten Çıkış Tarihi</th>
+									<th>Ücret</th>
+									<th>Şubesi</th>
+									<th>Bölümü</th>
+									<th>Servis</th>
+									<th>Özel Kod 1</th>
+									<th>Özel Kod 2</th>
+									<th>Uyruk</th>
+									<th>Cinsiyet</th>
+									<th>Baba Adı</th>
+									<th>Anne Adı</th>
+									<th>Doğum Yeri</th>
+									<th>Doğum Tarihi</th>
+									<th>Medeni Hali</th>
+									<th>Kan Grubu</th>
+									<th>Öğrenim Düzeyi</th>
+									<th>Sabit Telefon</th>
+									<th>Mobil Telefon</th>
+									<th>Sigorta Başlangıcı</th>
+									<th>Sigorta Sonu</th>
+									<th>Diğer Ödemeler</th>
+									<th>Günlük Ödeme</th>
+									<th>Aylık Ek Ödeme</th>
+									<th>Banka Şubesi</th>
+									<th>Banka Hesap No</th>
+									<th>Iban</th>
+									<th>İzin Başlama Tarihi</th>
+									<th>Kalan İzin</th>
+									<th>Ödenen İzin</th>
+									<th>Adres</th>
 								</tr>
 							</thead>
 							<tbody>
 								<?php
 
-									$ay  	 = explode("-", $tarih);
-									$yil       = $ay[ 0 ];
-									$ay 		 = $ay[ 1 ];
-									$gunSayisi = date("t",mktime(0,0,0,$ay,01,$yil));	
+									$ay  	 	= explode("-", $tarih);
+									$yil       	= $ay[ 0 ];
+									$ay 		= $ay[ 1 ];
+									$gunSayisi 	= date("t",mktime(0,0,0,$ay,01,$yil));	
 
 									$sayi =0;
 									$personelPuantaji = $vt->select( $SQL_puantaj_aylik, array( $tarih, $tarih, $_SESSION[ 'firma_id' ], $tarih ) )[ 2 ];
+
 									foreach ( $personelPuantaji as $puantaj ) {
-
-										;
-
 										$toplamKazanc = 0;
+										$mesaiKazanci = 0;
 										$sayi++;
 
 										$ucret = $puantaj[ "kapali_maas" ] == "" ? $puantaj["ucret"] : $puantaj[ "kapali_maas" ];
 
-										$haftatatiliUcreti = ( $ucret / $aylik_calisma_saati / 60 ) * 1 * $puantaj[ "tatilGun" ];
+										$haftatatiliUcreti 		= ( $ucret / $aylik_calisma_saati / 60 ) * 1 * $puantaj[ "tatilGun" ];
+										
+										/*Kesintiler*/
+										/*Kesinti Saati Toplamları Maaşı Hesaplanacak Alınacak*/
+										$kesintiTutar 			= ( $ucret / $aylik_calisma_saati / 60 ) * 1 * $puantaj[ "toplam_kesinti" ];
+										
+										/*Tatil Gunleri Toplam Dakika*/
+										$tatilGunleriToplamDakika = ( $puantaj[ "tatil_gun" ] - $puantaj[ "tatil_kesinti_sayisi" ] ) * $gunluk_calisma_suresi;
+
+										/*Yarım Gün Tatil Süresi Toplamı*/
+										$yarimGunTatilSuresi	= $puantaj[ "yarim_gun_tatil_sayisi" ]	* $yarim_gun_tatil_suresi;
+
+										/*NORMAL HAKEDİŞ  Maaş - Kesinti */
+										$normalCalismaSuresi 	= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $puantaj[ "toplam_kesinti" ] - $yarimGunTatilSuresi);
+										
+										/*Tatil Kesinti Hesaplaması*/
+										$tatilKesinti					= $puantaj[ "tatil_kesinti_sayisi" ] * $gunluk_calisma_suresi;
+										$puantaj[ $normal_carpan_id ] 	= $normalCalismaSuresi;
+
+										/*Normal Maaşın Hesaplanması*/
+										$normalMaas 	=  $ucret - $kesintiTutar;
+
+								
 								?>
 										<tr>
 											<td><?php echo $sayi; ?></td>
@@ -450,106 +517,110 @@ $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
 											<td><?php echo $kazanilmis; ?></td>
 											<?php 
 												
-												foreach ( $carpan_listesi as $carpan ) {
+												foreach ( $guncel_carpan_listesi as $carpan ) {
 													
 													/* -- Maaş Hesaplasması == ( personelin aylık ucreti / 225 / 60 ) * carpan --*/
-													
-													
-													if ( $puantaj[ $carpan[ "carpan" ] ] > 0 OR $beyaz_yakali_personel != $puantaj[ "grup_id" ] ){
-														$kazanc 		 = ( $ucret / $aylik_calisma_saati / 60 ) * $carpan[ "carpan" ] * $puantaj[ $carpan[ "carpan" ] ];
-                											$toplamKazanc  += $kazanc;
+													if ( $puantaj[ $carpan[ "id" ] ] > 0 OR $beyaz_yakali_personel != $puantaj[ "grup_id" ] ){
+														if( $carpan[ "id" ] != $normal_carpan_id ){
+															$kazanc 		 = ( $ucret / $aylik_calisma_saati / 60 ) * $carpan[ "carpan" ] * $puantaj[ $carpan[ "id" ] ];
+															$mesaiKazanci  	+= $kazanc;
 
-														echo '<td>'.$fn->dakikaSaatCevir($puantaj[ $carpan[ "carpan" ] ] ).'</td>';
-														echo '<td>'.$fn->parabirimi( $kazanc ).'</td>';
+															echo '<td>'.$fn->dakikaSaatCevir($puantaj[ $carpan[ "id" ] ] ).'</td>';
+															echo '<td>'.$fn->parabirimi( $kazanc ).'</td>';
+														}else{
+															echo '<td>'.$fn->dakikaSaatCevir($puantaj[ $carpan[ "id" ] ] ).'</td>';
+															echo '<td>'.$fn->parabirimi( $normalMaas ).'</td>';
+														}
+														
 													}else{
-														echo	'<td>  </td>';
-														echo	'<td>  </td>';
+														echo	'<td></td>';
+														echo	'<td></td>';
 													}
 												}
 											?>
-											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' : $fn->dakikaSaatCevir( $puantaj[ "tatilGun" ] ); ?></td>
+											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' : $puantaj[ "tatil_gun" ] ; ?></td>
 											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' : $fn->dakikaSaatCevir( $puantaj[ "ucretli_izin" ] ); ?></td>
 											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' : $fn->dakikaSaatCevir( $puantaj[ "ucretsiz_izin" ] ); ?></td>
 											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' : $fn->dakikaSaatCevir( $puantaj[ "toplam_kesinti" ] ); ?></td>
-											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' :  $fn->parabirimi( ( $ucret / $aylik_calisma_saati / 60 ) * 1.00 * $puantaj[ "toplam_kesinti" ] ); ?></td>
-		            							<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? $fn->parabirimi( $ucret) : $fn->parabirimi( $toplamKazanc + $haftatatiliUcreti ); ?></td>
-		            							<td><?php echo $fn->parabirimi( $puantaj[ "kazanc" ] ); ?></td>
-		            							<td><?php echo $fn->parabirimi( $puantaj[ "kesinti" ] ); ?></td>
-		            							<td>
-		            								<?php 
-		            									if ( $beyaz_yakali_personel == $puantaj[ "grup_id" ] ){
-														echo $fn->parabirimi( $ucret + $puantaj[ "kazanc" ] - $puantaj[ "kesinti" ] ); 
-		            									}else{
-		            										echo $fn->parabirimi( $toplamKazanc + $puantaj[ "kazanc" ] + $haftatatiliUcreti - $puantaj[ "kesinti" ] ); 
-		            									}
-		            								?>	
-		            							</td>
-		            							<td></td>
-		            							<td></td>
-		            							<td><?php echo $ay; ?></td>
-		            							<td><?php echo $puantaj[ "sicil_no" ]; ?></td>
-		            							<td><?php echo $puantaj[ "grup_adi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "ise_giris_tarihi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "isten_cikis_tarihi" ]; ?></td>
-		            							<td><?php echo $ucret; ?></td>
-		            							<td><?php echo $puantaj[ "sube_id" ]; ?></td>
-		            							<td><?php echo $puantaj[ "bolum_id" ]; ?></td>
-		            							<td><?php echo $puantaj[ "servis" ]; ?></td>
-		            							<td><?php echo $puantaj[ "ozel_kod1_id" ]; ?></td>
-		            							<td><?php echo $puantaj[ "ozel_kod2_id" ]; ?></td>
-		            							<td><?php echo $puantaj[ "uyruk_id" ]; ?></td>
-		            							<td><?php echo $puantaj[ "cinsiyet" ]; ?></td>
-		            							<td><?php echo $puantaj[ "baba_adi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "ana_adi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "dogum_yeri" ]; ?></td>
-		            							<td><?php echo $puantaj[ "dogum_tarihi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "medeni_hali" ]; ?></td>
-		            							<td><?php echo $puantaj[ "kan_grubu" ]; ?></td>
-		            							<td><?php echo $puantaj[ "ogrenim_duzeyi_id" ]; ?></td>
-		            							<td><?php echo $puantaj[ "sabit_telefon" ]; ?></td>
-		            							<td><?php echo $puantaj[ "mobil_telefon" ]; ?></td>
-		            							<td><?php echo $puantaj[ "sigarta_basi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "sigorta_sonu" ]; ?></td>
-		            							<td><?php echo $puantaj[ "diger_odeme" ]; ?></td>
-		            							<td><?php echo $puantaj[ "gunluk_odeme" ]; ?></td>
-		            							<td><?php echo $puantaj[ "aylik_ek_odeme" ]; ?></td>
-		            							<td><?php echo $puantaj[ "banka_sube" ]; ?></td>
-		            							<td><?php echo $puantaj[ "banka_hesap_no" ]; ?></td>
-		            							<td><?php echo $puantaj[ "iban" ]; ?> 		</td>
-		            							<td><?php echo $puantaj[ "izin_baslama_tarihi" ]; ?></td>
-		            							<td><?php echo $puantaj[ "kalan_izin" ]; ?></td>
-		            							<td><?php echo $puantaj[ "odenen_izin" ]; ?></td>
-		            							<td><?php echo $puantaj[ "adres" ]; ?></td>
+											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? '' :  $fn->parabirimi( $kesintiTutar ); ?></td>
+											<td><?php echo $beyaz_yakali_personel == $puantaj[ "grup_id" ] ? $fn->parabirimi( $ucret) : $fn->parabirimi( $normalMaas + $mesaiKazanci ); ?></td>
+											<td><?php echo $fn->parabirimi( $puantaj[ "kazanc" ] ); ?></td>
+											<td><?php echo $fn->parabirimi( $puantaj[ "kesinti" ] ); ?></td>
+											<td>
+												<?php 
+													if ( $beyaz_yakali_personel == $puantaj[ "grup_id" ] ){
+													echo $fn->parabirimi( $ucret + $puantaj[ "kazanc" ] - $puantaj[ "kesinti" ] ); 
+													}else{
+														echo $fn->parabirimi( $normalMaas + $mesaiKazanci + $puantaj[ "kazanc" ] - $puantaj[ "kesinti" ] ); 
+													}
+												?>	
+											</td>
+											<td></td>
+											<td></td>
+											<td><?php echo $ay; ?></td>
+											<td><?php echo $puantaj[ "sicil_no" ]; ?></td>
+											<td><?php echo $puantaj[ "grup_adi" ]; ?></td>
+											<td><?php echo $puantaj[ "ise_giris_tarihi" ]; ?></td>
+											<td><?php echo $puantaj[ "isten_cikis_tarihi" ]; ?></td>
+											<td><?php echo $ucret; ?></td>
+											<td><?php echo $puantaj[ "sube_id" ]; ?></td>
+											<td><?php echo $puantaj[ "bolum_id" ]; ?></td>
+											<td><?php echo $puantaj[ "servis" ]; ?></td>
+											<td><?php echo $puantaj[ "ozel_kod1_id" ]; ?></td>
+											<td><?php echo $puantaj[ "ozel_kod2_id" ]; ?></td>
+											<td><?php echo $puantaj[ "uyruk_id" ]; ?></td>
+											<td><?php echo $puantaj[ "cinsiyet" ]; ?></td>
+											<td><?php echo $puantaj[ "baba_adi" ]; ?></td>
+											<td><?php echo $puantaj[ "ana_adi" ]; ?></td>
+											<td><?php echo $puantaj[ "dogum_yeri" ]; ?></td>
+											<td><?php echo $puantaj[ "dogum_tarihi" ]; ?></td>
+											<td><?php echo $puantaj[ "medeni_hali" ]; ?></td>
+											<td><?php echo $puantaj[ "kan_grubu" ]; ?></td>
+											<td><?php echo $puantaj[ "ogrenim_duzeyi_id" ]; ?></td>
+											<td><?php echo $puantaj[ "sabit_telefon" ]; ?></td>
+											<td><?php echo $puantaj[ "mobil_telefon" ]; ?></td>
+											<td><?php echo $puantaj[ "sigarta_basi" ]; ?></td>
+											<td><?php echo $puantaj[ "sigorta_sonu" ]; ?></td>
+											<td><?php echo $puantaj[ "diger_odeme" ]; ?></td>
+											<td><?php echo $puantaj[ "gunluk_odeme" ]; ?></td>
+											<td><?php echo $puantaj[ "aylik_ek_odeme" ]; ?></td>
+											<td><?php echo $puantaj[ "banka_sube" ]; ?></td>
+											<td><?php echo $puantaj[ "banka_hesap_no" ]; ?></td>
+											<td><?php echo $puantaj[ "iban" ]; ?> 		</td>
+											<td><?php echo $puantaj[ "izin_baslama_tarihi" ]; ?></td>
+											<td><?php echo $puantaj[ "kalan_izin" ]; ?></td>
+											<td><?php echo $puantaj[ "odenen_izin" ]; ?></td>
+											<td><?php echo $puantaj[ "adres" ]; ?></td>
 										</tr>
 								<?php } ?>
 							</tbody>
 							<tfoot>
-					            	<tr>
-					                	<th colspan="3" style="text-align:right">Total:</th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					                	<th></th>
-					            	</tr>
+								<tr>
+									<th colspan="3" style="text-align:right">Total:</th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+								</tr>
 					        </tfoot>
 						</table>
 					</div>
@@ -714,104 +785,71 @@ $beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
                   }, 0);
                $(api.column(3).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
+               /* Toplam Normal Çalışma Sutunu Topluyoruz
                toplamUcret = api.column(6).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
-               $(api.column(6).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
+               $(api.column(6).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );*/
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam Normal Çalışma Ücret Sutunu Topluyoruz
                toplamUcret = api.column(7).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(7).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(8).data().reduce(function (a, b) {
-                      return intVal(a) + intVal(b);
-                  }, 0);
-               $(api.column(8).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
+              
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam %50 Mesai Ücret Sutunu Topluyoruz
                toplamUcret = api.column(9).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(9).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(10).data().reduce(function (a, b) {
-                      return intVal(a) + intVal(b);
-                  }, 0);
-               $(api.column(10).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
+               
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam %100 Mesai Ücret Sutunu Topluyoruz
                toplamUcret = api.column(11).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(11).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(12).data().reduce(function (a, b) {
+				// Toplam Tatil Mesai Ücret Sutunu Topluyoruz
+				toplamUcret = api.column(13).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
-               $(api.column(12).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
+               $(api.column(13).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
+               
 
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(14).data().reduce(function (a, b) {
-                      return intVal(a) + intVal(b);
-                  }, 0);
-               $(api.column(14).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
-
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(15).data().reduce(function (a, b) {
-                      return intVal(a) + intVal(b);
-                  }, 0);
-               $(api.column(15).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
-
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(16).data().reduce(function (a, b) {
-                      return intVal(a) + intVal(b);
-                  }, 0);
-               $(api.column(16).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
-
-               // Toplam Ucret Sutunu Topluyoruz
-               toplamUcret = api.column(17).data().reduce(function (a, b) {
-                      return intVal(a) + intVal(b);
-                  }, 0);
-               $(api.column(17).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
-
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam Kesinti Ücreti Sutunu Topluyoruz
                toplamUcret = api.column(18).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(18).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam Kazanç Ucret Sutunu Topluyoruz
                toplamUcret = api.column(19).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(19).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam Ek Kazanç Sutunu Topluyoruz
                toplamUcret = api.column(20).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(20).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam Kesintiler Sutunu Topluyoruz
                toplamUcret = api.column(21).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(21).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               // Toplam Ucret Sutunu Topluyoruz
+               // Toplam Net Ucret Sutunu Topluyoruz
                toplamUcret = api.column(22).data().reduce(function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0);
                $(api.column(22).footer()).html( toplamUcret.toFixed(2).replace('.', ',') );
 
-               
-               
           }
 	} ).buttons().container().appendTo('#tbl_giriscikislar_wrapper .col-md-6:eq(0)');
 	

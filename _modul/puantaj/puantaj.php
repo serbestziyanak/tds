@@ -207,8 +207,7 @@ $personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
 $donem						= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
-if ( $donem > 0 ) {
-	echo 'Donem Kapatılmış';
+if ( $donem > 0 AND $detay == null ) {
 	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=kapatilmisDonem&personel_id='.$personel_id.'&tarih='.$tarih.'">';
 	die();
 }
@@ -692,7 +691,7 @@ foreach ($carpan_listesi as $carpan) {
 									$sayi++;} 
 									//Normal Çalışma Suresini Ayarladık
 									$normalCalismaSuresi 				= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi );
-									$genelCalismaSuresiToplami[ 1 ] 	= $normalCalismaSuresi;
+									$genelCalismaSuresiToplami[ $normal_carpan_id ] 	= $normalCalismaSuresi;
 								?>
 							</tbody>
 							<tfoot>
@@ -857,7 +856,7 @@ foreach ($carpan_listesi as $carpan) {
 					<td>Normal Hakediş</td>
 					<td>	
 						<?php
-							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ($normalCalismaSuresi+$tatilGunleriToplamDakika+$ucretliIzinGenelToplam) * 1;
+							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ( $normalCalismaSuresi + $tatilGunleriToplamDakika + $ucretliIzinGenelToplam ) * 1;
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
 						 
@@ -870,7 +869,8 @@ foreach ($carpan_listesi as $carpan) {
 							
 							$mesaiKazanci = 0;
 							foreach ($genelCalismaSuresiToplami as $carpan => $calisma) {
-							 	$mesaiKazanci += $carpan == 1 ? 0 : ( ( $personel_maas / $aylik_calisma_saati ) / 60 ) * $carpan_fiyat[$carpan] * $calisma ;
+								/*Carpan Normal Carpan ise mesai kazancına ekleme yapılmayacak aksi takdirde mesai kazancına ekleme yapılacak*/
+							 	$mesaiKazanci += $carpan == $normal_carpan_id ? 0 : ( ( $personel_maas / $aylik_calisma_saati ) / 60 ) * $carpan_fiyat[$carpan] * $calisma ;
 							}
 							echo $fn->parabirimi($mesaiKazanci);
 
