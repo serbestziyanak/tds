@@ -485,6 +485,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 												}
 												$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
 											
+											
 												//uygulanan işlem tipleri
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
 													$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
@@ -520,7 +521,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 													$i = 1;
 													while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
 														echo '
-															<td class="text-center"> - </td>
+															<td class="text-center"> - '.$giriscikisFarki.' </td>
 															<td class="text-center"> - </td>	
 														';
 														$i++;
