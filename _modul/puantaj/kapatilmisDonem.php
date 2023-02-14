@@ -283,6 +283,8 @@ foreach ($carpan_listesi as $carpan) {
 	$carpan_fiyat[ $carpan[ "id" ] ] = $carpan["carpan"];
 	
 }
+$carpanSayisi 	= count( $carpan_listesi );
+$sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 ?>
 
 <section class="content" modul="puantaj" yetki_islem="goruntule">
@@ -436,289 +438,307 @@ foreach ($carpan_listesi as $carpan) {
 									$mazeretsizGelmeme 	      	= 0;
 									while( $sayi <= $gunSayisi ) { 
 
-										$grup_id				= $vt->select( $SQL_personel_grup_id, array($personel_id,$listelenecekAy."-".$sayi) )[2][ 0 ];
-										$aciklama 				= '';
+										/*Personel Hesaplaması yapılan gün personel işe alınmamış ise hesaplama yapılmayacak*/
+										if( $tarih."-".$fn->ikiHaneliVer($sayi) < date("Y-m-d", strtotime( $tek_personel[ "ise_giris_tarihi" ] ) ) ){
+											$saatlikHesapla 	= 1;
+											$eksikGun 			+= 1;
+											
+											echo "<tr>";
+											echo $fn->bosSatir($sayi,$sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih."-".$sayi),$sutunSayisi);
+											echo "</tr>";
+										}else{
 
-										$gunHesapla = $fn->puantajHesapla($personel_id,$tarih,$sayi,$grup_id,$genelCalismaSuresiToplami,$tatil_mesai_carpan_id,$normal_carpan_id,1);
+											$grup_id				= $vt->select( $SQL_personel_grup_id, array($personel_id,$listelenecekAy."-".$sayi) )[2][ 0 ];
+											$aciklama 				= '';
 
-										$KullanilanSaatler 			 	= $gunHesapla["KullanilanSaatler"];
-										$kullanilacakMolalar 		 	= $gunHesapla["kullanilacakMolalar"];
-										$saatSay 					 	= $gunHesapla["saatSay"];
-										$asilkullanilanMolalar 		 	= $gunHesapla["asilkullanilanMolalar"];
-										$calismasiGerekenToplamDakika  	= $gunHesapla["calismasiGerekenToplamDakika"];
-										$calisilanToplamDakika 		 	= $gunHesapla["calisilanToplamDakika"];
-										$kullanilanToplamMola 		 	= $gunHesapla["kullanilanToplamMola"];
-										$kullanilmayanMolaToplami 	 	= $gunHesapla["kullanilmayanMolaToplami"];
-										$islenenSaatler 			 	= $gunHesapla["islenenSaatler"];
-										$izin[ "ucretli" ] 			 	= $gunHesapla["ucretli"];
-										$izin[ "ucretsiz" ] 		 	= $gunHesapla["ucretsiz"];
-										$kullanilmasiGerekenToplamMola 	= $gunHesapla["kullanilmasiGerekenToplamMola"];
-										$personel_giris_cikis_sayisi   	= $gunHesapla["personel_giris_cikis_sayisi"];
-										$personel_giris_cikis_saatleri 	= $gunHesapla["personel_giris_cikis_saatleri"];
-										$genelCalismaSuresiToplami 	 	= $gunHesapla["genelCalismaSuresiToplami"];
-										$tatil   					 	= $gunHesapla["tatil"];
-										$maasa_etki_edilsin 		 	= $gunHesapla["maasa_etki_edilsin"];
-										$ToplamKesintiSaati 		 	= $gunHesapla["ToplamKesintiSaati"];
-										$ilkUygulanacakSaat 		 	= $gunHesapla["ilkUygulanacakSaat"];
-										$tatil_mesaisi 		 		 	= $gunHesapla["tatil_mesaisi"];
+											$gunHesapla = $fn->puantajHesapla($personel_id,$tarih,$sayi,$grup_id,$genelCalismaSuresiToplami,$tatil_mesai_carpan_id,$normal_carpan_id,1);
 
-										if( $genelCalismaSuresiToplami[ '1.00' ] > 11700){
-											$genelCalismaSuresiToplami[ '1.00' ] = 11700;
-										}
+											$KullanilanSaatler 			 	= $gunHesapla["KullanilanSaatler"];
+											$kullanilacakMolalar 		 	= $gunHesapla["kullanilacakMolalar"];
+											$saatSay 					 	= $gunHesapla["saatSay"];
+											$asilkullanilanMolalar 		 	= $gunHesapla["asilkullanilanMolalar"];
+											$calismasiGerekenToplamDakika  	= $gunHesapla["calismasiGerekenToplamDakika"];
+											$calisilanToplamDakika 		 	= $gunHesapla["calisilanToplamDakika"];
+											$kullanilanToplamMola 		 	= $gunHesapla["kullanilanToplamMola"];
+											$kullanilmayanMolaToplami 	 	= $gunHesapla["kullanilmayanMolaToplami"];
+											$islenenSaatler 			 	= $gunHesapla["islenenSaatler"];
+											$izin[ "ucretli" ] 			 	= $gunHesapla["ucretli"];
+											$izin[ "ucretsiz" ] 		 	= $gunHesapla["ucretsiz"];
+											$kullanilmasiGerekenToplamMola 	= $gunHesapla["kullanilmasiGerekenToplamMola"];
+											$personel_giris_cikis_sayisi   	= $gunHesapla["personel_giris_cikis_sayisi"];
+											$personel_giris_cikis_saatleri 	= $gunHesapla["personel_giris_cikis_saatleri"];
+											$genelCalismaSuresiToplami 	 	= $gunHesapla["genelCalismaSuresiToplami"];
+											$tatil   					 	= $gunHesapla["tatil"];
+											$maasa_etki_edilsin 		 	= $gunHesapla["maasa_etki_edilsin"];
+											$ToplamKesintiSaati 		 	= $gunHesapla["ToplamKesintiSaati"];
+											$ilkUygulanacakSaat 		 	= $gunHesapla["ilkUygulanacakSaat"];
+											$tatil_mesaisi 		 		 	= $gunHesapla["tatil_mesaisi"];
 
-										/*Normal Çalışma Gününü sayıyoruz*/
-										if ( $tatil == 'hayir' AND $personel_giris_cikis_sayisi > 0 )
-											$normalGun++;
-										
-										/*Ucretli ve Ucretsiz izin günlerini Hesaplıyoruz*/
-										if ( $izin[ "ucretli" ] > 0 ) 
-											$ucretliIzinGun++;
+											if( $genelCalismaSuresiToplami[ '1.00' ] > 11700){
+												$genelCalismaSuresiToplami[ '1.00' ] = 11700;
+											}
 
-										if ( $izin[ "ucretsiz" ] > 0 ) 
-											$ucretsizIzinGun++;
-										
-										/*Personel Giriş Çıkış Sayısı 0 ise Mazaretsiz Gelmeme Sayısına ekliyoruz*/
-										if ( $personel_giris_cikis_sayisi == 0 AND $tatil == 'hayir' )
-											$mazeretsizGelmeme++;
-									?>
-									<tr>
-										<td><?php echo $sayi; ?></td>
-										<td><?php echo $sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih."-".$sayi); ?></td>
-										<?php 
-											$i = 1;
-											$islemtipi = array();
-											if ($personel_giris_cikis_sayisi == 0 ) {
-												if ($tatil == "hayir") {
-													$haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] += 1;
-												}
-												$col = ($tarihSayisi*2);
-												$col = $col == 0 ? 2 : $col;
+											/*Normal Çalışma Gününü sayıyoruz*/
+											if ( $tatil == 'hayir' AND $personel_giris_cikis_sayisi > 0 )
+												$normalGun++;
+											
+											/*Ucretli ve Ucretsiz izin günlerini Hesaplıyoruz*/
+											if ( $izin[ "ucretli" ] > 0 ) 
+												$ucretliIzinGun++;
+
+											if ( $izin[ "ucretsiz" ] > 0 ) 
+												$ucretsizIzinGun++;
+											
+											/*Personel Giriş Çıkış Sayısı 0 ise Mazaretsiz Gelmeme Sayısına ekliyoruz*/
+											if ( $personel_giris_cikis_sayisi == 0 AND $tatil == 'hayir' )
+												$mazeretsizGelmeme++;
+										?>
+										<tr>
+											<td><?php echo $sayi; ?></td>
+											<td><?php echo $sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih."-".$sayi); ?></td>
+											<?php 
 												$i = 1;
-												while ($i <= $col) { 
-													echo '<td class="text-center" >-</td>';
-													$i++;
-												}
-												$islemtipi["gelmedi"] = "Gelmedi"; 
-											}
-											$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
-										
-											//uygulanan işlem tipleri
-											foreach($personel_giris_cikis_saatleri AS $giriscikis){
-												$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
-											}
-											$fark["UcretliIzin"] 	= 0;
-											$fark["UcretsizIzin"] 	= 0;
-											$fark["mesai"] 		= 0;
-											//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
-											if ($personel_giris_cikis_sayisi ==$tarihSayisi ) {
-												foreach($personel_giris_cikis_saatleri AS $giriscikis){
-													$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-													$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
-													echo '
-														<td class="text-center">'.$baslangicSaat.'</td>
-														<td class="text-center">'.$bitisSaat.'</td>';
-
-													//Giriş Çıkış Arasındakik Dakika Farkı
-													$baslangicSaati = strtotime($baslangicSaat );
-													$bitisSaati 	= strtotime($bitisSaat );
-													$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
-
-													if ($giriscikis["islemTipi"] == "") {
-														$fark["mesai"] 	+= $ToplamDakika;
-													}else{
-														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-														$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
+												$islemtipi = array();
+												if ($personel_giris_cikis_sayisi == 0 ) {
+													if ($tatil == "hayir") {
+														$haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] += 1;
 													}
-													
-													
+													$col = ($tarihSayisi*2);
+													$col = $col == 0 ? 2 : $col;
+													$i = 1;
+													while ($i <= $col) { 
+														echo '<td class="text-center" >-</td>';
+														$i++;
+													}
+													$islemtipi["gelmedi"] = "Gelmedi"; 
 												}
-											}else if($personel_giris_cikis_sayisi == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
-												echo '<td class="text-center">'.$personel_giris_cikis_saatleri[0][ 'baslangic_saat' ].'</td>';
-												$i = 1;
-												while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
-													echo '
-														<td class="text-center"> - </td>
-														<td class="text-center"> - </td>	
-													';
-													$i++;
-												}
-												echo '<td class="text-center">'.$personel_giris_cikis_saatleri[0][ 'bitis_saat' ].'</td>';
-
-												$baslangicSaati  = strtotime($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ]);
-												$bitisSaati 	 = strtotime($personel_giris_cikis_saatleri[0][ 'bitis_saat' ]);
-												$ToplamDakika 	 = ($bitisSaati - $baslangicSaati) / 60;
-
-												if ($personel_giris_cikis_saatleri[0][ 'islemTipi' ] == "") {
-													$fark["mesai"] += $ToplamDakika;
-												}else{
-													//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
-													$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
-												}
-
-											}else{ //Gündee birden fazla giriş çıkış var ise 
-												$i = 1;
+												$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
+											
+												//uygulanan işlem tipleri
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
-													
-													if($i < $personel_giris_cikis_sayisi){
-
+													$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
+												}
+												$fark["UcretliIzin"] 	= 0;
+												$fark["UcretsizIzin"] 	= 0;
+												$fark["mesai"] 		= 0;
+												//Bir Personel Bir günde en cok giris çıkıs sayısı en yüksek olan tarih ise
+												if ($personel_giris_cikis_sayisi ==$tarihSayisi ) {
+													foreach($personel_giris_cikis_saatleri AS $giriscikis){
 														$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
 														$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
 														echo '
 															<td class="text-center">'.$baslangicSaat.'</td>
 															<td class="text-center">'.$bitisSaat.'</td>';
-													}else{
-														$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
-														$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
-														echo '<td  class="text-center">'.$baslangicSaat.'</td>';
-														$j = 1;
-														while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
-															echo '
-																<td class="text-center"> - </td>
-																<td class="text-center"> - </td>	
-															';
-															$j++;
-														}
-														echo '<td class="text-center">'.$bitisSaat.'</td>';
-													}
-													$i++;
-													$baslangicSaati = strtotime($baslangicSaat );
-													$bitisSaati 	= strtotime($bitisSaat );
-													$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
 
-													if ($giriscikis["islemTipi"] == "") {
-														$fark["mesai"] 	+= $ToplamDakika;
+														//Giriş Çıkış Arasındakik Dakika Farkı
+														$baslangicSaati = strtotime($baslangicSaat );
+														$bitisSaati 	= strtotime($bitisSaat );
+														$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
+
+														if ($giriscikis["islemTipi"] == "") {
+															$fark["mesai"] 	+= $ToplamDakika;
+														}else{
+															//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
+															$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
+														}
+														
+														
+													}
+												}else if($personel_giris_cikis_sayisi == 1 ){ // 1 Günde sadece bir kes giriş çıkış yapmıs ise 
+													echo '<td class="text-center">'.$personel_giris_cikis_saatleri[0][ 'baslangic_saat' ].'</td>';
+													$i = 1;
+													while ($i <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+														echo '
+															<td class="text-center"> - </td>
+															<td class="text-center"> - </td>	
+														';
+														$i++;
+													}
+													echo '<td class="text-center">'.$personel_giris_cikis_saatleri[0][ 'bitis_saat' ].'</td>';
+
+													$baslangicSaati  = strtotime($personel_giris_cikis_saatleri[0][ 'baslangic_saat' ]);
+													$bitisSaati 	 = strtotime($personel_giris_cikis_saatleri[0][ 'bitis_saat' ]);
+													$ToplamDakika 	 = ($bitisSaati - $baslangicSaati) / 60;
+
+													if ($personel_giris_cikis_saatleri[0][ 'islemTipi' ] == "") {
+														$fark["mesai"] += $ToplamDakika;
 													}else{
 														//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
 														$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
 													}
-												}
-											}
 
-										?>
-										<td>	
-											<?php
-												/*Tatil olup olmadığını Kontrol Ediyoruz*/ 
-												if ( $tatil == 'evet' ){
-													echo '<b class="text-center text-info">Tatil</b>';
-												}else{
+												}else{ //Gündee birden fazla giriş çıkış var ise 
+													$i = 1;
+													foreach($personel_giris_cikis_saatleri AS $giriscikis){
+														
+														if($i < $personel_giris_cikis_sayisi){
 
-													if ( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali != "evet" ) {
-														echo '<b class="text-center text-danger">Gelmedi</b>';
-													}else if( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali == "evet" ){
+															$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+															$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+															echo '
+																<td class="text-center">'.$baslangicSaat.'</td>
+																<td class="text-center">'.$bitisSaat.'</td>';
+														}else{
+															$baslangicSaat = $giriscikis[ 'baslangic_saat' ] == '' ? ' - ' : $giriscikis[ 'baslangic_saat' ];
+															$bitisSaat = $giriscikis[ 'bitis_saat' ] == '' ? ' - ' : $giriscikis[ 'bitis_saat' ];
+															echo '<td  class="text-center">'.$baslangicSaat.'</td>';
+															$j = 1;
+															while ($j <= $giriscikisFarki) {//Gün Farkı Kadar Bos Dönderme
+																echo '
+																	<td class="text-center"> - </td>
+																	<td class="text-center"> - </td>	
+																';
+																$j++;
+															}
+															echo '<td class="text-center">'.$bitisSaat.'</td>';
+														}
+														$i++;
+														$baslangicSaati = strtotime($baslangicSaat );
+														$bitisSaati 	= strtotime($bitisSaat );
+														$ToplamDakika 	= ($bitisSaati - $baslangicSaati) / 60;
 
-														echo '<b class="text-center text-success">Mesaide</b>';
-
-													}else{
-														echo '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+														if ($giriscikis["islemTipi"] == "") {
+															$fark["mesai"] 	+= $ToplamDakika;
+														}else{
+															//Maaş Kesintisi Yapılıp Yapılmayacağını kontrol ediyoruz
+															$fark["UcretsizIzin"]  += $giriscikis["maas_kesintisi"] == 1 ?  $ToplamDakika : $ToplamDakika;
+														}
 													}
-													echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
 												}
-													
+
 											?>
-										</td>
-										<?php 
-											//Hangi Carpan Üzerinde Kaç Saat Çalıştığını YAzdırıyoruz
-											foreach ( $carpan_listesi as $carpan ) {
-												if ( $calisilanToplamDakika[ $carpan[ "id" ] ] > 0 )
-													echo '<td>'.gmdate("H:i", ( $calisilanToplamDakika[ $carpan[ "id" ] ] * 60 ) ).'</td>';
-												else
-													echo	'<td> - </td>';
-											}	
-										?>
-										<td>
-											<?php
-												//Suan Maul Olarak 450 Dakika man. genel ayarlara dinamik sekilde güncellenecbilcektir
-												if ( $tatil == 'evet' and $personel_giris_cikis_sayisi == 0 ){
-													//1 Olan yere genel ayarlandan geneln gelmem gün sayısını getirilecek
-													if ( $maasa_etki_edilsin == 'evet' AND $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] < $pazar_kesinti_sayisi ) {
-														$tatilGunleriToplamDakika += $gunluk_calisma_suresi; 
-														echo gmdate("H:i", ( ( $gunluk_calisma_suresi ) * 60 ) );
-														/*Eğer Gün Pazar gününne veya hafta tailine denk geliyorsa Hafta tatili olarak sayılsın degilse Resmi Tatil olarak Sayılsın*/
-														if ($fn->gunVer($tarih."-".$sayi) == 'Pazar')
-															$haftaTatili++;
-														else
-															$genelTatil++;
+											<td>	
+												<?php
+													/*Tatil olup olmadığını Kontrol Ediyoruz*/ 
+													if ( $tatil == 'evet' ){
+														echo '<b class="text-center text-info">Tatil</b>';
+													}else{
+
+														if ( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali != "evet" ) {
+															echo '<b class="text-center text-danger">Gelmedi</b>';
+														}else if( array_key_exists("gelmedi", $islemtipi) AND $beyaz_yakali == "evet" ){
+
+															echo '<b class="text-center text-success">Mesaide</b>';
+
+														}else{
+															echo '<b class="text-center text-warning">'.implode(", ", $islemtipi).'</b>';
+														}
+														echo count($islemtipi) == 0  ? '<b class="text-center text-success">Mesaide</b>' : '';
+													}
+														
+												?>
+											</td>
+											<?php 
+												//Hangi Carpan Üzerinde Kaç Saat Çalıştığını YAzdırıyoruz
+												foreach ( $carpan_listesi as $carpan ) {
+													if ( $calisilanToplamDakika[ $carpan[ "id" ] ] > 0 )
+														echo '<td>'.gmdate("H:i", ( $calisilanToplamDakika[ $carpan[ "id" ] ] * 60 ) ).'</td>';
+													else
+														echo	'<td> - </td>';
+												}	
+											?>
+											<td>
+												<?php
+													//Suan Maul Olarak 450 Dakika man. genel ayarlara dinamik sekilde güncellenecbilcektir
+													if ( $tatil == 'evet' and $personel_giris_cikis_sayisi == 0 ){
+														//1 Olan yere genel ayarlandan geneln gelmem gün sayısını getirilecek
+														if ( $maasa_etki_edilsin == 'evet' AND $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] < $pazar_kesinti_sayisi ) {
+															$tatilGunleriToplamDakika += $gunluk_calisma_suresi; 
+															echo gmdate("H:i", ( ( $gunluk_calisma_suresi ) * 60 ) );
+															/*Eğer Gün Pazar gününne veya hafta tailine denk geliyorsa Hafta tatili olarak sayılsın degilse Resmi Tatil olarak Sayılsın*/
+															if ($fn->gunVer($tarih."-".$sayi) == 'Pazar')
+																$haftaTatili++;
+															else
+																$genelTatil++;
+														}else{
+															echo '-';
+															if ($fn->gunVer($tarih."-".$sayi) == 'Pazar')
+																$aciklama = 'Ht. Doldrulmadı.';
+														}
+														
+													}else{
+														if( $tatil_mesaisi > 0 ){
+															$tatilGunleriToplamDakika  += $yarim_gun_tatil_suresi;
+															echo gmdate("H:i", ( ( $yarim_gun_tatil_suresi ) * 60 ) );
+														}else{
+															echo '<b class="text-center">-</b>';
+														}
+													}
+												?>
+													
+											</td>
+											<td>
+												<?php 
+													if ($izin[ "ucretli" ]>0) {
+														$ucretliIzinGenelToplam  += $izin[ "ucretli" ] - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ];
+														echo gmdate("H:i", ( ( $izin[ "ucretli" ] - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ] ) * 60 ) );
 													}else{
 														echo '-';
-														if ($fn->gunVer($tarih."-".$sayi) == 'Pazar')
-															$aciklama = 'Ht. Doldrulmadı.';
 													}
-													
-												}else{
-													if( $tatil_mesaisi > 0 ){
-														$tatilGunleriToplamDakika  += $yarim_gun_tatil_suresi;
-														echo gmdate("H:i", ( ( $yarim_gun_tatil_suresi ) * 60 ) );
+												?>
+											</td>
+											<td>
+												<?php 
+													if ($izin["ucretsiz"]>0) {
+														$ucretsizIzinGenelToplam  += $izin[ "ucretsiz" ] - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ];
+														echo gmdate("H:i", ( ( $izin[ "ucretsiz" ]  - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ] ) * 60 ) );
 													}else{
-														echo '<b class="text-center">-</b>';
+														echo '-';
 													}
-												}
-											?>
+												?>
 												
-										</td>
-										<td>
-											<?php 
-												if ($izin[ "ucretli" ]>0) {
-													$ucretliIzinGenelToplam  += $izin[ "ucretli" ] - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ];
-													echo gmdate("H:i", ( ( $izin[ "ucretli" ] - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ] ) * 60 ) );
-												}else{
-													echo '-';
-												}
-											?>
-										</td>
-										<td>
-											<?php 
-												if ($izin["ucretsiz"]>0) {
-													$ucretsizIzinGenelToplam  += $izin[ "ucretsiz" ] - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ];
-													echo gmdate("H:i", ( ( $izin[ "ucretsiz" ]  - $kullanilmayanMolaToplami[ $ilkUygulanacakSaat ] ) * 60 ) );
-												}else{
-													echo '-';
-												}
-											?>
-											
-										</td>
-										<td>
-											<?php 
-												// Toplam Kesinti Saati	
-												$toplamIzin 		= $izin[ "ucretli" ] + $izin[ "ucretsiz" ];
-												$cikarilacakMola 	= $kullanilmasiGerekenToplamMola;
-												
-												if ( $toplamIzin > 0 ) {
-													$cikarilacakMola -= $kullanilmasiGerekenToplamMola - $kullanilanToplamMola[ $ilkUygulanacakSaat ];
-												}
+											</td>
+											<td>
+												<?php 
+													// Toplam Kesinti Saati	
+													$toplamIzin 		= $izin[ "ucretli" ] + $izin[ "ucretsiz" ];
+													$cikarilacakMola 	= $kullanilmasiGerekenToplamMola;
+													
+													if ( $toplamIzin > 0 ) {
+														$cikarilacakMola -= $kullanilmasiGerekenToplamMola - $kullanilanToplamMola[ $ilkUygulanacakSaat ];
+													}
 
-												//Toplam Calısılması gereken - calıstığı süre - izin süresi - Mola
-												$ToplamKesintiSaati = $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzin  - $cikarilacakMola;
-												if($tatil == 'evet'){
-													if ( $fn->gunVer( $tarih."-".$sayi ) == 'Pazar' ){
-														if( $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] >= $pazar_kesinti_sayisi  ){
-															$gunlukCalismaSaatiDakikaOlarak = 450;
-															$genelToplamKesintiSuresi += $gunlukCalismaSaatiDakikaOlarak ;
-															echo gmdate("H:i", ( $gunlukCalismaSaatiDakikaOlarak * 60 ) );
+													//Toplam Calısılması gereken - calıstığı süre - izin süresi - Mola
+													$ToplamKesintiSaati = $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzin  - $cikarilacakMola;
+													if($tatil == 'evet'){
+														if ( $fn->gunVer( $tarih."-".$sayi ) == 'Pazar' ){
+															if( $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] >= $pazar_kesinti_sayisi  ){
+																$gunlukCalismaSaatiDakikaOlarak = 450;
+																$genelToplamKesintiSuresi += $gunlukCalismaSaatiDakikaOlarak ;
+																echo gmdate("H:i", ( $gunlukCalismaSaatiDakikaOlarak * 60 ) );
+															}else{
+																echo '-';
+															}
+														}
+													}else{
+														
+														$molaSuresi = 0;
+														
+														if($ToplamKesintiSaati > 0 ){
+															$genelToplamKesintiSuresi += $ToplamKesintiSaati ;
+															echo gmdate("H:i", ( ( $ToplamKesintiSaati) * 60 ) );
 														}else{
 															echo '-';
 														}
 													}
-												}else{
-													
-													$molaSuresi = 0;
-													
-													if($ToplamKesintiSaati > 0 ){
-														$genelToplamKesintiSuresi += $ToplamKesintiSaati ;
-														echo gmdate("H:i", ( ( $ToplamKesintiSaati) * 60 ) );
-													}else{
-														echo '-';
-													}
-												}
-											?>
-										</td>
-										<td><?php echo $aciklama; ?></td>
-										
-									</tr>
-								<?php 
-									$sayi++;} 
+												?>
+											</td>
+											<td><?php echo $aciklama; ?></td>
+											
+										</tr>
+									<?php 
+										}
+										$sayi++;
+									
+									}
+
+									if( $gunSayisi == 31 AND $saatlikHesapla == 1){
+										$eksikGun 	-= 1;
+									}
 									//Normal Çalışma Suresini Ayarladık
-									$normalCalismaSuresi 				= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi );
-									$genelCalismaSuresiToplami[ 1 ] 	= $normalCalismaSuresi;
+
+									$normalCalismaSuresi 								= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi )-( $eksikGun * $gunluk_calisma_suresi );
+									$genelCalismaSuresiToplami[ $normal_carpan_id ] 	= $normalCalismaSuresi;
 								?>
 							</tbody>
 							<tfoot>

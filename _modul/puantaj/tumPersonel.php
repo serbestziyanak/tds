@@ -506,12 +506,12 @@ $personel_maas 				= $tek_personel[ 'ucret' ];
 										/*Normal Maaşın Hesaplanması*/
 										$normalMaas 	=  $ucret - $kesintiTutar;
 
-								
+										
 								?>
 										<tr>
 											<td><?php echo $sayi; ?></td>
 											<td><?php echo $puantaj["adi"].' '.$puantaj["soyadi"]; ?></td>
-											<td><?php echo $puantaj[ "tc_no" ]; ?></td>
+											<td><?php echo $puantaj[ "kayit_no" ]; ?></td>
 											<td><?php echo $fn->parabirimi($ucret); ?></td>
 											<td><?php echo $gunSayisi; ?></td>
 											<td><?php echo $kazanilmis; ?></td>

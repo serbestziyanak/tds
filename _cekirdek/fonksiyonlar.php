@@ -1106,8 +1106,10 @@ SQL;
 
 		/*Tüm Günlerin calışma sürelerini carpani ile birlikte dizide topluyoruz*/
 		foreach ($calisilanToplamDakika as $carpan => $dakika) {
-			if ( $dakika > 0 )
-				$genelCalismaSuresiToplami[ $carpan ] += $dakika;
+			if ( $dakika > 0 AND $sayi == 31 AND $ilkUygulanacakSaat == $carpan)
+				echo "";
+			else
+				$genelCalismaSuresiToplami[ $carpan ] += $dakika;	
 		}
 
 		foreach ($kullanilacakMolalar[ $ilkUygulanacakSaat ] as $molakey => $mola) {
@@ -1115,6 +1117,7 @@ SQL;
 		}
 		
 		$calisilanToplamDakika[ $ilkUygulanacakSaat ] += $toplamTolerans;
+		$genelCalismaSuresiToplami[ $ilkUygulanacakSaat ] += $toplamTolerans;
 
 		/*
 		Eger Tatil ve Maaşa Etki edilecekse ve pazar gününe eşit ise toplam hafta byunca gelmediği günü hesaplıyoruz
@@ -1255,7 +1258,16 @@ SQL;
 		return $donem;
 	}
 
-	
-
-
+	public function bosSatir($sayi,$gun,$sutunSayisi){
+		$sutunlar 	= "";
+		$sutunlar  	.=  "<td>$sayi</td>";
+		$sutunlar  	.=  "<td>$gun</td>";
+		$sutunlar  	.=  "<td colspan='$sutunSayisi' class='text-center' > - </td>";
+		$i = 1;
+		while ( $i <= $sutunSayisi - 1 ) {
+			$sutunlar .= "<td class='d-none'></td>";
+			$i++;
+		}
+		return $sutunlar;
+	}
 }

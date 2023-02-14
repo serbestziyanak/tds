@@ -465,7 +465,7 @@ if ($islem == "saatduzenle" AND count($tek_personel)>0) {
 										</td>
 										<td>
 											<?php if($fn->gunVer($tarih.'-'.$sayi) != "Pazar" AND !array_key_exists( "gelmedi", $islemtipi)){  ?>
-												<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=giriscikis&personel_id=<?php echo $personel_id; ?>&duzenlenecek_tarih=<?php echo $tarih.'-'.$fn->ikiHaneliVer($sayi); ?>&islem=saatduzenle" id="saat_duzenle">
+												<a modul = 'personel' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=giriscikis&personel_id=<?php echo $personel_id; ?>&tarih=<?php echo $tarih; ?>&duzenlenecek_tarih=<?php echo $tarih.'-'.$fn->ikiHaneliVer($sayi); ?>&islem=saatduzenle" id="saat_duzenle">
 													Düzenle
 												</a>
 											<?php }else{ echo '-'; } ?>
