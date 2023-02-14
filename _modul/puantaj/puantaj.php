@@ -367,7 +367,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 						<table id="tbl_giriscikislar" class="table table-bordered table-hover table-sm" width = "100%">
 							<thead>
 								<tr>
-									<th style="width: 15px">#</th>
+									<th style="width: 50px">#</th>
 									<th>Tarih</th>
 									<?php
 										$i = 1;
@@ -463,9 +463,11 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 											/*Personel Giriş Çıkış Sayısı 0 ise Mazaretsiz Gelmeme Sayısına ekliyoruz*/
 											if ( $personel_giris_cikis_sayisi == 0 AND $tatil == 'hayir' )
 												$mazeretsizGelmeme++;
+											
+											$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
 										?>
 										<tr>
-											<td><?php echo $sayi."-".$personel_giris_cikis_sayisi; ?></td>
+											<td><?php echo $sayi."-".$personel_giris_cikis_sayisi."-".$giriscikisFarki; ?></td>
 											<td><?php echo $sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih."-".$sayi); ?></td>
 											<?php 
 												$i = 1;
@@ -483,7 +485,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 													}
 													$islemtipi["gelmedi"] = "Gelmedi"; 
 												}
-												$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
+												
 												
 												//uygulanan işlem tipleri
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
