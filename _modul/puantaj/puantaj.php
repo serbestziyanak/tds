@@ -64,17 +64,14 @@ SQL;
 //SELECT *, COUNT(tarih) AS tarihSayisi FROM tb_giris_cikis GROUP BY tarih ORDER BY tarih ASC
 $SQL_tum_giris_cikis = <<< SQL
 SELECT
-	id
-	,tarih
-	,COUNT(tarih) AS tarihSayisi
-	
+	COUNT(tarih) AS tarihSayisi
 FROM
 	tb_giris_cikis
 WHERE
 	baslangic_saat  IS NOT NULL AND 
 	personel_id 				= ? AND 
 	DATE_FORMAT(tarih,'%Y-%m') 	= ?  AND 
-	aktif 					= 1
+	aktif 						= 1
 GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
@@ -367,7 +364,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 						<table id="tbl_giriscikislar" class="table table-bordered table-hover table-sm" width = "100%">
 							<thead>
 								<tr>
-									<th style="width: 50px">#</th>
+									<th style="width: 15px">#</th>
 									<th>Tarih</th>
 									<?php
 										$i = 1;
@@ -467,7 +464,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 											$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
 										?>
 										<tr>
-											<td><?php echo $sayi."-".$personel_giris_cikis_sayisi."-".$giriscikisFarki; ?></td>
+											<td><?php echo $sayi; ?></td>
 											<td><?php echo $sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih."-".$sayi); ?></td>
 											<?php 
 												$i = 1;
