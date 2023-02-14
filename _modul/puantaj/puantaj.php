@@ -465,7 +465,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 												$mazeretsizGelmeme++;
 										?>
 										<tr>
-											<td><?php echo $sayi; ?></td>
+											<td><?php echo $sayi."-".$personel_giris_cikis_sayisi; ?></td>
 											<td><?php echo $sayi.'.'.$fn->ayAdiVer($ay,1).''.$fn->gunVer($tarih."-".$sayi); ?></td>
 											<?php 
 												$i = 1;
@@ -485,8 +485,6 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 												}
 												$giriscikisFarki = $tarihSayisi - $personel_giris_cikis_sayisi;
 												
-												echo "$giriscikisFarki '-' $sayi <br>";
-											
 												//uygulanan işlem tipleri
 												foreach($personel_giris_cikis_saatleri AS $giriscikis){
 													$giriscikis["islemTipi"] != "" ? $islemtipi[] = $giriscikis["islemTipi"] : '';
