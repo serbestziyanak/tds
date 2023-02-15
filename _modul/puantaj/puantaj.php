@@ -929,7 +929,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 				</tr>
 				<tr>
 					<td>Ödeme Tutarı</td>
-					<td><?php echo  $fn->parabirimi($sonuc > 0 ? $sonuc : 0); ?></td>
+					<td id="odemeTutari"><?php echo  $fn->parabirimi($sonuc > 0 ? $sonuc : 0); ?></td>
 				</tr>
 			</table>
 		</div>
@@ -946,9 +946,6 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 	var ciktiUst = document.getElementById( 'ciktiUst' );
 	ciktiUst =  ciktiUst.outerHTML;
 	
-
-
-
 	$(function () {
 		$('#datetimepickerAy').datetimepicker({
 			//defaultDate: simdi,

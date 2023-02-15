@@ -242,7 +242,7 @@ array_unshift( $grid_kolonlar, array( 'type' => 'text', 'title' => '#', 'name' =
 			,columns: <?php echo json_encode( $grid_kolonlar ); ?>
 			,onbeforedeleterow	: onbeforedeleterow
 			,onafterchanges		: onafterchanges
-			,license			: 'Y2EwZTBiZTZhZGUxMzk0Yzk5NjhjMDNmYjg1YzdmMWQxODAwZDVkZmYwZGM4NjkwZDg1YWM0N2VlM2M0MDlmNWYxNjljMGEyY2QyODg3MmY0NTk5NzJkY2ZkZmY0ODBiYWExM2QzNjUwYjQ0ZGY0ODlmY2IyNmRkYTBjYmQwNjEsZXlKdVlXMWxJam9pUmtsU1FWUWdTMEZRUVZJaUxDSmtZWFJsSWpveE5qY3lOakUzTmpBd0xDSmtiMjFoYVc0aU9sc2lkR1J6TG5ONWJuUmhlR0pwYkdsemFXMHVZMjl0SWl3aWJHOWpZV3hvYjNOMElsMHNJbkJzWVc0aU9qQXNJbk5qYjNCbElqcGJJblkzSWl3aWRqZ2lMQ0oyT1NKZGZRPT0='
+			,license			: 'NWZmZjNmNjg5OWI1NTEyY2JmYzUwZjRkMjMwNDY2NzVmODA0YWEzMWE1MzlkYjEwMDc2MjUxN2IzMWNjODBlNGZiZjhmNDNhZDM5MzZiNGNmNTg5ZThiMTc0NGMyOGM2YTg5Y2Y5YjM4MGU5YjkwYjhmMjYzZTZlMDVjZmIxNjYsZXlKdVlXMWxJam9pUmtsU1FWUWdTMEZRUVZJaUxDSmtZWFJsSWpveE5qYzRPRE00TkRBd0xDSmtiMjFoYVc0aU9sc2lkR1J6TG5ONWJuUmhlR0pwYkdsemFXMHVZMjl0SWl3aWJHOWpZV3hvYjNOMElsMHNJbkJzWVc0aU9qQXNJbk5qYjNCbElqcGJJblkzSWl3aWRqZ2lMQ0oyT1NKZGZRPT0='
 			,text : {
 				 noRecordsFound:'Kayıt Bulunamadı'
 				,showingPage:'Toplam {1} sayfadan {0}. Sayfa gösteriliyor'

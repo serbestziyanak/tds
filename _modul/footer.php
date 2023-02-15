@@ -40,7 +40,7 @@
 <aside class="control-sidebar personel-bilgileri-kapsa" >
         <div class="card card-outline">
             <h2 class="text-danger" style="margin-top: 10px;"><center>Net Ücret</center></h2>
-            <h3 class=""><center><?php echo $fn->parabirimi($aylikTutar); ?>TL</center></h3>
+            <h3 class=""><center id="sonucOdemeTutari"></center></h3>
             <center>Kazanç ve kesintiler dahildir.</center>
             <div class="card-body box-profile">
                 <div class="text-center">
@@ -84,6 +84,10 @@
             }
         }
     });
+
+    var odemeTutari = document.getElementById("odemeTutari");
+    document.getElementById("sonucOdemeTutari").innerText = odemeTutari.outerText+" TL";
+
 </script>
 
  <?php } ?>
