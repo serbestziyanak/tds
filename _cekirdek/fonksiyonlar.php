@@ -1270,4 +1270,138 @@ SQL;
 		}
 		return $sutunlar;
 	}
+
+	public function agacListeleSelect( $kategoriler, $sayi = 0, $cizgi, $birlestir = ""){
+		
+		foreach( $kategoriler[ $sayi ] as $kategori ){
+			
+			$ciz 		= $cizgi == 0 ? '' : str_repeat("&#xf054; ",$cizgi);
+
+			$birlestir .= "<option value='$kategori[id]' class='font-awesome'><i class=''>$ciz</i> $kategori[adi]</option>"; 
+			
+			if( array_key_exists( $kategori[ "id" ], $kategoriler ) ){
+
+				$cizgi += 1;			
+				$birlestir = $this->agacListeleSelect( $kategoriler, $kategori[ "id" ], $cizgi,$birlestir );
+				$cizgi -= 1;
+
+			}
+			$cizgi += 0;	
+		}
+
+		return $birlestir;
+	}
+
+	public function agacListeleTablo( $kategoriler, $katid = 0, $cizgi, $birlestir = "",$sayi = 0,$aktifDT,$alt = 0, $altListe, $linkAltListe ){
+		$sayi = $katid == 0 ? $sayi += 1 : ""; 
+
+		$islemGenislik = array(
+			1 => 180,
+			2 => 160,
+			3 => 197,
+		);
+		$renkler = array(
+			1 => "table-secondary",
+			2 => "table-primary",
+			3 => "table-active",
+			4 => "table-primary",
+			5 => "table-secondary",
+			6 => "table-primary",
+			7 => "table-active",
+			8 => "table-danger"
+		);
+
+
+
+		foreach( $kategoriler[ $katid ] as $kategori ){
+
+			$ciz 		= $cizgi == 0 ? '' : str_repeat("<i class='fas fa-level-up-alt' style='transform: rotate(90deg);'></i>&nbsp; &nbsp;",$cizgi);
+
+			$suanki_tarih 				= date_create(date('Y-m-d'));
+			$hatirlanacak_tarih 		= date_create($kategori[ 'tarih' ]);
+			if ( $kategori[ 'tarih' ] 	!= '0000-00-00' AND $suanki_tarih < $hatirlanacak_tarih ) {
+				$kalan_gun 				= date_diff($suanki_tarih,$hatirlanacak_tarih);
+				$gunBelirt 				=  $kalan_gun->format("%a Gün Kaldı");
+			}
+			/*Secilmiş olan satırı sarı yapar*/
+			$satirRenk 		= $kategori[ "id" ] == $aktifDT ? "table-warning" : "";
+			/*Alt dosya kategorileri mavi yapar*/
+			$satirRenk2 	= $katid > 0 ? "table-info": "";
+			/*alt kategori varsa tıklanır yapacak satırı ve acılmasını sağlayacak*/
+			$acilir 		= array_key_exists( $kategori[ "id" ], $kategoriler ) ? "data-widget='expandable-table'" : "";
+			$satirRenk3		= "";
+			if (array_key_exists( $kategori[ "id" ], $kategoriler ) AND $katid != 0 )  
+				$satirRenk3 = "table-success" ;
+
+			$altListeBirlestir = implode("-", $altListe);
+
+			$altKategori =explode( "-", $linkAltListe);
+			$expanded 	= in_array( $kategori[ "id" ], $altKategori ) ? "true" : "false";
+			$style 		= in_array( $kategori[ "id" ], $altKategori ) ? "display:table !important;" : "";
+
+
+			if( $alt == 1 ){
+				$birlestir .= "<tr class='   $renkler[$cizgi] $satirRenk3 $satirRenk ' $acilir aria-expanded='$expanded'> 
+									<td>$ciz</td>
+									<td>$kategori[adi]</td>
+									<td>$gunBelirt</td>
+									<td>$kategori[dosyaSayisi]</td>
+									<td>$kategori[altKategoriSayisi]</td>
+									<td align = 'center'>
+										<a modul = 'firmaDosyalari' yetki_islem='evraklar' class = 'btn btn-sm btn-dark btn-xs' href = '?modul=firmaDosyalari&islem=evraklar&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
+											Evraklar
+										</a>
+										<a modul = 'firmaDosyalari' yetki_islem='duzenle' class = 'btn btn-sm btn-warning btn-xs' href = '?modul=firmaDosyalari&islem=guncelle&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
+											Düzenle
+										</a>
+										<button modul= 'firmaDosyalari' yetki_islem='sil' class='btn btn-xs btn-danger' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=$kategori[id]' data-toggle='modal' data-target='#kayit_sil'>Sil</button>
+									</td>
+								</tr>";	
+			}else{
+				$birlestir .= "<tr class='  $renkler[$cizgi] $satirRenk3 $satirRenk  ' $acilir aria-expanded='$expanded'> 
+								<td>$sayi</td>
+								<td>$kategori[adi]</td>
+								<td>$gunBelirt</td>
+								<td>$kategori[dosyaSayisi]</td>
+								<td>$kategori[altKategoriSayisi]</td>
+								<td align = 'center'>
+									<a modul = 'firmaDosyalari' yetki_islem='evraklar' class = 'btn btn-sm btn-dark btn-xs' href = '?modul=firmaDosyalari&islem=evraklar&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
+										Evraklar
+									</a>
+									<a modul = 'firmaDosyalari' yetki_islem='duzenle' class = 'btn btn-sm btn-warning btn-xs' href = '?modul=firmaDosyalari&islem=guncelle&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
+										Düzenle
+									</a>
+									<button modul= 'firmaDosyalari' yetki_islem='sil' class='btn btn-xs btn-danger' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=$kategori[id]' data-toggle='modal' data-target='#kayit_sil'>Sil</button>
+								</td>
+							</tr>";	
+			}
+			 
+			if( array_key_exists( $kategori[ "id" ], $kategoriler ) ){
+				array_push( $altListe, $kategori[ "id" ]  );
+				
+				$cizgi 		+= 1;
+				$ciz 		= $cizgi == 0 ? '' : str_repeat("<i class='fas fa-level-up-alt' style='transform: rotate(90deg);'></i>&nbsp; &nbsp;",$cizgi);
+				$birlestir 	.= "<tr class='expandable-body'> 
+								<td colspan='8'>
+									<table class=' table-hover w-100' style='$style'>
+										<th>$ciz</th>
+										<th>Adı</th>
+										<th>Kalan G.S.</th>
+										<th>D. Sayısı</th>
+										<th>K. Sayısı</th>
+										<th data-priority=' 1' style='width: $islemGenislik[$cizgi]px'>İşlemler</th>";	
+				$birlestir 	= $this->agacListeleTablo( $kategoriler, $kategori[ "id" ], $cizgi,$birlestir,$sayi, $aktifDT,1,$altListe, $linkAltListe);
+
+				$birlestir 	.= "</table></td></tr>";
+
+				array_pop($altListe);
+
+				$cizgi -= 1;
+
+			}
+		}
+
+		return $birlestir;
+	}
+
 }

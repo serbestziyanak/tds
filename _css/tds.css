@@ -49,3 +49,7 @@ div.dt-button-collection div.dropdown-menu {
 .jexcel_content table{
 	width: 100%;
 }
+.font-awesome{
+	font-family: "Font Awesome 5 Free", Open Sans !important;
+	font-weight:501;
+}
