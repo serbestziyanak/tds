@@ -57,16 +57,14 @@ SQL;
 //SELECT *, COUNT(tarih) AS tarihSayisi FROM tb_giris_cikis GROUP BY tarih ORDER BY tarih ASC
 $SQL_tum_giris_cikis = <<< SQL
 SELECT
-	id
-	,tarih
-	,COUNT(tarih) AS tarihSayisi
-	
+	COUNT(tarih) AS tarihSayisi
 FROM
 	tb_giris_cikis
-WHERE 
-	personel_id 			  = ? AND 
-	DATE_FORMAT(tarih,'%Y-%m') =? AND
-	aktif 				  = 1
+WHERE
+	baslangic_saat  IS NOT NULL AND 
+	personel_id 				= ? AND 
+	DATE_FORMAT(tarih,'%Y-%m') 	= ?  AND 
+	aktif 						= 1
 GROUP BY tarih
 ORDER BY tarih ASC 
 SQL;
@@ -190,7 +188,7 @@ if($detay == "gun" ){
 		$tarihSayisi[] = $giriscikisgun[ "tarihSayisi" ]; 
 	}
 }
-@$tarihSayisi = max($tarihSayisi);
+@$tarihSayisi = max($tarihSayisi) == 0 ? 1: max($tarihSayisi); 
 
 //Bir tarihe ait saat düzenleme butonuna tıklandığında personel bilgisini ve personelin yaptığı giriş çıkışlar listesini alıyoruz
 @$tek_personel 			= $vt->select( $SQL_tek_personel_oku, array($personel_id,$_SESSION[ 'firma_id' ] ) )[ 2 ];
