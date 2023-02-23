@@ -282,7 +282,7 @@ if( !count( $tek_personel ) ) $tek_personel[ 'resim' ] = 'resim_yok.jpg';
 							</thead>
 							<tbody>
 								<?php $sayi = 1; foreach( $personeller[ 2 ] AS $personel ) { ?>
-								<tr oncontextmenu="fun();" class ="personel-Tr <?php if( $personel[ 'id' ] == $personel_id ) echo $satir_renk; ?>" data-id="<?php echo $personel[ 'id' ]; ?>">
+								<tr oncontextmenu="fun();" class ="mouseSagTik <?php if( $personel[ 'id' ] == $personel_id ) echo $satir_renk; ?>" data-id="<?php echo $personel[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $personel[ 'tc_no' ]; ?></td>
 									<td><?php echo $personel[ 'adi' ]; ?></td>
@@ -681,7 +681,7 @@ String.prototype.turkishToUpper = function(){
 	return string.toUpperCase();
 }
 
-$(".personel-Tr").bind("contextmenu", function(event) {
+$(".mouseSagTik").bind("contextmenu", function(event) {
 	//Tıklanan tablo tr personel_id sini al
 	var personel_id = $(this).data("id");
 	//Acılan tüm Menüleri Gizle
@@ -689,7 +689,7 @@ $(".personel-Tr").bind("contextmenu", function(event) {
    	// Genel Sağ Tık Menüsünü Kapat
     event.preventDefault(); 
 
-    $(".personel-Tr").each(function() {
+    $(".mouseSagTik").each(function() {
         $(this).removeClass("table-warning")
     });
     $(this).addClass("table-warning");
@@ -709,7 +709,7 @@ $(".personel-Tr").bind("contextmenu", function(event) {
     if (!$(event.target).is(".custom-menu")) {
         $("div.custom-menu").hide();
     }
-    $(".personel-Tr").each(function() {
+    $(".mouseSagTik").each(function() {
         $(this).removeClass("table-warning")
     });
 });

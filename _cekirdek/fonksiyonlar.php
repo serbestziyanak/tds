@@ -348,10 +348,210 @@ WHERE
 	aktif 		= 1
 SQL;
 
+/*Geç Gelenler Listesi*/
+const SQL_gecgelenler = <<< SQL
+SELECT 
+	gc.personel_id,
+	gc.baslangic_saat,
+	(
+		SELECT CONCAT(p.adi," ",p.soyadi) FROM tb_personel AS p WHERE p.id = ilk_giris.personel_id
+	) AS adsoyad
+FROM 
+	tb_giris_cikis AS gc
+LEFT JOIN (
+            SELECT
+           	 	personel_id, MIN(baslangic_saat) AS ilk_giris_saat, tarih
+            FROM 
+            	tb_giris_cikis
+            WHERE 
+                tarih = ? AND
+                aktif = 1
+						GROUP BY personel_id
+            ORDER BY id DESC
+        ) AS ilk_giris ON gc.personel_id = ilk_giris.personel_id
+WHERE 
+	ilk_giris_saat > (
+            SELECT
+            (
+                SELECT 
+                	ADDTIME( baslangic, CONCAT("00:",gec_gelme_tolerans,":00")) AS baslangic 
+                FROM 
+                	tb_tarife_saati AS ts 
+                WHERE 
+                    tarife_id = t1.id AND 
+                    ts.carpan = 1  
+                ORDER BY ts.id ASC 
+            ) AS baslangic
+            from
+            	tb_tarifeler AS t1
+            LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
+            LEFT JOIN tb_gruplar AS g ON t1.grup_id LIKE CONCAT('%,', g.id, ',%')
+            WHERE 
+                t1.baslangic_tarih <= ilk_giris.tarih AND 
+                t1.bitis_tarih >= ilk_giris.tarih AND
+                mt.gunler LIKE ? AND 
+                t1.aktif = 1
+            ORDER BY t1.id DESC
+            LIMIT 1
+        ) AND
+	gc.tarih =ilk_giris.tarih AND
+	gc.aktif = 1
+SQL;
+
+/*Erken Çıkanlar Listesi*/
+const SQL_erkenCikanlar = <<< SQL
+SELECT 
+	gc.personel_id,
+	gc.bitis_saat,
+	(
+		SELECT CONCAT(p.adi," ",p.soyadi) FROM tb_personel AS p WHERE p.id = son_cikis.personel_id
+	) AS adsoyad
+FROM 
+	tb_giris_cikis AS gc
+LEFT JOIN (
+            SELECT
+           	 	personel_id, MAX(bitis_saat) AS son_bitis_saat, tarih
+            FROM 
+            	tb_giris_cikis
+            WHERE 
+				bitis_saat IS NOT NULL AND
+                tarih 		= ? AND
+				islem_tipi 	= 0 AND
+                aktif 		= 1
+    		GROUP BY personel_id
+            ORDER BY id DESC
+        ) AS son_cikis ON gc.personel_id = son_cikis.personel_id
+WHERE 
+	son_bitis_saat < (
+						SELECT
+							(
+								SELECT 
+									ADDTIME( bitis, CONCAT("-00:",erken_cikma_tolerans,":00")) AS baslangic 
+								FROM 
+									tb_tarife_saati AS ts 
+								WHERE 
+									tarife_id = t1.id AND 
+									ts.carpan = 1  
+								ORDER BY ts.id ASC 
+							) AS baslangic
+							from
+								tb_tarifeler AS t1
+							LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
+							LEFT JOIN tb_gruplar AS g ON t1.grup_id LIKE CONCAT('%,', g.id, ',%')
+							WHERE 
+								t1.baslangic_tarih <= son_cikis.tarih AND 
+								t1.bitis_tarih >= son_cikis.tarih AND
+								mt.gunler LIKE ? AND 
+								t1.aktif = 1
+							ORDER BY t1.id DESC
+							LIMIT 1
+					) AND
+	gc.tarih = son_cikis.tarih AND
+	gc.aktif = 1
+SQL;
+
+/*Gelmeyenler*/
+const SQL_gelmeyenler = <<< SQL
+SELECT 
+	p.id,
+	CONCAT(p.adi," ",p.soyadi) AS adsoyad
+FROM 
+	tb_personel AS p
+LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id
+WHERE 
+	p.id NOT IN (
+		SELECT gc.personel_id
+		FROM tb_giris_cikis AS gc
+		WHERE 
+			gc.baslangic_saat IS NULL AND
+			gc.bitis_saat 	IS NULL AND
+			gc.tarih 		= ? AND
+			aktif 			= 1
+	)AND 
+	p.grup_id != ga.beyaz_yakali_personel AND
+	p.aktif = 1 
+
+SQL;
+
+/*Gelenler*/
+const SQL_gelenler = <<< SQL
+SELECT 
+	p.id,
+	CONCAT(p.adi," ",p.soyadi) AS adsoyad
+FROM 
+	tb_personel AS p
+LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id
+WHERE 
+	p.id IN (
+		SELECT gc.personel_id
+		FROM tb_giris_cikis AS gc
+		WHERE 
+			gc.baslangic_saat IS NOT NULL AND
+			gc.tarih 		= ? AND
+			gc.islem_tipi 	= 0 AND 
+			aktif 			= 1
+		GROUP BY personel_id
+		ORDER BY gc.id DESC
+	)AND 
+	p.grup_id != ga.beyaz_yakali_personel AND
+	p.aktif = 1 
+SQL;
+
+/*Gelenler*/
+const SQL_mesaiCikmayan = <<< SQL
+SELECT 
+	p.id,
+	CONCAT(p.adi," ",p.soyadi) AS adsoyad
+FROM 
+	tb_personel AS p
+LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id
+WHERE 
+	p.id IN (
+		SELECT
+			gc.personel_id
+		FROM 
+			tb_giris_cikis AS gc
+		WHERE 
+			gc.bitis_saat IS NULL AND
+			gc.tarih 		= ? AND
+			gc.islem_tipi 	= 0 AND
+			gc.aktif 		= 1
+		GROUP BY personel_id
+		ORDER BY gc.id DESC
+	)AND 
+	p.grup_id != ga.beyaz_yakali_personel AND
+	p.aktif = 1 
+SQL;
+
+
 	/* Kurucu metod  */
 	public function __construct() {
 		$this->vt = new VeriTabani();
 	}
+
+	public function erkenCikanlar( $tarih, $gun){
+		return $this->vt->select( self::SQL_erkenCikanlar, array( $tarih, $gun ) )[2];
+	}
+	
+	public function gecGelenler( $tarih, $gun){
+		return $this->vt->select( self::SQL_gecgelenler, array( $tarih, $gun ) )[2];
+	}
+	
+	public function gelmeyenler( $tarih ){
+		return $this->vt->select( self::SQL_gelmeyenler, array( $tarih ) )[2];
+	}
+	
+	public function gelenler( $tarih ){
+		return $this->vt->select( self::SQL_gelenler, array( $tarih ) )[2];
+	}
+
+	public function mesaiCikmayan( $tarih ){
+		return $this->vt->select( self::SQL_mesaiCikmayan, array( $tarih ) )[2];
+	}
+
+	
+	
+
 
 	/* Kullanıcı süper değilse rolünün görebileceği roller dizisi döner. */
 	public function rolVer() {
@@ -1311,8 +1511,6 @@ SQL;
 			8 => "table-danger"
 		);
 
-
-
 		foreach( $kategoriler[ $katid ] as $kategori ){
 
 			$ciz 		= $cizgi == 0 ? '' : str_repeat("<i class='fas fa-level-up-alt' style='transform: rotate(90deg);'></i>&nbsp; &nbsp;",$cizgi);
@@ -1341,38 +1539,20 @@ SQL;
 
 
 			if( $alt == 1 ){
-				$birlestir .= "<tr class='   $renkler[$cizgi] $satirRenk3 $satirRenk ' $acilir aria-expanded='$expanded'> 
+				$birlestir .= "<tr class='mouseSagTik $renkler[$cizgi] $satirRenk3 $satirRenk ' $acilir aria-expanded='$expanded' data-id='$kategori[id]' data-alt-liste='$altListeBirlestir'> 
 									<td>$ciz</td>
 									<td>$kategori[adi]</td>
 									<td>$gunBelirt</td>
 									<td>$kategori[dosyaSayisi]</td>
 									<td>$kategori[altKategoriSayisi]</td>
-									<td align = 'center'>
-										<a modul = 'firmaDosyalari' yetki_islem='evraklar' class = 'btn btn-sm btn-dark btn-xs' href = '?modul=firmaDosyalari&islem=evraklar&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
-											Evraklar
-										</a>
-										<a modul = 'firmaDosyalari' yetki_islem='duzenle' class = 'btn btn-sm btn-warning btn-xs' href = '?modul=firmaDosyalari&islem=guncelle&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
-											Düzenle
-										</a>
-										<button modul= 'firmaDosyalari' yetki_islem='sil' class='btn btn-xs btn-danger' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=$kategori[id]' data-toggle='modal' data-target='#kayit_sil'>Sil</button>
-									</td>
 								</tr>";	
 			}else{
-				$birlestir .= "<tr class='  $renkler[$cizgi] $satirRenk3 $satirRenk  ' $acilir aria-expanded='$expanded'> 
+				$birlestir .= "<tr class='mouseSagTik $renkler[$cizgi] $satirRenk3 $satirRenk  ' $acilir aria-expanded='$expanded' data-id='$kategori[id]' data-alt-liste='$altListeBirlestir'> 
 								<td>$sayi</td>
 								<td>$kategori[adi]</td>
 								<td>$gunBelirt</td>
 								<td>$kategori[dosyaSayisi]</td>
 								<td>$kategori[altKategoriSayisi]</td>
-								<td align = 'center'>
-									<a modul = 'firmaDosyalari' yetki_islem='evraklar' class = 'btn btn-sm btn-dark btn-xs' href = '?modul=firmaDosyalari&islem=evraklar&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
-										Evraklar
-									</a>
-									<a modul = 'firmaDosyalari' yetki_islem='duzenle' class = 'btn btn-sm btn-warning btn-xs' href = '?modul=firmaDosyalari&islem=guncelle&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >
-										Düzenle
-									</a>
-									<button modul= 'firmaDosyalari' yetki_islem='sil' class='btn btn-xs btn-danger' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=$kategori[id]' data-toggle='modal' data-target='#kayit_sil'>Sil</button>
-								</td>
 							</tr>";	
 			}
 			 
@@ -1382,14 +1562,13 @@ SQL;
 				$cizgi 		+= 1;
 				$ciz 		= $cizgi == 0 ? '' : str_repeat("<i class='fas fa-level-up-alt' style='transform: rotate(90deg);'></i>&nbsp; &nbsp;",$cizgi);
 				$birlestir 	.= "<tr class='expandable-body'> 
-								<td colspan='8'>
+								<td colspan='7'>
 									<table class=' table-hover w-100' style='$style'>
 										<th>$ciz</th>
 										<th>Adı</th>
 										<th>Kalan G.S.</th>
-										<th>D. Sayısı</th>
-										<th>K. Sayısı</th>
-										<th data-priority=' 1' style='width: $islemGenislik[$cizgi]px'>İşlemler</th>";	
+										<th>Dosya S.</th>
+										<th>Kategori S.</th>";	
 				$birlestir 	= $this->agacListeleTablo( $kategoriler, $kategori[ "id" ], $cizgi,$birlestir,$sayi, $aktifDT,1,$altListe, $linkAltListe);
 
 				$birlestir 	.= "</table></td></tr>";

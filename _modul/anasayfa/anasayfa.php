@@ -198,6 +198,24 @@ WHERE
     firma_id = ?
 SQL;
 
+//Ay içierisinde Giriş Veya İşten Çıkan PErsonel Listesi
+$SQL_ise_giris = <<< SQL
+SELECT 
+	COUNT(id) AS sayi
+FROM 
+	tb_personel
+WHERE 
+	DATE_FORMAT(ise_giris_tarihi,'%Y-%m') 	    = ? 
+SQL;
+
+$SQL_is_cikis = <<< SQL
+SELECT 
+	COUNT(id) AS sayi
+FROM 
+	tb_personel
+WHERE 
+	DATE_FORMAT(isten_cikis_tarihi,'%Y-%m') 	= ? 
+SQL;
 
 $genel_ayarlar                          = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ "firma_id" ] ) ) [ 2 ][ 0 ];
 
@@ -206,6 +224,8 @@ $genel_ayarlar                          = $vt->select( $SQL_genel_ayarlar, array
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
 $yazdirilan_gecgelen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
 $yazdirilan_erkencikan_tutanak_listesi  = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
+$ay_icerisinde_giris_yapan              = $vt->select( $SQL_ise_giris,array( date("Y-m") ) ) [2][0]["sayi"];
+$ay_icerisinde_cikis_yapan              = $vt->select( $SQL_is_cikis,array( date("Y-m") ) ) [2][0]["sayi"];;
 
 
 $gelmeyen_personel_sayisi                   = Array();
@@ -216,25 +236,37 @@ $izinli_personel_listesi                    = Array();
 $gelip_cikan_personel_listesi               = Array();
 $erken_cikan_personel_listesi               = Array();
 
-
 $gec_giris_saatler                          = Array();
 $erken_cikis_saatler                        = Array();
 
+
 //SESSIONDA TUTMA İŞLEMLERİ
-$anasayfa_durum = $_SESSION[ 'anasayfa_durum' ] ==  'guncel' ? 'guncel' : 'guncelle';
+$anasayfa_durum     = $_SESSION[ 'anasayfa_durum' ] ==  'guncel' ? 'guncel' : 'guncelle';
+$gun                = $fn->gunVer( date("Y-m-d") ); 
 
-if( $anasayfa_durum == "guncelle" ){
+$erken_cikanlar     = $fn->erkenCikanlar( date("Y-m-d"), '%,'.$gun.',%');
+$gec_gelenler       = $fn->gecGelenler( date("Y-m-d"), '%,'.$gun.',%');
+$gelmeyenler        = count($fn->gelmeyenler( date("Y-m-d") ) );
+$gelenler           = count($fn->gelenler( date("Y-m-d") ) );
+$mesai_cikmayan     = count($fn->mesaiCikmayan( "2023-01-20" ) );
 
-    $tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ], $genel_ayarlar["beyaz_yakali_personel"] ) ) [2];
-    $beyaz_yakali_personel                  = $vt->select( $SQL_beyaz_yakali_personel,array( $_SESSION[ "firma_id" ], $genel_ayarlar["beyaz_yakali_personel"] ) ) [3];
+
+//tutanak dosyası oluşturulmayan personel listesi
+$gelmeyen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
+$gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
+$erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
+
+$tum_personel                           = $vt->select( $SQL_tum_personel,array( $_SESSION[ "firma_id" ], $genel_ayarlar["beyaz_yakali_personel"] ) ) [2];
+
+$beyaz_yakali_personel                  = $vt->select( $SQL_beyaz_yakali_personel,array( $_SESSION[ "firma_id" ], $genel_ayarlar["beyaz_yakali_personel"] ) ) [3];
+
+//if( $anasayfa_durum == "guncelle" ){
+    
     $icerde_olan_personel                   = $vt->select( $SQL_icerde_olan_personel,array( $_SESSION[ "firma_id" ], date( "Y-m-d" ) ) ) [2];
 
-    //tutanak dosyası oluşturulmayan personel listesi
-    $gelmeyen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
-    $gecgelen_tutanak_listesi               = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
-    $erkencikan_tutanak_listesi             = $vt->select( $SQL_tutanak_oku,array( $_SESSION[ "firma_id" ], "erkencikma" ) ) [2];
+    
 
-    $gun = $fn->gunVer( date("Y-m-d") );
+    
 
     foreach ($tum_personel as $personel) {
 
@@ -293,8 +325,8 @@ if( $anasayfa_durum == "guncelle" ){
 
             if ($SonCikisSaat[0] < $mesai_bitis AND $SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
                 
-                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'erkencikma' )  ) [2];
+                $personele_ait_tutanak_dosyasi_var_mi           = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
+                $personel_tabloya_eklendi_mi                    = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'erkencikma' )  ) [2];
                 if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
                     $erken_cikan_personel_tutanak_tutulmayan[]  = $personel;
                     $erken_cikan_personel_listesi[]             = $personel;
@@ -325,9 +357,9 @@ if( $anasayfa_durum == "guncelle" ){
     $_SESSION[ 'icerde_olan_personel' ]                       = $icerde_olan_personel;
     $_SESSION[ 'anasayfa_durum' ]                             = 'guncel';
 
-}else{
+/*}else{
 
-    $gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
+    //$gelmeyen_personel_tutanak_tutulmayan                     = $_SESSION[ 'gelmeyen_personel_tutanak_tutulmayan' ];
     $gelmeyen_personel_sayisi                                 = $_SESSION[ 'gelmeyen_personel_sayisi' ];
     $gec_gelen_personel_tutanak_tutulmayan                    = $_SESSION[ 'gec_gelen_personel_tutanak_tutulmayan' ];
     $gec_giris_saatler                                        = $_SESSION[ 'gec_giris_saatler' ];
@@ -339,7 +371,7 @@ if( $anasayfa_durum == "guncelle" ){
     $beyaz_yakali_personel                                    = $_SESSION[ 'beyaz_yakali_personel' ];
     $icerde_olan_personel                                     = $_SESSION[ 'icerde_olan_personel' ];
 
-}
+}*/
 
 ?>
 
@@ -350,7 +382,7 @@ if( $anasayfa_durum == "guncelle" ){
             <div class="inner">
                 <h3><?php echo count( $icerde_olan_personel ); ?></h3>
 
-                <p>İçerde Olan Toplam Personel</p>
+                <p>Mesaide Olan</p>
             </div>
             <div class="icon">
                 <i class="ion ion-person"></i>
@@ -358,15 +390,14 @@ if( $anasayfa_durum == "guncelle" ){
             <a href="#" class="small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
         </div>
     </div>
-
     <!-- ./col -->
     <div class="col-sm">
         <!-- small box -->
-        <div class="small-box bg-success">
+        <div class="small-box bg-primary">
             <div class="inner">
                 <h3><?php echo count( $izinli_personel_listesi ) + count( $gelip_cikan_personel_listesi ); ?></h3>
 
-                <p>İzinli veya işe gelip Çıkan Personel </p>
+                <p>Mesai Çıkış</p>
             </div>
             <div class="icon">
                 <i class="ion ion-stats-bars"></i>
@@ -374,6 +405,22 @@ if( $anasayfa_durum == "guncelle" ){
             <a href="javascript:void(0);" class="small-box-footer">&nbsp;</a>
         </div>
     </div>
+    <!-- ./col -->
+    <div class="col-sm">
+        <!-- small box -->
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3><?php echo count( $izinli_personel_listesi ) + count( $gelip_cikan_personel_listesi ); ?></h3>
+
+                <p>İzinli</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="javascript:void(0);" class="small-box-footer">&nbsp;</a>
+        </div>
+    </div>
+
     <!-- ./col -->
     <div class="col-sm">
         <!-- small box -->
@@ -391,6 +438,36 @@ if( $anasayfa_durum == "guncelle" ){
     <!-- ./col -->
     <div class="col-sm">
         <!-- small box -->
+        <div class="small-box bg-secondary">
+            <div class="inner">
+                <h3><?php echo $ay_icerisinde_giris_yapan; ?></h3>
+
+                <p>Ay içinde İşe Giriş Yapan</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+            </div>
+            <a href="#" class="small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-sm">
+        <!-- small box -->
+        <div class="small-box bg-dark">
+            <div class="inner">
+                <h3><?php echo $ay_icerisinde_cikis_yapan; ?></h3>
+
+                <p>Ay içinde İşten Çıkış Yapan</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+            </div>
+            <a href="#" class="small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    
+
+    <div class="col-sm">
+        <!-- small box -->
         <div class="small-box bg-pink">
             <div class="inner">
                 <h3><?php echo $beyaz_yakali_personel; ?></h3>
@@ -403,6 +480,7 @@ if( $anasayfa_durum == "guncelle" ){
             <a href="#" class="small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
         </div>
     </div>
+
     <!-- ./col -->
     <div class="col-sm">
         <!-- small box -->

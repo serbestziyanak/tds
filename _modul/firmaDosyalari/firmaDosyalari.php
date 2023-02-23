@@ -169,9 +169,8 @@ foreach ($dosyaTurleri1[2] as $value) {
 									<th>#</th>
 									<th>Adı</th>
 									<th>Kalan G.S.</th>
-									<th>Dosya Sayısı</th>
-									<th>Kategori Sayısı</th>
-									<th data-priority=" 1" style="width: 180px">İşlemler</th>
+									<th>Dosya S.</th>
+									<th>Kategori S.</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -304,7 +303,7 @@ foreach ($dosyaTurleri1[2] as $value) {
 					<div class="modal-body">
 						<div class="form-group font-awesome">
 							<label class="control-label">Kategori</label>
-							<select name="kategori" class="form-control  select2 ">
+							<select name="kategori" class="form-control  select2 " id="dosyaTuruKategori">
 								<option value="0" class="">Kategori Yok</option>
 								<?php 
 									echo $fn->agacListeleSelect( $fdt, 0, 0 );
@@ -314,7 +313,7 @@ foreach ($dosyaTurleri1[2] as $value) {
 
 						<div class="form-group">
 							<label class="control-label">Başlık</label>
-							<input type="text" name="adi" placeholder="Başlık" class="form-control" value="<?php echo $tekDosyaTuru[ 0 ][ 'adi' ] ?>">
+							<input type="text" name="adi" placeholder="Başlık" class="form-control" value="<?php echo $islem == 'ekle' ?  $tekDosyaTuru[ 0 ][ 'adi' ]: ''; ?>">
 						</div>
 						
 						<div class="form-group">
@@ -337,9 +336,29 @@ foreach ($dosyaTurleri1[2] as $value) {
 	</div>
 </div>
 
-
-
-<script> 
+<style type="text/css">
+	.custom-menu {
+	    z-index:1000;
+	    position: absolute;
+	    background-color:#fff;
+	    border: 1px solid #000;
+	    padding: 2px;
+	    border-radius: 5px;
+		width: 175px;
+	}
+	.custom-menu a{
+		display: block;
+		padding: 5px 0 5px 0;
+		border-bottom: 1px solid #ddd;
+		color: #000;
+	}
+	.custom-menu a:hover{
+		background-color: #ddd;
+		transition: initial;
+	}
+	
+</style>
+<script  type="text/javascript"> 
 	<?php if ( $islem =="guncelle" OR $islem =="ekle" ) {?> $('#dosyaTuru').modal( "show" ); <?php } ?>
 	$(function () {
 		$('#tarih').datetimepicker({
@@ -369,6 +388,49 @@ foreach ($dosyaTurleri1[2] as $value) {
 		});
 	});
 
+	$(".mouseSagTik").bind("contextmenu", function(event) {
+
+		
+		//Tıklanan tablo tr kategori_id sini al
+		var id			= $(this).data("id");
+		var kategoriId = $(this).data("kategoriId");
+		var altListe 	= $(this).data("alt-liste");
+		
+		
+		$('#dosyaTuruKategori option[value="'+id+'"]').attr('selected','selected');
+		var baslik = $('#dosyaTuruKategori option[value="'+id+'"]').text();
+		$('#select2-dosyaTuruKategori-container').empty();
+		$('#select2-dosyaTuruKategori-container').append(baslik);
+
+		
+		//Acılan tüm Menüleri Gizle
+		$("div.custom-menu").hide();
+		// Genel Sağ Tık Menüsünü Kapat
+		event.preventDefault(); 
+
+		$(".mouseSagTik").each(function() {
+			$(this).removeClass("table-warning")
+		});
+		$(this).addClass("table-warning");	
+		//Açılacak Div İçeriği
+		$("<div class='custom-menu '>"+
+			"<a data-toggle='modal' data-target='#dosyaTuru' class='text-center'><i class='fas fa-plus'></i>&nbsp; Kategori Ekle</a>"+
+			"<a modul = 'firmaDosyalari' yetki_islem='evraklar' class = 'btn btn-dark btn-xs text-white w-100' href = '?modul=firmaDosyalari&islem=evraklar&ust_id="+kategoriId+"&kategori_id="+id+"&dosyaTuru_id="+id+"&alt-liste="+altListe+" '>Evraklar</a>"+
+			"<a modul = 'firmaDosyalari' yetki_islem='duzenle' class = 'btn  btn-warning btn-xs w-100' href = '?modul=firmaDosyalari&islem=guncelle&ust_id="+kategoriId+"&kategori_id="+id+"&dosyaTuru_id="+id+"&alt-liste="+altListe+"' >Düzenle</a>"+
+			"<button modul= 'firmaDosyalari' yetki_islem='sil' class='btn btn-xs btn-danger w-100' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id="+id+"' data-toggle='modal' data-target='#kayit_sil'>Sil</button>"+
+			"</div>").appendTo("body").css({
+			top: event.pageY + "px",
+			left: event.pageX + "px"
+		});
+	}).bind("click", function(event) {
+		if (!$(event.target).is(".custom-menu")) {
+			$("div.custom-menu").hide();
+		}
+		$(".mouseSagTik").each(function() {
+			$(this).removeClass("table-warning")
+		});
+	});
+
 	$('#tbl_personelOzlukDosyalari').DataTable({
 		"paging": true,
 		"lengthChange": true,
@@ -383,5 +445,7 @@ foreach ($dosyaTurleri1[2] as $value) {
 			'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json'
 		}
 	});
+
+	
 
 </script>
