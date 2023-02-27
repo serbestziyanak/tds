@@ -171,6 +171,7 @@ foreach ($dosyaTurleri1[2] as $value) {
 									<th>Kalan G.S.</th>
 									<th>Dosya S.</th>
 									<th>Kategori S.</th>
+									<th style='width:75px;'>İşlemler</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -306,14 +307,14 @@ foreach ($dosyaTurleri1[2] as $value) {
 							<select name="kategori" class="form-control  select2 " id="dosyaTuruKategori">
 								<option value="0" class="">Kategori Yok</option>
 								<?php 
-									echo $fn->agacListeleSelect( $fdt, 0, 0 );
+									echo $fn->agacListeleSelect( $fdt, 0, 0,$ust_id );
 								?>
 							</select>
 						</div>
 
 						<div class="form-group">
 							<label class="control-label">Başlık</label>
-							<input type="text" name="adi" placeholder="Başlık" class="form-control" value="<?php echo $islem == 'ekle' ?  $tekDosyaTuru[ 0 ][ 'adi' ]: ''; ?>">
+							<input type="text" name="adi" placeholder="Başlık" class="form-control" value="<?php echo $islem == 'guncelle' ?  $tekDosyaTuru[ 0 ][ 'adi' ]: ''; ?>">
 						</div>
 						
 						<div class="form-group">

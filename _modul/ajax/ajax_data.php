@@ -138,155 +138,7 @@ SQL;
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
-	case 'ilce_ver':
-
-		$ilceler	= $vt->select( $SQL_ilceler_getir, array( $_REQUEST[ 'il_id' ] ) );
-		$sonuc = "<option value=''>Seçiniz</option>";
-		foreach( $ilceler[ 2 ] AS $ilce ) {
-			$sonuc.="
-				<option value='$ilce[id]'>$ilce[adi]</option>
-			";
-		}
-		echo $sonuc;
-	break;
-	case 'cevap_turune_gore_secenek_ver':
-		$sonuc = "";
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 ){ $deger1 = "Evet"; $deger2 = "Hayır"; }
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 2 ){ $deger1 = "Doğru"; $deger2 = "Yanlış"; }
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 3 ){ $deger1 = "Var"; $deger2 = "Yok"; }
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 OR $_REQUEST[ 'soru_cevap_turu_id' ] == 2 OR $_REQUEST[ 'soru_cevap_turu_id' ] == 3 ){ 
-			$sonuc = "
-				<div class='input-group mb-3'>
-				<div class='input-group-prepend'>
-					<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
-				</div>
-				<input type='text' class='form-control' name='' value='$deger1' disabled>
-				<input type='hidden' class='form-control' name='secenekler[]' value='$deger1'>
-				<div class='input-group-append'>
-					<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-				</div>			  
-				</div>						
-				<div class='input-group mb-3'>
-				<div class='input-group-prepend'>
-					<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
-				</div> 
-				<input type='text' class='form-control' name='' value='$deger2' disabled>
-				<input type='hidden' class='form-control' name='secenekler[]' value='$deger2' >
-				<div class='input-group-append'>
-					<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-				</div>
-				</div>
-				<input type='hidden' id='secenek_sayisi' value='2'>
-			";
-		}
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 4 ){
-			$sonuc = "
-			<div class='form-group'>
-				<button type='button' class='btn btn-xs btn-info' onclick='secenek_ekle()'><i class='fas fa-plus'></i> Seçenek Ekle</button>
-			</div>
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
-			  </div>
-			  <input type='text' class='form-control' name='secenekler[]' value='' required>
-			  <div class='input-group-append'>
-				<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-			  </div>			  
-			</div>						
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'><input type='radio' name='radiosecenek'></span>
-			  </div> 
-			  <input type='text' class='form-control' name='secenekler[]' value='' required>
-			  <div class='input-group-append'>
-				<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-			  </div>
-			</div>
-			<input type='hidden' id='secenek_sayisi' value='2'>			
-			";
-		}
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 5 ){
-			$sonuc = "
-			<div class='form-group'>
-				<button type='button' class='btn btn-xs btn-info' onclick='secenek_ekle()'><i class='fas fa-plus'></i> Seçenek Ekle</button>
-			</div>
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'><input type='checkbox' ></span>
-			  </div>
-			  <input type='text' class='form-control' name='secenekler[]' value='' required>
-			  <div class='input-group-append'>
-				<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-			  </div>			  
-			</div>						
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'><input type='checkbox' ></span>
-			  </div> 
-			  <input type='text' class='form-control' name='secenekler[]' value='' required>
-			  <div class='input-group-append'>
-				<button type='button' class='btn btn-danger' disabled><i class='fas fa-trash-alt'></i></button>
-			  </div>
-			</div>
-			<input type='hidden' id='secenek_sayisi' value='2'>			
-			";
-		}
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 6 ){
-			$sonuc = "
-			<div class='input-group mb-3'>
-			  <div class='input-group-prepend'>
-				<span class='input-group-text'>Cevabınız</span>
-			  </div>
-			  <input type='text' class='form-control' placeholder='Cevap bu şekilde text alanına girilecektir.'>			  
-			</div>						
-			";
-		}
-		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 7 ){
-			$sonuc = "
-			<div class='form-group'>
-			<div class='input-group'>
-			  <div class='custom-file'>
-				<input type='file' class='custom-file-input' id='exampleInputFile'>
-				<label class='custom-file-label' for='exampleInputFile'>Dosya Seçiniz...</label>
-			  </div>
-			</div>
-			<small  class='form-text text-muted'>Kullanıcılar dosya yükleme alanını bu şekilde göreceklerdir.</small>
-		  </div>
-		  ";
-		}
-		
-		
-		
-		echo $sonuc;
-	break;
-	case 'rapor_sevkiyat_guzergahlari_ver':
-		$siparis_idler = array_key_exists( 'siparis_idler', $_REQUEST ) ? join( "','", array_map( 'intval', $_REQUEST[ 'siparis_idler' ] ) ) : array();
-		$SQL_rapor_sevkiyata_ait_siparis_guzergahlar  = $SQL_rapor_sevkiyata_ait_siparis_guzergahlar . "  AND sip.id IN( '$siparis_idler' ) ORDER BY sip.id,sg.id";
-		$sonuc = "<option value = '' >Seçiniz</option>";
-		$siparis_guzergahlar	= $vt->select( $SQL_rapor_sevkiyata_ait_siparis_guzergahlar, array() );
-		echo $SQL_rapor_sevkiyata_ait_siparis_guzergahlar;
-		foreach( $siparis_guzergahlar[ 2 ] AS $satir ) {
-			$secili = '';
-			$guzergah		= $satir[ 'adi' ];
-			$guzergah_id	= $satir[ 'id' ];
-			$sonuc .= "<option value = '$guzergah_id' >$guzergah</option>";
-		}
-		echo $sonuc;
-	break;
-	case 'rapor_uretim_firmalara_ait_lotlar_ver':
-		$firma_idler = array_key_exists( 'firma_idler', $_REQUEST ) ? join( "','", array_map( 'intval', $_REQUEST[ 'firma_idler' ] ) ) : array();
-		if( count( $_REQUEST[ 'firma_idler' ] ) > 0 ) $SQL_rapor_uretim_firmaya_gore_latlari_ver .= " AND l.firma_id IN( '$firma_idler' ) ORDER BY l.firma_id, l.on_ek_sira";
-		else $SQL_rapor_uretim_firmaya_gore_latlari_ver .= " ORDER BY l.firma_id, l.on_ek_sira";
-		echo $SQL_rapor_uretim_firmaya_gore_latlari_ver;
-		$sonuc = "<option value = '0' >Seçiniz</option>";
-		$firmaya_ait_lotlar	= $vt->select( $SQL_rapor_uretim_firmaya_gore_latlari_ver, array() );
-		foreach( $firmaya_ait_lotlar[ 2 ] AS $lot ) {
-			$lot_adi		= $lot[ 'adi' ];
-			$lot_id			= $lot[ 'id' ];
-			$sonuc .= "<option value = '$lot_id' >$lot_adi</option>";
-		}
-		echo $sonuc;
-	break;
+	
 	case 'bildirim_deneme':
 		/*
 		$sonuc1 = $_REQUEST[ 'b_sayisi' ]+1;
@@ -322,22 +174,7 @@ switch( $_POST[ 'islem' ] ) {
 		$sonuc = $bildirim_sayisi."~".$sonuc2;
 		echo $sonuc;
 	break;
-	case 'siparis_guzergahlari_ver':
-		$sonuc = "<option value = '' >Seçiniz</option>";
-		$siparis_guzergahlar	= $vt->select( $SQL_siparis_guzergahlar, array( $_REQUEST[ 'siparis_id' ] ) );
-		foreach( $siparis_guzergahlar[ 2 ] AS $satir ) {
-			if( ( !in_array( $satir[ 'cikis_depo_id' ], $fn->superKontrolluRolYetkiliDepoVer( $_SESSION[ 'rol_id' ], true ) ) ) or $satir[ 'sevkiyat_tamamlandi' ] == 1 )
-				continue;
-			$secili = '';
-			//foreach( $rol_modul_yetki_islem_turleri[ 2 ] AS $satir2 ) if( $satir[ 'id' ] == $satir2[ 'islem_turu_id' ] ) $secili = 'checked';
-			$guzergah		= $satir[ 'guzergah' ];
-			$guzergah_id	= $satir[ 'id' ];
 
-			$sonuc .= "<option value = '$guzergah_id' >$guzergah</option>";
-		}
-		//$sonuc .= "</select>";
-		echo $sonuc;
-	break;
 
 	case 'rol_modul_yetki_islem_oku':
 		$sonuc = '';
@@ -405,5 +242,94 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		echo json_encode( $sonuc );
 	break;
+
+	case 'personelListesiGetir':
+
+		$sorgu	= array_key_exists( 'sorgu', $_REQUEST ) ?  $_REQUEST[ 'sorgu' ] : '';
+
+		if( $sorgu == "mesaideOlan"){
+
+			$personeller = $fn->mesaiCikmayan( date("Y-m-d") );
+
+		}else if( $sorgu == "mesaiCikis"){
+
+			$personeller = array();
+			
+		}else if( $sorgu == "izinli"){
+
+			$personeller = $fn->izinliPersonel( date("Y-m-d") );
+
+		}else if( $sorgu == "gelmeyen"){
+
+			$personeller = $fn->gelmeyenler( date("Y-m-d") );
+			
+		}else if( $sorgu == "iseGiris"){
+			
+			$personeller = $fn->iseGiris( date("Y-m") );
+
+		}else if( $sorgu == "istenCikis"){
+
+			$personeller = $fn->istenCikis( date("Y-m") );
+			
+		}else if( $sorgu == "beyazYakali"){
+
+			$personeller = $fn->beyazYakali();
+			
+		}else{
+			die();
+		}
+		
+		if( count( $personeller ) > 0 ){
+			/*Personel listesini satırlara ekliyoruz*/
+			$satir		= "";
+			$say 		= 1;
+			foreach ($personeller as $personel) {
+				$satir .= "<tr>
+							<td>$say</td>
+							<td>$personel[adsoyad]</td>
+							</tr>";
+				$say++;
+			}
+
+			$satir = "<table class='table table-bordered table-hover table-sm dataTable no-footer dtr-inline' id='personelListesi'>
+						<thead>
+							<tr>
+								<th style='width:30px;'>Sıra</th>
+								<th>Personel Adı</th>
+							</tr>
+						<thead>
+						<tbody>
+							$satir
+						</tbody>
+					</table>";
+
+		}else{
+			$satir = "<div class='alert alert-danger text-center'> Veri Bulunamadı. </div>";
+		}
+			
+
+		/*satırları Modal içierisindeki tabloya aktarıyoruz*/
+		$sonuc = "<div class='modal fade'  id='liste'>
+					<div class='modal-dialog'>
+						<div class='modal-content'>
+							<div class='modal-header'>
+								<h4 class='modal-title'>Personel Listesi</h4>
+							</div>
+							<div class='modal-body'>
+								<div class='table-responsive'>
+									$satir
+								</div>
+							</div>
+							<div class='modal-footer justify-content-between'>
+								<button type='button' class='btn btn-default' data-dismiss='modal'>Kapat</button>
+							</div>
+						</div>
+					</div>
+				</div>";
+		
+		echo $sonuc;
+	break;
+	
+
 }
 ?>

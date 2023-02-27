@@ -351,7 +351,7 @@ SQL;
 /*Geç Gelenler Listesi*/
 const SQL_gecgelenler = <<< SQL
 SELECT 
-	gc.personel_id,
+	gc.personel_id AS id,
 	gc.baslangic_saat,
 	(
 		SELECT CONCAT(p.adi," ",p.soyadi) FROM tb_personel AS p WHERE p.id = ilk_giris.personel_id
@@ -401,7 +401,7 @@ SQL;
 /*Erken Çıkanlar Listesi*/
 const SQL_erkenCikanlar = <<< SQL
 SELECT 
-	gc.personel_id,
+	gc.personel_id AS id,
 	gc.bitis_saat,
 	(
 		SELECT CONCAT(p.adi," ",p.soyadi) FROM tb_personel AS p WHERE p.id = son_cikis.personel_id
@@ -416,7 +416,6 @@ LEFT JOIN (
             WHERE 
 				bitis_saat IS NOT NULL AND
                 tarih 		= ? AND
-				islem_tipi 	= 0 AND
                 aktif 		= 1
     		GROUP BY personel_id
             ORDER BY id DESC
@@ -448,6 +447,7 @@ WHERE
 					) AND
 	gc.tarih = son_cikis.tarih AND
 	gc.aktif = 1
+LIMIT 1
 SQL;
 
 /*Gelmeyenler*/
@@ -463,8 +463,7 @@ WHERE
 		SELECT gc.personel_id
 		FROM tb_giris_cikis AS gc
 		WHERE 
-			gc.baslangic_saat IS NULL AND
-			gc.bitis_saat 	IS NULL AND
+			gc.baslangic_saat IS NOT NULL AND
 			gc.tarih 		= ? AND
 			aktif 			= 1
 	)AND 
@@ -523,6 +522,55 @@ WHERE
 	p.aktif = 1 
 SQL;
 
+/**/
+const SQL_izinliPersonel = <<< SQL
+SELECT
+	p.id,
+	CONCAT(p.adi," ",p.soyadi) AS adsoyad
+FROM 
+	tb_personel AS p
+INNER JOIN tb_giris_cikis AS gc ON p.id = gc.personel_id
+WHERE 
+	gc.tarih 	= ? 
+GROUP BY p.id
+HAVING COUNT(*) = 1 AND 
+MAX(gc.islem_tipi) > 0
+SQL;
+
+
+//Ay içierisinde Giriş Veya İşten Çıkan PErsonel Listesi
+const SQL_ise_giris = <<< SQL
+SELECT 
+	id,
+	CONCAT(adi," ",soyadi) AS adsoyad
+FROM 
+	tb_personel
+WHERE 
+	DATE_FORMAT(ise_giris_tarihi,'%Y-%m') = ? 
+SQL;
+
+const SQL_is_cikis = <<< SQL
+SELECT 
+	id,
+	CONCAT(adi," ",soyadi)  AS adsoyad
+FROM 
+	tb_personel
+WHERE 
+	DATE_FORMAT(isten_cikis_tarihi,'%Y-%m') 	= ? 
+SQL;
+
+const SQL_beyaz_yakali = <<< SQL
+SELECT
+    p.id,
+	CONCAT(adi," ",soyadi) AS adsoyad
+FROM
+    tb_personel AS p
+LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id
+WHERE
+    p.firma_id  = ? AND 
+    p.grup_id   = ga.beyaz_yakali_personel AND
+    p.aktif     = 1 
+SQL;
 
 	/* Kurucu metod  */
 	public function __construct() {
@@ -548,9 +596,23 @@ SQL;
 	public function mesaiCikmayan( $tarih ){
 		return $this->vt->select( self::SQL_mesaiCikmayan, array( $tarih ) )[2];
 	}
+	
+	public function izinliPersonel( $tarih ){
+		return $this->vt->select( self::SQL_izinliPersonel, array( $tarih ) )[2];
+	}
+	
+	public function iseGiris( $tarih ){
+		return $this->vt->select( self::SQL_ise_giris, array( $tarih ) )[2];
+	}
+	public function istenCikis( $tarih ){
+		return $this->vt->select( self::SQL_is_cikis, array( $tarih ) )[2];
+	}
+	
+	public function beyazYakali(  ){
+		return $this->vt->select( self::SQL_beyaz_yakali, array( $_SESSION[ "firma_id" ] ) )[2];
+	}
 
-	
-	
+
 
 
 	/* Kullanıcı süper değilse rolünün görebileceği roller dizisi döner. */
@@ -1471,18 +1533,20 @@ SQL;
 		return $sutunlar;
 	}
 
-	public function agacListeleSelect( $kategoriler, $sayi = 0, $cizgi, $birlestir = ""){
+	public function agacListeleSelect( $kategoriler, $sayi = 0, $cizgi, $ust_id,  $birlestir = ""){
 		
 		foreach( $kategoriler[ $sayi ] as $kategori ){
 			
 			$ciz 		= $cizgi == 0 ? '' : str_repeat("&#xf054; ",$cizgi);
 
-			$birlestir .= "<option value='$kategori[id]' class='font-awesome'><i class=''>$ciz</i> $kategori[adi]</option>"; 
+			$selected  = $ust_id == $kategori["id"] ? 'selected' : ''; 
+
+			$birlestir .= "<option value='$kategori[id]' $selected class='font-awesome'><i class=''>$ciz</i> $kategori[adi]</option>"; 
 			
 			if( array_key_exists( $kategori[ "id" ], $kategoriler ) ){
 
 				$cizgi += 1;			
-				$birlestir = $this->agacListeleSelect( $kategoriler, $kategori[ "id" ], $cizgi,$birlestir );
+				$birlestir = $this->agacListeleSelect( $kategoriler, $kategori[ "id" ], $cizgi, $ust_id, $birlestir );
 				$cizgi -= 1;
 
 			}
@@ -1545,6 +1609,17 @@ SQL;
 									<td>$gunBelirt</td>
 									<td>$kategori[dosyaSayisi]</td>
 									<td>$kategori[altKategoriSayisi]</td>
+									<td>
+										<a class='nav-link btn btn-xs btn-light ' href='#' id='navbarDropdown' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+											<i class='fas fa-bars'></i>
+										</a>
+										<div class='dropdown-menu p-1 dropdown-menu-right' aria-labelledby='navbarDropdown'>
+											<a data-toggle='modal' data-target='#dosyaTuru' class=' my-1 text-center btn btn-light w-100'><i class='fas fa-plus'></i>&nbsp; Kategori Ekle</a>
+											<a modul = 'firmaDosyalari' yetki_islem='evraklar' class=' my-1 btn btn-dark text-white w-100' href = '?modul=firmaDosyalari&islem=evraklar&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir '>Evraklar</a>
+											<a modul = 'firmaDosyalari' yetki_islem='duzenle' class=' my-1 btn  btn-warning w-100' href = '?modul=firmaDosyalari&islem=guncelle&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >Düzenle</a>
+											<button modul= 'firmaDosyalari' yetki_islem='sil' class=' my-1 btn btn-danger w-100' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=$kategori[id]' data-toggle='modal' data-target='#kayit_sil'>Sil</button>
+										</div>
+									</td>
 								</tr>";	
 			}else{
 				$birlestir .= "<tr class='mouseSagTik $renkler[$cizgi] $satirRenk3 $satirRenk  ' $acilir aria-expanded='$expanded' data-id='$kategori[id]' data-alt-liste='$altListeBirlestir'> 
@@ -1553,6 +1628,17 @@ SQL;
 								<td>$gunBelirt</td>
 								<td>$kategori[dosyaSayisi]</td>
 								<td>$kategori[altKategoriSayisi]</td>
+								<td>
+									<a class='nav-link btn btn-xs btn-light ' href='#' id='navbarDropdown' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+										<i class='fas fa-bars'></i>
+									</a>
+									<div class='dropdown-menu p-1 dropdown-menu-right' aria-labelledby='navbarDropdown'>
+										<a data-toggle='modal' data-target='#dosyaTuru' class=' my-1 text-center btn btn-light  w-100'><i class='fas fa-plus'></i>&nbsp; Kategori Ekle</a>
+										<a modul = 'firmaDosyalari' yetki_islem='evraklar' class=' my-1 btn btn-dark  text-white w-100' href = '?modul=firmaDosyalari&islem=evraklar&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir '>Evraklar</a>
+										<a modul = 'firmaDosyalari' yetki_islem='duzenle' class=' my-1 btn  btn-warning  w-100' href = '?modul=firmaDosyalari&islem=guncelle&ust_id=$kategori[kategori]&kategori_id=$kategori[id]&dosyaTuru_id=$kategori[id]&alt-liste=$altListeBirlestir' >Düzenle</a>
+										<button modul= 'firmaDosyalari' yetki_islem='sil' class=' my-1 btn  btn-danger w-100' data-href='_modul/firmaDosyalari/firmaDosyalariSEG.php?islem=sil&konu=tur&dosyaTuru_id=$kategori[id]' data-toggle='modal' data-target='#kayit_sil'>Sil</button>
+									</div>
+								</td>
 							</tr>";	
 			}
 			 
@@ -1562,13 +1648,14 @@ SQL;
 				$cizgi 		+= 1;
 				$ciz 		= $cizgi == 0 ? '' : str_repeat("<i class='fas fa-level-up-alt' style='transform: rotate(90deg);'></i>&nbsp; &nbsp;",$cizgi);
 				$birlestir 	.= "<tr class='expandable-body'> 
-								<td colspan='7'>
+								<td colspan='8'>
 									<table class=' table-hover w-100' style='$style'>
 										<th>$ciz</th>
 										<th>Adı</th>
 										<th>Kalan G.S.</th>
 										<th>Dosya S.</th>
-										<th>Kategori S.</th>";	
+										<th>Kategori S.</th>
+										<th style='width:75px;'>İşlemler</th>";	
 				$birlestir 	= $this->agacListeleTablo( $kategoriler, $kategori[ "id" ], $cizgi,$birlestir,$sayi, $aktifDT,1,$altListe, $linkAltListe);
 
 				$birlestir 	.= "</table></td></tr>";
