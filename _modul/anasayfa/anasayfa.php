@@ -374,7 +374,7 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
             <div class="icon">
                 <i class="ion ion-pie-graph"></i>
             </div>
-            <a href="http://localhost/tesisdenetimsistemi/tds/index.php?modul=personel" class=" small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
+            <a href="?modul=personel" class=" small-box-footer">Personel Listesi <i class="fas fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <!-- ./col -->
