@@ -398,6 +398,59 @@ WHERE
 	gc.aktif = 1
 SQL;
 
+/*Geç Gelenler Listesi*/
+const SQL_gecgelenler_listesi = <<< SQL
+SELECT 
+	gc.personel_id AS id,
+	gc.baslangic_saat,
+	(
+		SELECT CONCAT(p.adi," ",p.soyadi) FROM tb_personel AS p WHERE p.id = ilk_giris.personel_id
+	) AS adsoyad
+FROM 
+	tb_giris_cikis AS gc
+LEFT JOIN (
+            SELECT
+           	 	personel_id, MIN(baslangic_saat) AS ilk_giris_saat, tarih
+            FROM 
+            	tb_giris_cikis
+            WHERE 
+                tarih = ? AND
+                aktif = 1
+						GROUP BY personel_id
+            ORDER BY id DESC
+        ) AS ilk_giris ON gc.personel_id = ilk_giris.personel_id
+WHERE 
+	ilk_giris_saat > (
+            SELECT
+            (
+                SELECT 
+                	ADDTIME( baslangic, CONCAT("00:",gec_gelme_tolerans,":00")) AS baslangic 
+                FROM 
+                	tb_tarife_saati AS ts 
+                WHERE 
+                    tarife_id = t1.id AND 
+                    ts.carpan = 1  
+                ORDER BY ts.id ASC 
+            ) AS baslangic
+            from
+            	tb_tarifeler AS t1
+            LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
+            LEFT JOIN tb_gruplar AS g ON t1.grup_id LIKE CONCAT('%,', g.id, ',%')
+            WHERE 
+                t1.baslangic_tarih <= ilk_giris.tarih AND 
+                t1.bitis_tarih >= ilk_giris.tarih AND
+                mt.gunler LIKE ? AND 
+                t1.aktif = 1
+            ORDER BY t1.id DESC
+            LIMIT 1
+        ) AND
+	gc.personel_id NOT IN(
+		SELECT personel_id FROM tb_tutanak WHERE tb_tutanak.tarih = ? AND tip = "gecgelme"
+	) AND
+	gc.tarih =ilk_giris.tarih AND
+	gc.aktif = 1
+SQL;
+
 /*Erken Çıkanlar Listesi*/
 const SQL_erkenCikanlar = <<< SQL
 SELECT 
@@ -422,33 +475,89 @@ LEFT JOIN (
         ) AS son_cikis ON gc.personel_id = son_cikis.personel_id
 WHERE 
 	son_bitis_saat < (
-						SELECT
-							(
-								SELECT 
-									ADDTIME( bitis, CONCAT("-00:",erken_cikma_tolerans,":00")) AS baslangic 
-								FROM 
-									tb_tarife_saati AS ts 
-								WHERE 
-									tarife_id = t1.id AND 
-									ts.carpan = 1  
-								ORDER BY ts.id ASC 
-							) AS baslangic
-							from
-								tb_tarifeler AS t1
-							LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
-							LEFT JOIN tb_gruplar AS g ON t1.grup_id LIKE CONCAT('%,', g.id, ',%')
-							WHERE 
-								t1.baslangic_tarih <= son_cikis.tarih AND 
-								t1.bitis_tarih >= son_cikis.tarih AND
-								mt.gunler LIKE ? AND 
-								t1.aktif = 1
-							ORDER BY t1.id DESC
-							LIMIT 1
-					) AND
+		SELECT
+			(
+				SELECT 
+					ADDTIME( bitis, CONCAT("-00:",erken_cikma_tolerans,":00")) AS baslangic 
+				FROM 
+					tb_tarife_saati AS ts 
+				WHERE 
+					tarife_id = t1.id AND 
+					ts.carpan = 1  
+				ORDER BY ts.id ASC 
+			) AS baslangic
+			from
+				tb_tarifeler AS t1
+			LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
+			LEFT JOIN tb_gruplar AS g ON t1.grup_id LIKE CONCAT('%,', g.id, ',%')
+			WHERE 
+				t1.baslangic_tarih <= son_cikis.tarih AND 
+				t1.bitis_tarih >= son_cikis.tarih AND
+				mt.gunler LIKE ? AND 
+				t1.aktif = 1
+			ORDER BY t1.id DESC
+			LIMIT 1
+	) AND
 	gc.tarih = son_cikis.tarih AND
 	gc.aktif = 1
 LIMIT 1
 SQL;
+
+/*Erken Çıkanlar Listesi*/
+const SQL_erkenCikanlar_listesi = <<< SQL
+SELECT 
+	gc.personel_id AS id,
+	gc.bitis_saat,
+	(
+		SELECT CONCAT(p.adi," ",p.soyadi) FROM tb_personel AS p WHERE p.id = son_cikis.personel_id
+	) AS adsoyad
+FROM 
+	tb_giris_cikis AS gc
+LEFT JOIN (
+            SELECT
+           	 	personel_id, MAX(bitis_saat) AS son_bitis_saat, tarih
+            FROM 
+            	tb_giris_cikis
+            WHERE 
+				bitis_saat IS NOT NULL AND
+                tarih 		= ? AND
+                aktif 		= 1
+    		GROUP BY personel_id
+            ORDER BY id DESC
+        ) AS son_cikis ON gc.personel_id = son_cikis.personel_id
+WHERE 
+	son_bitis_saat < (
+		SELECT
+			(
+				SELECT 
+					ADDTIME( bitis, CONCAT("-00:",erken_cikma_tolerans,":00")) AS baslangic 
+				FROM 
+					tb_tarife_saati AS ts 
+				WHERE 
+					tarife_id = t1.id AND 
+					ts.carpan = 1  
+				ORDER BY ts.id ASC 
+			) AS baslangic
+			from
+				tb_tarifeler AS t1
+			LEFT JOIN tb_mesai_turu AS mt ON  t1.mesai_turu = mt.id
+			LEFT JOIN tb_gruplar AS g ON t1.grup_id LIKE CONCAT('%,', g.id, ',%')
+			WHERE 
+				t1.baslangic_tarih <= son_cikis.tarih AND 
+				t1.bitis_tarih >= son_cikis.tarih AND
+				mt.gunler LIKE ? AND 
+				t1.aktif = 1
+			ORDER BY t1.id DESC
+			LIMIT 1
+	) AND
+	gc.personel_id NOT IN(
+		SELECT personel_id FROM tb_tutanak WHERE tb_tutanak.tarih = ? AND tip = "erkencikma"
+	) AND
+	gc.tarih = son_cikis.tarih AND
+	gc.aktif = 1
+LIMIT 1
+SQL;
+
 
 /*Gelmeyenler*/
 const SQL_gelmeyenler = <<< SQL
@@ -471,6 +580,37 @@ WHERE
 	p.aktif = 1 
 
 SQL;
+
+/*Gelmeyenler*/
+const SQL_gelmeyenler_listesi = <<< SQL
+SELECT 
+	p.id,
+	CONCAT(p.adi," ",p.soyadi) AS adsoyad
+FROM 
+	tb_personel AS p
+LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id
+WHERE 
+	p.id NOT IN (
+		SELECT gc.personel_id
+		FROM tb_giris_cikis AS gc
+		WHERE 
+			gc.baslangic_saat IS NOT NULL AND
+			gc.tarih 		= ? AND
+			aktif 			= 1
+	)AND
+	p.id NOT IN(
+		SELECT 
+			personel_id
+		FROM tb_tutanak 
+		WHERE 
+			tb_tutanak.tarih 	= ? AND 
+			tip 				= ? 
+	) AND
+	p.grup_id != ga.beyaz_yakali_personel AND
+	p.aktif = 1 
+
+SQL;
+
 
 /*Gelenler*/
 const SQL_gelenler = <<< SQL
@@ -580,13 +720,27 @@ SQL;
 	public function erkenCikanlar( $tarih, $gun){
 		return $this->vt->select( self::SQL_erkenCikanlar, array( $tarih, $gun ) )[2];
 	}
+
+	
+	public function erkenCikanlarListesi( $tarih, $gun){
+		return $this->vt->select( self::SQL_erkenCikanlar_listesi, array( $tarih, $gun,$tarih ) )[2];
+	}
 	
 	public function gecGelenler( $tarih, $gun){
 		return $this->vt->select( self::SQL_gecgelenler, array( $tarih, $gun ) )[2];
 	}
+
+	public function gecGelenlerListesi( $tarih, $gun){
+		return $this->vt->select( self::SQL_gecgelenler_listesi, array( $tarih, $gun,$tarih) )[2];
+	}
+
 	
 	public function gelmeyenler( $tarih ){
 		return $this->vt->select( self::SQL_gelmeyenler, array( $tarih ) )[2];
+	}
+	
+	public function gelmeyenlerListesi( $tarih ){
+		return $this->vt->select( self::SQL_gelmeyenler_listesi, array( $tarih, $tarih,"gunluk" ) )[2];
 	}
 	
 	public function gelenler( $tarih ){

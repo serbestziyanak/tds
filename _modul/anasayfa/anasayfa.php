@@ -230,8 +230,11 @@ $ay_icerisinde_cikis_yapan              = $vt->select( $SQL_is_cikis,array( date
 $gun                                    = $fn->gunVer( date("Y-m-d") ); 
 
 $erken_cikanlar                         = $fn->erkenCikanlar( date("Y-m-d"), '%,'.$gun.',%');
+$erken_cikanlar_listesi                 = $fn->erkenCikanlarListesi( date("Y-m-d"), '%,'.$gun.',%');
 $gec_gelenler                           = $fn->gecGelenler( date("Y-m-d"), '%,'.$gun.',%');
+$gec_gelenler_listesi                   = $fn->gecGelenlerListesi( date("Y-m-d"), '%,'.$gun.',%');
 $gelmeyenler                            = $fn->gelmeyenler( date("Y-m-d") );
+$gelmeyenler_listesi                    = $fn->gelmeyenlerListesi( date("Y-m-d") );
 $gelenler                               = $fn->gelenler( date("Y-m-d") );
 $mesai_cikmayan                         = $fn->mesaiCikmayan( date("Y-m-d") );
 $izinli_personel                        = $fn->izinliPersonel( date("Y-m-d") );
@@ -387,14 +390,13 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
                 <ul class="nav nav-pills nav-tabs tab-container" id="custom-tabs-two-tab" role="tablist" style="padding: 10px 0px 15px 0px;">
                     <li class="pt-2 px-3"><h3 class="card-title"><b>Bekleyen Tutanaklar</b></h3></li>
                     <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-two-home-tab" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home" aria-selected="false">Gelmeyenler <b class=" badge bg-warning"><?php echo count( $gelmeyenler ) + count( $gelmeyen_tutanak_listesi ); ?></b></a>
+                        <a class="nav-link active" id="custom-tabs-two-home-tab" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home" aria-selected="false">Gelmeyenler <b class=" badge bg-warning"><?php echo count( $gelmeyenler_listesi ) + count( $gelmeyen_tutanak_listesi ); ?></b></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-two-profile-tab" data-toggle="pill" href="#custom-tabs-two-profile" role="tab" aria-controls="custom-tabs-two-profile" aria-selected="false">Geç Gelenler <b class="badge bg-warning"><?php echo count( $gec_gelenler ) + count( $gecgelen_tutanak_listesi ); ?></b></a>
-
+                        <a class="nav-link" id="custom-tabs-two-profile-tab" data-toggle="pill" href="#custom-tabs-two-profile" role="tab" aria-controls="custom-tabs-two-profile" aria-selected="false">Geç Gelenler <b class="badge bg-warning"><?php echo count( $gec_gelenler_listesi ) + count( $gecgelen_tutanak_listesi ); ?></b></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-two-messages-tab" data-toggle="pill" href="#custom-tabs-two-messages" role="tab" aria-controls="custom-tabs-two-messages" aria-selected="false">Erken Çıkanlar <b class="badge bg-warning"><?php echo count( $erken_cikanlar ) + count( $erkencikan_tutanak_listesi ); ?></b></a>
+                        <a class="nav-link" id="custom-tabs-two-messages-tab" data-toggle="pill" href="#custom-tabs-two-messages" role="tab" aria-controls="custom-tabs-two-messages" aria-selected="false">Erken Çıkanlar <b class="badge bg-warning"><?php echo count( $erken_cikanlar_listesi ) + count( $erkencikan_tutanak_listesi ); ?></b></a>
                     </li>
                 </ul>
             </div>
@@ -410,7 +412,7 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
-                                <?php $sayi = 1; foreach ($gelmeyenler as $personel) { ?>
+                                <?php $sayi = 1; foreach ($gelmeyenler_listesi as $personel) { ?>
                                     <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $personel["adsoyad"]; ?></td>
@@ -476,7 +478,7 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
-                                <?php $sayi = 1; foreach ($gec_gelenler as $personel) { ?>
+                                <?php $sayi = 1; foreach ($gec_gelenler_listesi as $personel) { ?>
                                     <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $personel["adsoyad"]; ?></td>
@@ -545,7 +547,7 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
-                                <?php $sayi = 1; foreach ($erken_cikanlar as $personel) { ?>
+                                <?php $sayi = 1; foreach ($erken_cikanlar_listesi as $personel) { ?>
                                     <tr>
                                         <td width="20"><?php echo $sayi; ?></td>
                                         <td><?php echo $personel["adsoyad"]; ?></td>
