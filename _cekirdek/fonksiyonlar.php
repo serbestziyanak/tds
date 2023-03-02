@@ -712,20 +712,63 @@ WHERE
     p.aktif     = 1 
 SQL;
 
+const SQL_kategoriGetir = <<< SQL
+WITH RECURSIVE kategori_ustleri AS (
+	SELECT id, adi, kategori AS kategori, CAST(id AS CHAR) AS tam_kategori_id, adi AS tam_kategori_adi
+	FROM tb_firma_dosya_turleri
+	WHERE id = ?
+	UNION ALL
+	SELECT t.id, t.adi, t.kategori, CONCAT(k.tam_kategori_id, '-', t.id), CONCAT(k.tam_kategori_adi, ' > ', t.adi) AS tam_kategori_adi
+	FROM tb_firma_dosya_turleri t
+	JOIN kategori_ustleri k ON t.id = k.kategori
+	)
+	SELECT tam_kategori_id, tam_kategori_adi FROM kategori_ustleri ORDER BY tam_kategori_id DESC LIMIT 1;
+SQL;
+
+const SQL_suresi_dolan_kategoriler = <<< SQL
+SELECT 
+	*
+FROM tb_firma_dosya_turleri 
+WHERE 
+	firma_id 	= ? AND 
+	tarih 		<= DATE_ADD(CURDATE(), INTERVAL 10 DAY) AND
+	tarih 		!= "0000-00-00"
+	
+SQL;
+
+const SQL_suresi_dolan_dosyalar = <<< SQL
+SELECT 
+	d.id,
+	d.dosya_turu_id AS kategori,
+	d.evrakTarihi AS tarih,
+	(
+		SELECT
+			adi
+		FROM tb_firma_dosya_turleri 
+		WHERE 
+			id = d.dosya_turu_id
+	) AS adi
+FROM tb_firma_dosyalari as d
+LEFT JOIN tb_firma_dosya_turleri AS dt ON dt.id = d.dosya_turu_id
+WHERE 
+	dt.firma_id 		= ? AND 
+	d.evrakTarihi 		<= DATE_ADD(CURDATE(), INTERVAL 10 DAY) AND
+	d.evrakTarihi 		!= "0000-00-00"
+SQL;
+
 	/* Kurucu metod  */
 	public function __construct() {
 		$this->vt = new VeriTabani();
 	}
-
+	/*Belirli bir gün için mesaiden erken ayrılan persone listesi*/
 	public function erkenCikanlar( $tarih, $gun){
 		return $this->vt->select( self::SQL_erkenCikanlar, array( $tarih, $gun ) )[2];
 	}
-
 	
 	public function erkenCikanlarListesi( $tarih, $gun){
 		return $this->vt->select( self::SQL_erkenCikanlar_listesi, array( $tarih, $gun,$tarih ) )[2];
 	}
-	
+	/*Belirli bir gün için Mesaiye geç gelmiş personel listesi */
 	public function gecGelenler( $tarih, $gun){
 		return $this->vt->select( self::SQL_gecgelenler, array( $tarih, $gun ) )[2];
 	}
@@ -733,8 +776,7 @@ SQL;
 	public function gecGelenlerListesi( $tarih, $gun){
 		return $this->vt->select( self::SQL_gecgelenler_listesi, array( $tarih, $gun,$tarih) )[2];
 	}
-
-	
+	/*Belirli bir gün için gelmeyenler listesi izinli olan personel listelenmemektedir*/
 	public function gelmeyenler( $tarih ){
 		return $this->vt->select( self::SQL_gelmeyenler, array( $tarih ) )[2];
 	}
@@ -742,22 +784,23 @@ SQL;
 	public function gelmeyenlerListesi( $tarih ){
 		return $this->vt->select( self::SQL_gelmeyenler_listesi, array( $tarih, $tarih,"gunluk" ) )[2];
 	}
-	
+	/*Belirli gün içinde gelen personel listesi*/
 	public function gelenler( $tarih ){
 		return $this->vt->select( self::SQL_gelenler, array( $tarih ) )[2];
 	}
-
+	/*Belirli gün için mesai çıkışı yapmayan personel lisetsi*/
 	public function mesaiCikmayan( $tarih ){
 		return $this->vt->select( self::SQL_mesaiCikmayan, array( $tarih ) )[2];
 	}
-	
+	/*Belirli bir gün için izinli olan personel lisetesi*/
 	public function izinliPersonel( $tarih ){
 		return $this->vt->select( self::SQL_izinliPersonel, array( $tarih ) )[2];
 	}
-	
+	/*Ay içinde Giriş Yapmış Personel Listesi*/
 	public function iseGiris( $tarih ){
 		return $this->vt->select( self::SQL_ise_giris, array( $tarih ) )[2];
 	}
+	/*Ay içinde Çıkış yapan personel listesi*/
 	public function istenCikis( $tarih ){
 		return $this->vt->select( self::SQL_is_cikis, array( $tarih ) )[2];
 	}
@@ -765,7 +808,32 @@ SQL;
 	public function beyazYakali(  ){
 		return $this->vt->select( self::SQL_beyaz_yakali, array( $_SESSION[ "firma_id" ] ) )[2];
 	}
+	
+	/*Firma Dosyaları içinde seçilen bir kategorinin ust kategori idlerinin arasına > bırakarak listeler*/
+	public function kategoriHiyerarsiAdi( $id ){
+		$hiyerarsi 	= $this->vt->select( self::SQL_kategoriGetir, array( $id ) )[2][0]["tam_kategori_adi"];
+		$bol 		= explode(">",$hiyerarsi);
+		$bol 		= array_reverse( $bol );
 
+		return implode(' <i class="fas fa-arrow-right"></i> ', $bol );
+	}
+	
+	/*Firma Dosyaları içinde seçilen bir kategorinin ust kategori idlerinin arasına - bırakarak listeler*/
+	public function kategoriHiyerarsiId( $id ){
+		$hiyerarsi 	= $this->vt->select( self::SQL_kategoriGetir, array( $id ) )[2][0]["tam_kategori_id"];
+
+		$hiyerarsi 	= str_replace( "$id-", "", $hiyerarsi);
+
+		return $hiyerarsi;
+	}
+
+	public function suresiDolmusKategori(){
+		return $this->vt->select( self::SQL_suresi_dolan_kategoriler, array( $_SESSION[ "firma_id" ] ) )[2];
+	}
+	
+	public function suresiDolmusDosya(){
+		return $this->vt->select( self::SQL_suresi_dolan_dosyalar, array( $_SESSION[ "firma_id" ] ) )[2];
+	}
 
 
 
