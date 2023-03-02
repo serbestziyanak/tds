@@ -238,8 +238,8 @@ $gelenler                               = $fn->gelenler( date("Y-m-d") );
 $mesai_cikmayan                         = $fn->mesaiCikmayan( date("Y-m-d") );
 $izinli_personel                        = $fn->izinliPersonel( date("Y-m-d") );
 
-$suresi_dolmus_kategori                 = $fn->suresiDolmusKategori();
-$suresi_dolmus_dosya                    = $fn->suresiDolmusDosya();
+//$suresi_dolmus_kategori                 = $fn->suresiDolmusKategori();
+//$suresi_dolmus_dosya                    = $fn->suresiDolmusDosya();
 
 $gelmeyenler_sayisi                     = count( $gelmeyenler );
 $gelenler_sayisi                        = count( $gelenler );
