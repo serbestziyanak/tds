@@ -816,7 +816,7 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
         <div class="card  card-tabs">
             <div class="card-header p-0 pt-1">
                 <ul class="nav nav-pills nav-tabs tab-container" id="custom-tabs-two-tab" role="tablist" style="padding: 10px 0px 15px 0px;">
-                    <li class="pt-2 px-3"><h3 class="card-title"><b>Süresi Dolacak Evraklar</b></h3></li>
+                    <li class="pt-2 text-left"><h3 class="card-title"><b>Süresi Dolacak Evraklar</b></h3></li>
                     <li class="nav-item">
                         <a class="nav-link active" id="kategori" data-toggle="pill" href="#kategori-tab" role="tab" aria-controls="kategori-tab" aria-selected="false">Kategoriler <b class=" badge bg-warning"><?php echo count( $suresi_dolmus_kategori ); ?></b></a>
                     </li>
@@ -833,7 +833,7 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
                                 <th>#</th>
                                 <th>Adı</th>
                                 <th>Konum</th>
-                                <th>Tarih</th>
+                                <th width="80">Tarih</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
@@ -873,9 +873,9 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
                         <table class="table table-bordered table-hover table-sm dataTable no-footer dtr-inline" id="tbl_gec_gelenler" style="width: 100%;">
                             <thead>
                                 <th>#</th>
-                                <th>Adı Soyadı</th>
-                                <th>Tarih</th>
-                                <th width="80">Yazdırma</th>
+                                <th>Adı</th>
+                                <th>Konum</th>
+                                <th width="80">Tarih</th>
                                 <th>İşlem</th>
                             </thead>
                             <tbody>
