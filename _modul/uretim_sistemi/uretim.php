@@ -19,7 +19,11 @@
 <script>
 
 function istasyonGoster(id){
-	$(id).show(100);
+	if ( $(id).is(':visible') ) {
+		$(id).hide(100);
+	} else {
+		$(id).show(100);
+	}
 }
 
 function istasyonGizle(id){
