@@ -1,3 +1,8 @@
+<style>
+.badge-lg{
+	font-size: 7.1em;
+}
+</style>
 <div class="content-wrapper">
 	<section class="content-header">
 		<div class="container-fluid">
@@ -51,7 +56,7 @@
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Tamamlanan <span class="float-right badge bg-danger"><h5>842</h5></span>
+													Tamamlanan <span class="float-right badge bg-danger badge-lg">842</span>
 													</a>
 												</li>
 											</ul>
