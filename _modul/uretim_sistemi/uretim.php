@@ -19,11 +19,11 @@
 <script>
 
 function istasyonGoster(id){
-	$(id).show(200);
+	$(id).show(100);
 }
 
 function istasyonGizle(id){
-	$(id).hide(200);
+	$(id).hide(100);
 }
 
 </script>
