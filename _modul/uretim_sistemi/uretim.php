@@ -39,7 +39,7 @@
 							<i class="fa fa-camera bg-purple"></i>
 							<div class="timeline-item">
 								<span class="time"><i class="fas fa-clock"></i> 28.03.2023</span>
-								<h3 class="timeline-header"><a href="#">Cep Dikimi</a> uploaded new photos</h3>
+								<h3 class="timeline-header"><a href="#">Cep Dikimi</a> Zara Pantolon Üretimi</h3>
 								<div class="timeline-body">
 <div class="card card-widget widget-user-2">
 	<!-- Add the bg color to the header using any of the bg-* classes -->
