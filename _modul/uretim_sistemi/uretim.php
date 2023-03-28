@@ -38,8 +38,8 @@
 						<div>
 							<i class="fa fa-camera bg-purple"></i>
 							<div class="timeline-item">
-								<span class="time"><i class="fas fa-clock"></i> 2 days ago</span>
-								<h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
+								<span class="time"><i class="fas fa-clock"></i> 28.03.2023</span>
+								<h3 class="timeline-header"><a href="#">Cep Dikimi</a> uploaded new photos</h3>
 								<div class="timeline-body">
 <div class="card card-widget widget-user-2">
 	<!-- Add the bg color to the header using any of the bg-* classes -->
@@ -55,7 +55,7 @@
 		<ul class="nav flex-column">
 			<li class="nav-item">
 				<a href="#" class="nav-link">
-				İş <span class="float-right badge bg-primary">Ukrayna Kamuflaj Üretimi</span>
+				İş <span class="float-right badge bg-primary">Zara Pantolon Üretimi</span>
 				</a>
 			</li>
 			<li class="nav-item">
