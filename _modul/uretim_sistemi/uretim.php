@@ -32,12 +32,14 @@
 				<div class="col-md-4">
 					<div class="timeline">
 						<div class="time-label">
-							<span class="bg-primary">Fırat KAPAR</span>
+							<span class="bg-primary"><a href = "#">  <img class="img-circle elevation-2" src="resimler/resim_yok.jpg" width = "40px" alt="User Avatar"> Fırat KAPAR</a></span>
 						</div>
 						<div>
-							<i class="fa fa-camera bg-purple"></i>
 							<div class="timeline-item">
-								<span class="time"><i class="fas fa-clock"></i> 28.03.2023</span>
+								<span class="time">
+									<i class="fas fa-clock"></i> 28.03.2023
+									<button type="button" class="btn btn-tool" timeline-item="remove"><i class="fas fa-times fa-lg"></i></button>
+								</span>
 								<h3 class="timeline-header"><a href="#">Cep Dikimi</a> Zara Pantolon Üretimi</h3>
 								<div class="timeline-body">
 									<div class="card card-widget widget-user-2">
@@ -55,7 +57,7 @@
 	
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef <span class="float-right badge bg-primary badge-number">842</span>
+													Hedef(Günlük) <span class="float-right badge bg-primary badge-number">842</span>
 													</a>
 												</li>
 												<li class="nav-item">
