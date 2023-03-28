@@ -51,7 +51,7 @@
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Tamamlanan <span class="float-right badge bg-danger"><h3>842</h3></span>
+													Tamamlanan <span class="float-right badge bg-danger"><h4>842</h4></span>
 													</a>
 												</li>
 											</ul>
