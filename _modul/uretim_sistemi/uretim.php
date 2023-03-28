@@ -1,6 +1,6 @@
 <style>
 .badge-lg{
-	font-size: 1.1em;
+	font-size: 1.6em;
 }
 </style>
 <div class="content-wrapper">
@@ -51,7 +51,7 @@
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-														Hedef <span class="float-right badge bg-success"><h3>12</h3></span>
+														Hedef <span class="float-right badge bg-success badge-lg"><h3>12</h3></span>
 													</a>
 												</li>
 												<li class="nav-item">
