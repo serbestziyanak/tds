@@ -1,6 +1,7 @@
 <style>
 .badge-lg{
 	font-size: 1.6em;
+	padding:5px;
 }
 </style>
 <div class="content-wrapper">
