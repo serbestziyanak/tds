@@ -1,6 +1,6 @@
 <style>
 .badge-number{
-	font-size: 1.6em;
+	font-size: 1.3em;
 	margin-bottom:5px;
 	letter-spacing: .2rem;
 	font-family:'digital-clock-font';
@@ -18,6 +18,20 @@
 
 <script>
 
+$(document).keyup(function(e) {
+     if (e.key === "Escape") { // escape key maps to keycode `27`
+        $(".timeline-item").hide(100);
+    }
+});
+
+
+$(document).keyup(function(e) {
+
+  if (e.ctrlKey && e.keyCode == 13) {
+     $(".timeline-item").show(100);
+  }
+});
+
 function istasyonGoster(id){
 	if ( $(id).is(':visible') ) {
 		$(id).hide(100);
@@ -32,25 +46,23 @@ function istasyonGizle(id){
 
 </script>
 <div class="content-wrapper">
-	<section class="content-header">
-		
-		<div class="container-fluid">
-			<div class="row mb-2">
-				<div class="col-sm-12">
-					<center><h1><b>Üretim Hattı</b></h1></center>
-				</div>
-			</div>
-		</div>
-	</section>
+
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-4">
 					<div class="timeline">
 						<div class="time-label">
-							<span class="bg-secondary"><a href = "#" onclick = "istasyonGoster('#istasyon_1')">  <img class="img-circle elevation-2" src="resimler/resim_yok.jpg" width = "40px" alt="User Avatar"> Fırat KAPAR</a></span>
+							<span class="bg-default"><a href = "#" onclick = "istasyonGoster('#istasyon_1')"> Fırat KAPAR</a></span>
 						</div>
 						<div>
+							<div>
+								<img class=" img-circle elevation-2" style="height:35px;" src="resimler/resim_yok.jpg" alt="User profile picture">&nbsp;
+								<span class = "pt-3">
+									<span class="badge bg-secondary badge-number">100</span>
+									<span class="badge bg-danger badge-number ">200</span>
+								</span>
+							</div>
 							<div class="timeline-item" id = "istasyon_1" style = "display:none;">
 								<span class="time">
 									<i class="fas fa-clock"></i> 28.03.2023
@@ -62,7 +74,7 @@ function istasyonGizle(id){
 										<!-- Add the bg color to the header using any of the bg-* classes -->
 										<div class="widget-user-header bg-success">
 											<div class="widget-user-image">
-											<img class="img-circle elevation-2" src="resimler/resim_yok.jpg" alt="User Avatar">
+												<img class="img-circle elevation-2" src="resimler/resim_yok.jpg" alt="User Avatar">
 											</div>
 											<!-- /.widget-user-image -->
 											<h3 class="widget-user-username">Fırat KAPAR</h3>
@@ -73,7 +85,7 @@ function istasyonGizle(id){
 	
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef(Günlük) <span class="float-right badge bg-primary badge-number">842</span>
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number">842</span>
 													</a>
 												</li>
 												<li class="nav-item">
@@ -87,12 +99,24 @@ function istasyonGizle(id){
 								</div>
 							</div>
 						</div>
-		
-		
+						<br/>
+
+						
+						
+						
+						
+						
 						<div class="time-label">
-							<span class="bg-success"><a href = "#" onclick = "istasyonGoster('#istasyon_2')">  <img class="img-circle elevation-2" src="resimler/resim_yok.jpg" width = "40px" alt="User Avatar"> Serbest Ziyanak</a></span>
+							<span class="bg-default"><a href = "#" onclick = "istasyonGoster('#istasyon_2')"> Serbest Ziyanak</a></span>
 						</div>
 						<div>
+							<div>
+								<img class=" img-circle elevation-2" style="height:35px;" src="resimler/resim_yok.jpg" alt="User profile picture">&nbsp;
+								<span class = "pt-3">
+								<span class="badge bg-secondary badge-number">300</span>
+								<span class="badge bg-danger badge-number ">345</span>
+								</span>
+							</div>
 							<div class="timeline-item" id = "istasyon_2" style = "display:none;">
 								<span class="time">
 									<i class="fas fa-clock"></i> 28.03.2023
@@ -104,7 +128,7 @@ function istasyonGizle(id){
 										<!-- Add the bg color to the header using any of the bg-* classes -->
 										<div class="widget-user-header bg-success">
 											<div class="widget-user-image">
-											<img class="img-circle elevation-2" src="resimler/resim_yok.jpg" alt="User Avatar">
+												<img class="img-circle elevation-2" src="resimler/resim_yok.jpg" alt="User Avatar">
 											</div>
 											<!-- /.widget-user-image -->
 											<h3 class="widget-user-username">Fırat KAPAR</h3>
@@ -115,7 +139,7 @@ function istasyonGizle(id){
 	
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef(Günlük) <span class="float-right badge bg-primary badge-number">842</span>
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number">842</span>
 													</a>
 												</li>
 												<li class="nav-item">
@@ -129,10 +153,10 @@ function istasyonGizle(id){
 								</div>
 							</div>
 						</div>
-		
-		
-		
-		
+						<br/>
+						
+						
+						
 		
 					</div>
 				</div>
