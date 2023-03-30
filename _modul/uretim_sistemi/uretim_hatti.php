@@ -5,10 +5,14 @@
 	letter-spacing: .2rem;
 	font-family:'digital-clock-font';
 }
-.badge-label{
-	font-size: 1.1em;
+
+.badge-number-detail{
+	font-size: 1.6em;
 	margin-bottom:5px;
+	letter-spacing: .2rem;
+	font-family:'digital-clock-font';
 }
+
 @font-face{
  font-family:'digital-clock-font';
  src: url('font/digital-7.ttf');
@@ -19,17 +23,16 @@
 <script>
 
 $(document).keyup(function(e) {
-     if (e.key === "Escape") { // escape key maps to keycode `27`
-        $(".timeline-item").hide(100);
-    }
+	if (e.key === "Escape") {
+		$(".timeline-item").hide(100);
+	}
 });
 
 
 $(document).keyup(function(e) {
-
-  if (e.ctrlKey && e.keyCode == 13) {
-     $(".timeline-item").show(100);
-  }
+	if (e.ctrlKey && e.keyCode == 13) {
+		$(".timeline-item").show(100);
+	}
 });
 
 function istasyonGoster(id){
@@ -85,12 +88,12 @@ function istasyonGizle(id){
 	
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number">842</span>
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail">842</span>
 													</a>
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Tamamlanan <span class="float-right badge bg-danger badge-number">250</span>
+													Tamamlanan <span class="float-right badge bg-danger badge-number-detail">250</span>
 													</a>
 												</li>
 											</ul>
@@ -139,12 +142,12 @@ function istasyonGizle(id){
 	
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number">842</span>
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail">842</span>
 													</a>
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Tamamlanan <span class="float-right badge bg-danger badge-number">250</span>
+													Tamamlanan <span class="float-right badge bg-danger badge-number-detail">250</span>
 													</a>
 												</li>
 											</ul>
