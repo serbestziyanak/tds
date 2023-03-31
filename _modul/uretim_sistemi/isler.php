@@ -28,7 +28,7 @@ FROM
 LEFT JOIN
 	sayac_is_gunlukleri AS sg ON sg.is_id = i.id
 ORDER BY
-	bitis_tarihi DESC
+	i.bitis_tarihi, i.aktif DESC
 SQL;
 
 $SQL_is = <<< SQL
@@ -74,6 +74,40 @@ $kaydet_buton_yazi		= $is_id > 0	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 ?>
 
+<!-- İşi Sonlandırma modülü-->
+<div class="modal fade" id="modal-is-sonlandir">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action = "_modul/uretim_sistemi/islerSEG.php" id = "frm_is_sonlandir" method = "POST">
+				<input type = "hidden" name = "is_id"  id = "is_sonlandir_id">
+				<input type = "hidden" name = "islem" value = "is_sonlandir">
+				<div class="modal-header">
+					<h4 class="modal-title">İşi Sonlandır</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label class="control-label">Bitiş Tarihi Seçin</label>
+						<div class="input-group date" id="datetimepicker3" data-target-input="nearest">
+							<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
+								<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+							</div>
+							<input required type="text" name="bitis_tarihi" class="form-control datetimepicker-input" data-target="#datetimepicker3"/>
+						</div>
+					</div>
+					<p class="text-danger text-bold">Dikkat : Bu işlem geri alınamaz!</p>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+					<input type="submit" class="btn btn-primary" value = "Kaydet">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <!-- UYARI MESAJI VE BUTONU-->
 <div class="modal fade" id="kayit_sil_onay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -83,7 +117,7 @@ $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body">
-				Bu Kaydı <b>Silmek</b> istediğinize emin misiniz?<br>Bu işe ait tüm iş günlükleri de silinecektir.
+				Bu Kaydı <b>Silmek</b> istediğinize emin misiniz?<br><p class = "text-danger">Bu işe ait <b>tüm iş günlükleri</b> de silinecektir!</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
@@ -103,7 +137,7 @@ $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn
 		<div class="col-md-8">
 			<div class="card card-success">
 			<div class="card-header">
-				<h3 class="card-title">Sistem Kullanıcıları</h3>
+				<h3 class="card-title">Kayıtlı İşler</h3>
 			</div>
 			<div class="card-body">
 				<table id="example2" class="table table-sm table-bordered table-hover">
@@ -114,30 +148,38 @@ $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn
 							<th>İş Alma Tarihi</th>
 							<th>Başlama Tarihi</th>
 							<th>Bitiş Tarihi</th>
-							<th align = "center">Aktif</th>
+							<th class="text-center">Aktif</th>
 							<th data-priority="1" style="width: 20px">Düzenle</th>
 							<th data-priority="1" style="width: 20px">Sil</th>
 						</tr>
 					</thead>
 					<tbody>
-						<?php $sayi = 1; foreach( $tum_isler[ 2 ] AS $is ) { ?>
+						<?php
+							$sayi = 1;
+							foreach( $tum_isler[ 2 ] AS $is ) {
+								$id = $is[ 'id' ];
+								$btn_sonlandir = "<a class = 'btn btn-xs btn-block btn-default btn-is-sonlandir' data-is_id=$id>Sonlandır</a>";
+								$aktif_pasif_label = $is[ 'aktif' ] * 1 > 0 ? '<span class="text-success">Evet</span>' : '<span class="text-default">Hayır</span>';
+								if( $is[ 'bitis_tarihi' ] == '01.01.1970' OR strlen( $is[ 'bitis_tarihi' ] ) < 10 OR $is[ 'bitis_tarihi' ] == NULL ) {
+									$duzenle_aktif_pasif = true;
+								} else {
+									$duzenle_aktif_pasif = false;
+								}
+						?>
 						<tr <?php if( $is[ 'id' ] == $is_id ) echo "class = '$satir_renk'"; ?>>
 							<td><?php echo $sayi++; ?></td>
 							<td><?php echo $is[ 'is_adi' ]; ?></td>
 							<td><?php echo $fn->tarihVer( $is[ 'is_alma_tarihi' ] ); ?></td>
 							<td><?php echo $fn->tarihVer( $is[ 'baslama_tarihi' ] ); ?></td>
-							<td><?php echo $is[ 'bitis_tarihi' ] == NULL ? 'Devam ediyor...' : $fn->tarihVer( $is[ 'bitis_tarihi' ] ); ?></td>
-							<td align = "center"><?php
-								$label = $is[ 'aktif' ] * 1 > 0
-									? '<h5><span class="float-right badge bg-success">Evet</span></h5>'
-									: '<h5><span class="float-right badge bg-secondary">Hayır</span></h5>';
-								
-								echo $label;
-							?></td>
-							<td align = "center">
-								<a modul= 'uretim_sistemi' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs " href = "?modul=isler&islem=guncelle&is_id=<?php echo $is[ 'id' ]; ?>" >
-									Düzenle
-								</a>
+							<td><?php echo $is[ 'bitis_tarihi' ] == NULL ? $btn_sonlandir : $fn->tarihVer( $is[ 'bitis_tarihi' ] ); ?></td>
+							<td align = "center"><?php echo $aktif_pasif_label; ?></td>
+							
+							<td style="text-align:center;">
+								<?php if( $duzenle_aktif_pasif ) {?>
+									<a modul= 'uretim_sistemi' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs " href = "?modul=isler&islem=guncelle&is_id=<?php echo $is[ 'id' ]; ?>" >
+										Düzenle
+									</a>
+								<?php } ?>
 							</td>
 							<td align = "center">
 								<button modul= 'uretim_sistemi' yetki_islem="sil" class="btn btn-sm btn-danger btn-xs" data-href="_modul/uretim_sistemi/islerSEG.php?islem=sil&is_id=<?php echo $is[ 'id' ]; ?>" data-toggle="modal" data-target="#kayit_sil_onay" >Sil</button>
@@ -187,16 +229,6 @@ $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn
 						</div>
 
 						<div class="form-group">
-						<label class="control-label">Bitiş Tarihi</label>
-							<div class="input-group date" id="datetimepicker3" data-target-input="nearest">
-								<div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
-									<div class="input-group-text"><i class="fa fa-calendar"></i></div>
-								</div>
-								<input type="text" name="bitis_tarihi" id = "bitis_tarihi" value="<?php if( $isBilgileri[ 'bitis_tarihi' ] !='' ){echo date('d.m.Y',strtotime($isBilgileri[ 'bitis_tarihi' ] ));}//else{ echo date('d.m.Y'); } ?>" class="form-control datetimepicker-input" data-target="#datetimepicker3"/>
-							</div>
-						</div>
-
-						<div class="form-group">
 							<label  class="control-label">Sipariş Adedi</label>
 							<input required type="number" min="1" class="form-control" name ="siparis_adet" value = "<?php echo $isBilgileri[ 'siparis_adet' ]; ?>">
 						</div>
@@ -207,7 +239,7 @@ $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn
 						<div class="form-group">
 							<div class='material-switch pull-right' style ="padding-top:10px">
 								<label class="control-label"></label>
-								<input id='is_aktif' name='is_aktif' data-on-text = "Aktif" data-off-text = "Pasif" type="checkbox" <?php if ( $isBilgileri[ 'aktif' ] * 1 > 0 ) echo 'checked'; ?> data-bootstrap-switch data-off-color="danger" data-on-color="success"> (Pasif olduğunda iş bitmiş anlamına gelir.)
+								<input id='is_aktif' name='is_aktif' data-on-text = "Aktif" data-off-text = "Pasif" type="checkbox" <?php if ( $isBilgileri[ 'aktif' ] * 1 > 0 ) echo 'checked'; ?> data-bootstrap-switch data-off-color="danger" data-on-color="success"> <span>İş sadece pasif olur. Sonlandırılmaz.</span>
 							</div>
 						</div>
 					</div>
@@ -220,17 +252,12 @@ $kaydet_buton_cls		= $is_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn
 		</div>
 		</div>
 
-<script>
-$('input[name="is_aktif"]').on('switchChange.bootstrapSwitch', function(event, state) {
-	if (state == true ){
-		$( "#bitis_tarihi" ).prop( "required", false );
-	}else{
-		$( "#bitis_tarihi" ).prop( "required", true );
-	}
-});
-</script>
-
 <script type="text/javascript">
+	$( ".btn-is-sonlandir" ).click( function() {
+		$('#modal-is-sonlandir').modal('show');
+		$("#modal-is-sonlandir #is_sonlandir_id").val( $(this).data('is_id') );
+	} );
+
 	var simdi = new Date(); 
 	//var simdi="11/25/2015 15:58";
 	$(function () {
