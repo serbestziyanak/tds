@@ -107,7 +107,7 @@ switch( $islem ) {
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
-
+		$son_eklenen_id = $sonuc[2];
 		$tarife_id = $son_eklenen_id;
 	break;
 	case 'guncelle':
