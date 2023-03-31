@@ -53,7 +53,7 @@ function istasyonGizle(id){
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-md-4">
+				<div class="col-md-4"> 
 					<div class="timeline">
 						<div class="time-label">
 							<span class="bg-default"><a href = "#" onclick = "istasyonGoster('#istasyon_1')"> Fırat KAPAR</a></span>
