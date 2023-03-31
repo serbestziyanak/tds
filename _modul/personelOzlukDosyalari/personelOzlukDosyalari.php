@@ -454,19 +454,23 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 	}
 
 	function dosyaAc(tur, dosya_adi, id){
-		
-		
-		var  url 			= window.location;
-		var origin			= url.origin;
-		var path			= url.pathname;
-		var yol = "";
+
+		var  url 		= window.location;
+		var origin		= url.origin;
+		var path		= url.pathname;
+		var yol 		= "";
+
+		path 			= path.split("/");
+		path.pop()
+		birlestir 		= path.filter(kontrol).join("/");
+
 		if (tur == "tutanak"){
 			yol = "tutanak/"+id+"/"+dosya_adi;
 		}else if(tur == "personel_ozluk_dosyalari"){
 			yol = "personel_ozluk_dosyalari/"+dosya_adi;
 		}
 		
-		fileURL = origin+"/"+path+"/"+yol;
+		fileURL = origin+"/"+birlestir+"/"+yol;
 
 		const pdfUrl = fileURL;
 
@@ -476,6 +480,10 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 			const pdfUrl = URL.createObjectURL(blob);
 			window.open(pdfUrl, '_blank');
 		});
+	}
+
+	function kontrol( deger ) {
+		return deger != "";
 	}
     
 
