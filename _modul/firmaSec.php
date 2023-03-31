@@ -5,8 +5,6 @@ $vt = new VeriTabani();
 
 $firmaListesi = $_SESSION['firmalar'];
 
-
-
 $SQL_firmalari_oku = <<< SQL
 SELECT
 	 id
@@ -32,7 +30,7 @@ if (in_array(  $_REQUEST["firma_id"], $firmaListesi)) {
 <section class="content">
 	<div class="container-fluid">
 		<div class="alert alert-warning text-center font-weight-bold">Lütfen İşlem Yapacağınız Firmayı Seçiniz</div>
-		<div class="row">
+		<div class="row " style = "display: flex;place-content: center;">
 
 <?php 
 
@@ -44,7 +42,7 @@ foreach($firmaListesi AS $firma){
 
 	foreach ($firmalar as $firma) {
 		echo '
-		  	<div class="col-lg-3 col-sm-4">
+		  	<div class="col-lg-4 col-sm-6">
 			    <!-- small box -->
 			    <div class="small-box bg-info">
 				    <div class="inner">
@@ -65,4 +63,11 @@ foreach($firmaListesi AS $firma){
 		</div>
 	</div>
 </section>
+<script>
+	$(document).ready(function(){
+		var menu = document.querySelector('aside');
+		menu.style.filter = "blur(10px)";
+	})
+	
+</script>
 
