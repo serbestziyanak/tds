@@ -29,6 +29,7 @@ SET
 	,gunluk_hedef	= ?
 	,tarih			= ?
 	,gecerlilik		= ?
+	,tamamlanan		= 0
 SQL;
 
 
@@ -45,7 +46,7 @@ WHERE
 SQL;
 
 
-$SQL_sil = <<< SQL
+$SQL_is_gunlukleri_sil = <<< SQL
 	DELETE FROM sayac_is_gunlukleri WHERE id = ?
 SQL;
 

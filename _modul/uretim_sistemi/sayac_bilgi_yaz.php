@@ -3,7 +3,6 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
-
 $SQL_aktif_is = <<<SQL
 SELECT
 	id
@@ -13,6 +12,17 @@ WHERE
 	aktif = 1 AND bitis_tarihi IS NULL
 LIMIT 1
 SQL;
+
+
+$SQL_sayac_cihaz = <<<SQL
+SELECT
+	id
+FROM
+	sayac_sayac_cihazlari
+WHERE
+	sayac_mac = ?
+SQL;
+
 
 $SQL_makina = <<<SQL
 SELECT
@@ -37,19 +47,23 @@ SET
 	,tarih				= now()
 SQL;
 
-$sayac_id	= array_key_exists( 'sayac_id', $_REQUEST ) ? $_REQUEST[ 'sayac_id' ] : 0;
+
+$sayac_mac	= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : 0;
 $kesim		= array_key_exists( 'kesim', $_REQUEST ) ? 1 : 0;
 
-
 /* Eğer kesim bilgisi olarak 1 gelmiş ise ve sayac_id gelmiş ise işlemleri yap */
-if( $kesim * 1 && $sayac_id ) {
-	$aktif_iş	= $vt->select( $SQL_aktif_is );
-	$makina		= $vt->select( $SQL_makina, array( $sayac_id ) );
+if( $kesim * 1 && $sayac_mac ) {
+
+	/* Anlık bilgi gönderen cihazın idsini bul */
+	$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
+	$sayac_cihaz_id	= $cihaz[ 2 ][ 0 ][ "id" ];
 
 	/* Aktif olan işin bilgileri */
+	$aktif_iş	= $vt->select( $SQL_aktif_is );
 	$is_id			= $aktif_iş[ 2 ][ 0 ][ "id" ];
 
 	/* Makina bilgileri */
+	$makina			= $vt->select( $SQL_makina, array( $sayac_cihaz_id ) );
 	$makina_id		= $makina[ 2 ][ 0 ][ "id" ]; 
 	$personel_id	= $makina[ 2 ][ 0 ][ "personel_id" ]; 
 	$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ]; 

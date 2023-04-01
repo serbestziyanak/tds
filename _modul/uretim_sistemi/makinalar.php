@@ -15,12 +15,14 @@ SELECT
 	sm.*,
 	sip.adi AS is_parca_adi,
 	ssc.sayac_no,
-	smt.adi AS makina_turu_adi
+	smt.adi AS makina_turu_adi,
+	CONCAT( p.adi, " ", p.soyadi ) AS personel_ad_soyad
 FROM 
 	sayac_makina AS sm
 LEFT JOIN sayac_is_parcalari AS sip ON sip.id = sm.is_parca_id
 LEFT JOIN sayac_makina_turleri AS smt ON smt.id = sm.makina_turu_id
 LEFT JOIN sayac_sayac_cihazlari AS ssc ON ssc.id = sm.sayac_cihaz_id
+LEFT JOIN tb_personel as p on sm.personel_id = p.id
 WHERE
 	sm.firma_id = ? AND
 	sm.aktif 	= 1
@@ -136,7 +138,7 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 					<thead>
 						<tr>
 							<th style="width: 15px">#</th>
-							<th>Makina İd</th>
+							<th>Personel</th>
 							<th>Makina Türü</th>
 							<th>Makina Marka</th>
 							<th>İş Parçası</th>
@@ -152,7 +154,7 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 							foreach( $makinalar[ 2 ] AS $makina ) { ?>
 								<tr <?php if( $makina[ 'id' ] == $sayacCihaz_id ) echo "class = '$satir_renk'"; ?>>
 									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $makina[ 'makina_id' ]; ?></td>
+									<td><?php echo $makina[ 'personel_ad_soyad' ]; ?></td>
 									<td><?php echo $makina[ 'makina_turu_adi' ]; ?></td>
 									<td><?php echo $makina[ 'makina_marka' ]; ?></td>
 									<td><?php echo $makina[ 'is_parca_adi' ]; ?></td>

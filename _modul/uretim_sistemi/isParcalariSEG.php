@@ -86,6 +86,7 @@ switch( $islem ) {
 		}
 	break;
 }
+
 $vt->islemBitir();
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $isParcasi_id;

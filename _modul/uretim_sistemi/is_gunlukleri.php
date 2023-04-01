@@ -96,7 +96,7 @@ $kaydet_buton_cls		= $gunluk_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body">
-				Bu Kaydı <b>Silmek</b> istediğinize emin misiniz?<br>Bu işe ait tüm iş günlükleri de silinecektir.
+				Bu Kaydı <b>Silmek</b> istediğinize emin misiniz?
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>

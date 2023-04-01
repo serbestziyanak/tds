@@ -27,6 +27,8 @@ FROM
 	sayac_isler AS i
 LEFT JOIN
 	sayac_is_gunlukleri AS sg ON sg.is_id = i.id
+GROUP BY
+	i.id
 ORDER BY
 	i.bitis_tarihi, i.aktif DESC
 SQL;
