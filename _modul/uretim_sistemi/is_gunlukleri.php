@@ -251,17 +251,16 @@ $( '#is_id' ).change( function(){
 </script>
 
 <script type="text/javascript">
-	var simdi = new Date(); 
-	//var simdi="11/25/2015 15:58";
 	$(function () {
 		$('#datetimepicker1').datetimepicker({
-			//defaultDate: simdi,
+			//defaultDate: new Date(),
+			minDate:new Date(),
 			format: 'DD.MM.yyyy',
 			icons: {
-			time: "far fa-clock",
-			date: "fa fa-calendar",
-			up: "fa fa-arrow-up",
-			down: "fa fa-arrow-down"
+				time: "far fa-clock",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down"
 			}
 		});
 	});

@@ -1,11 +1,50 @@
 <?php
 $fn	= new Fonksiyonlar();
 $vt = new VeriTabani();
+/* Bu modülde yapılması gereken:
+	Eğer işe ait iş günlüğü sürekli geçerli değil ise dünün iş günlüğü bugüne iş günlüğü olarak eklenmelidir.
+*/
+
+
+/*
+Hedef geçerliliği:
+1: İş bitinceye kadar geçerli
+2: Seçilen gün geçerli
+*/
+$SQL_gunnluk_hedef = <<<SQL
+SELECT
+	 sig.gunluk_hedef
+	,sig.gecerlilik
+	,sig.tarih
+FROM
+	sayac_is_gunlukleri AS sig
+LEFT JOIN sayac_isler AS si ON sig.is_id = si.id
+WHERE
+	si.aktif = 1
+AND si.bitis_tarihi IS NULL
+AND (
+	sig.gecerlilik = 1
+	OR NOT EXISTS (
+		SELECT
+			TRUE
+		FROM
+			sayac_is_gunlukleri AS ig2
+		WHERE
+			ig2.is_id = si.id
+		AND ig2.tarih > sig.tarih
+	)
+)
+ORDER BY
+	sig.tarih DESC
+LIMIT 1
+SQL;
+
 
 $SQL_aktif_is = <<<SQL
 SELECT
 	 id
 	,adi
+	,siparis_adet
 FROM
 	sayac_isler
 WHERE
@@ -33,10 +72,16 @@ SQL;
 
 
 /* Aktif olan işin bilgileri */
-$aktif_is = $vt->select( $SQL_aktif_is );
-$is_id	= $aktif_is[ 2 ][ 0 ][ "id" ];
-$is_adi	= $aktif_is[ 2 ][ 0 ][ "adi" ];
-/**/
+$aktif_is		= $vt->select( $SQL_aktif_is );
+$is_id			= $aktif_is[ 2 ][ 0 ][ "id" ];
+$is_adi			= $aktif_is[ 2 ][ 0 ][ "adi" ];
+$siparis_adet	= $aktif_is[ 2 ][ 0 ][ "siparis_adet" ];
+
+
+/* Aktif iş için belirlenen günlük hedefi bul*/
+$gunluk_hedef	= $vt->select( $SQL_gunnluk_hedef );
+$gunluk_hedef	= $gunluk_hedef[ "2" ][ 0 ][ "gunluk_hedef" ];
+$gecerlilik		= $gunluk_hedef[ "2" ][ 0 ][ "gecerlilik" ];
 
 
 /* Tüm makinaların bilgilerini oku */
@@ -60,6 +105,12 @@ $makinalar = $vt->select( $SQL_makinalar );
 	font-family:'digital-clock-font';
 }
 
+.badge-number-sum{
+	font-size: 2em;
+	letter-spacing: .2rem;
+	font-family:'digital-clock-font';
+}
+
 @font-face{
  font-family:'digital-clock-font';
  src: url('font/digital-7.ttf');
@@ -73,7 +124,6 @@ $makinalar = $vt->select( $SQL_makinalar );
 			$(".timeline-item").hide(100);
 		}
 	});
-
 
 	$(document).keyup(function(e) {
 		if (e.ctrlKey && e.keyCode == 13) {
@@ -98,19 +148,39 @@ $makinalar = $vt->select( $SQL_makinalar );
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
+				<div class="col-md-4 offset-md-3">
+					<div class="info-box bg-gradient-info mx-auto">
+						<span class="badge bg-secondary badge-number-sum"><br><span id = "toplam">0</span></span>
+
+						<div class="info-box-content">
+							<span class="info-box-number"><h6><?php echo $is_adi; ?></h6></span>
+							<span class="info-box-text">Sipariş Adet : <?php echo number_format( $siparis_adet, 0, '', ',' ); ?></span>
+
+							<div class="progress">
+							<div class="progress-bar" style="width: 1%"></div>
+							</div>
+							<span class="progress-description">
+								<span id = "tamamlanan_yuzde">Tamamlanan : %0</span>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
 				<div class="col-md-4"> 
 					<div class="timeline">
-					
+
 					<?php
 						foreach( $makinalar[ 2 ] as $makina ) {
 						$personel_resim		= !is_null( $makina[ "personel_resim" ] ) ? "resimler/" .  $makina[ "personel_resim" ] : "resimler/resim_yok.jpg";
 						$div_id				= "istasyon_" . $makina[ "id" ];
 						$hedef_id			= "hedef_" . $makina[ "id" ];
 						$tamamlanan_id		= "tamamlanan_" . $makina[ "id" ];
-						
+
 						$hedef_buyuk_id			= "hedef_buyuk_" . $makina[ "id" ];
 						$tamamlanan_buyuk_id	= "tamamlanan_buyuk_" . $makina[ "id" ];
-						
+
 						$son_kesim_saati_id	= "son_kesim_saati_" . $makina[ "id" ];
 					?>
 						<div class="time-label">
@@ -121,7 +191,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 								<img class=" img-circle elevation-2" style="height:35px;" src="<?php echo $personel_resim; ?>">&nbsp;
 								<span class = "pt-3">
 									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
-									<span class="badge bg-secondary badge-number " id = "<?php echo $hedef_id; ?>">0</span>
+									<span class="badge bg-secondary badge-number " id = "<?php echo $hedef_id; ?>"><?php echo $gunluk_hedef; ?></span>
 								</span>
 							</div>
 							<div class="timeline-item" id = "<?php echo $div_id; ?>" style = "display:none;">
@@ -145,12 +215,12 @@ $makinalar = $vt->select( $SQL_makinalar );
 											<ul class="nav flex-column">
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef(Günlük) <span class="float-right badge bg-danger badge-number-detail" id = "<?php echo $tamamlanan_buyuk_id; ?>">0</span>
+													Tamamlanan <span class="float-right badge bg-danger badge-number-detail" id = "<?php echo $tamamlanan_buyuk_id; ?>">0</span>
 													</a>
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Tamamlanan <span class="float-right badge bg-secondary badge-number-detail" id = "<?php echo $hedef_buyuk_id; ?>">0</span>
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail" id = "<?php echo $hedef_buyuk_id; ?>"><?php echo $gunluk_hedef; ?></span>
 													</a>
 												</li>
 											</ul>
@@ -161,7 +231,6 @@ $makinalar = $vt->select( $SQL_makinalar );
 						</div>
 						<br/>
 					<?php } ?>
-		
 					</div>
 				</div>
 			</div>
@@ -185,12 +254,17 @@ $( document ).ready( function() {
 					let tamamlanan		= sonuclar[ i ][ "tamamlanan" ];
 					let son_kesim_saati	= sonuclar[ i ][ "son_kesim_saati" ];
 
-					$( "#hedef_" + makina_id ).text( "890" );
+					//$( "#hedef_" + makina_id ).text( "890" );
 					$( "#tamamlanan_" + makina_id ).text( tamamlanan );
-					$( "#hedef_buyuk_" + makina_id ).text( "890" );
+					//$( "#hedef_buyuk_" + makina_id ).text( "890" );
 					$( "#tamamlanan_buyuk_" + makina_id ).text( tamamlanan );
 					$( "#son_kesim_saati_" + makina_id ).text( son_kesim_saati );
 				}
+				$( "#toplam" ).text( data.toplam );
+				$( "#tamamlanan_yuzde" ).text( "Tamamlanan :  %" + data.tamamlanan_yuzde );
+				let style = "width: " + data.tamamlanan_yuzde + "%";
+				$( ".progress-bar" ).prop( 'style', style );				
+				
 			}
 			,error: function( xhr, status, error ) {
 				console.log( xhr, status, error );

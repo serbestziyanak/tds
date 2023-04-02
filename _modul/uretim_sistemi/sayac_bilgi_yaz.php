@@ -66,14 +66,15 @@ if( $kesim * 1 && $sayac_mac ) {
 	$makina			= $vt->select( $SQL_makina, array( $sayac_cihaz_id ) );
 	$makina_id		= $makina[ 2 ][ 0 ][ "id" ]; 
 	$personel_id	= $makina[ 2 ][ 0 ][ "personel_id" ]; 
-	$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ]; 
-
-	/* İş parçasını günlük iş loglarına ekle */
-	$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
-		 $is_id
-		,$personel_id
-		,$makina_id
-		,$is_parca_id
-	) );
+	$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ];
+	
+	for( $i = 1; $i <= 50; $i++  )
+		/* İş parçasını günlük iş loglarına ekle */
+		$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
+			 $is_id
+			,$personel_id
+			,$makina_id
+			,$is_parca_id
+		) );
 }
 ?>
