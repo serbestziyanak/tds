@@ -5,11 +5,7 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">AnaSayfa</a>
-      </li>
-
-      <li class="nav-item d-sm-inline-block">
+      <!--<li class="nav-item d-sm-inline-block">
         <div class="btn-group">
           <button type="button" class="btn btn-default"><?php echo $_SESSION['firma_adi']; ?></button>
           <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
@@ -26,12 +22,12 @@
         </div>
       </li>
       
-      <!--li class="nav-item d-none d-sm-inline-block">
+      li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">Contact</a>
       </li-->
     </ul>
-    <span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
-    <!--Dönem KAPAT-->
+    <!--<span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
+    Dönem KAPAT
     <form class="form-inline" action = "_modul/puantaj/donemKapat.php" method = "POST">
       <div class="input-group input-group-sm">
         <span class="nav-link">Dönem Kapat</span>
@@ -57,7 +53,7 @@
         </select>&nbsp;
         <button type="submit" class="form-control btn btn-info">Kapat</button>
       </div>
-    </form>
+    </form>-->
     
 
     <!-- Right navbar links -->
@@ -141,6 +137,59 @@
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li-->
+      
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="true">
+          <i class="fas fa-calendar-check"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-2" >
+          <span class="dropdown-item dropdown-header">Dönem Kapat</span>
+          <form class="" action = "_modul/puantaj/donemKapat.php" method = "POST">
+            <div class="form-group">
+              <label class="control-label">Yıl</label>
+              <select name="yil" class="form-control">
+                <option value="2021" <?php echo date("Y") == "2021" ? "selected" : null; ?>>2021</option>
+                <option value="2022" <?php echo date("Y") == "2022" ? "selected" : null; ?>>2022</option>
+                <option value="2023" <?php echo date("Y") == "2023" ? "selected" : null; ?>>2023</option>
+              </select>
+            </div>
+              
+              <?php $ay = date("m"); settype( $ay,"integer");?>
+            <div class="form-group">
+              <label class="control-label">Ay</label>
+              <select name="ay" class="form-control">
+                <option value="1" <?php echo $ay   == "1"  ? "selected" : null; ?>>Ocak</option>
+                <option value="2" <?php echo $ay   == "2"  ? "selected" : null; ?>>Şubat</option>
+                <option value="3" <?php echo $ay   == "3"  ? "selected" : null; ?>>Mart</option>
+                <option value="4" <?php echo $ay   == "4"  ? "selected" : null; ?>>Nisan</option>
+                <option value="5" <?php echo $ay   == "5"  ? "selected" : null; ?>>Mayıs</option>
+                <option value="6" <?php echo $ay   == "6"  ? "selected" : null; ?>>Haziran</option>
+                <option value="7" <?php echo $ay   == "7"  ? "selected" : null; ?>>Temmuz</option>
+                <option value="8" <?php echo $ay   == "8"  ? "selected" : null; ?>>Ağustos</option>
+                <option value="9" <?php echo $ay   == "9"  ? "selected" : null; ?>>Eylül</option>
+                <option value="10" <?php echo $ay  == "10" ? "selected" : null; ?>>Ekim</option>
+                <option value="11" <?php echo $ay  == "11" ? "selected" : null; ?>>Kasım</option>
+                <option value="12" <?php echo $ay  == "12" ? "selected" : null; ?>>Aralık</option>
+              </select>
+            </div>
+              <button type="submit" class="form-control btn btn-info">Kapat</button>
+          </form>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="true">
+          <i class="fas fa-hotel"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-1" >
+          <span class="dropdown-item dropdown-header">Firma Değiştir</span>
+          <?php 
+            $firmalar = $_SESSION['firmalarListesi'];
+            foreach ($firmalar as $firma) {
+              echo '<a class="dropdown-item kisalt" href="_modul/firmaSec.php?firma_id='.$firma["id"].'&firma_adi='.$firma["adi"].'">'.$firma["adi"].'</a>';
+            }
+          ?>
+        </div>
+      </li>
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
@@ -152,5 +201,6 @@
         </a>
       </li>
     </ul>
+        
   </nav>
   <!-- /.navbar -->
