@@ -219,7 +219,7 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 			</div>
 			
 			<div class="form-group">
-				<label  class="control-label">Makina Turu İd</label>
+				<label  class="control-label">Makina Türü</label>
 				<select  class="form-control select2"  name = "makina_turu_id" required>
 					<option value="">Seçiniz</option>
 					<?php foreach( $makinaTurleri as $tur ) { ?>
@@ -239,7 +239,7 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 			</div>
 			
 			<div class="form-group">
-				<label  class="control-label">İş Parça İd</label>
+				<label  class="control-label">İş Parçası</label>
 				<select  class="form-control select2"  name = "is_parca_id" required>
 					<option value="">İş Parçası Seçiniz</option>
 					<?php foreach( $isParcalari as $parca ) { ?>
