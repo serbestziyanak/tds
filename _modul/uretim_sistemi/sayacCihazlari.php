@@ -98,8 +98,8 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 						<tr <?php if( $is[ 'id' ] == $sayacCihaz_id ) echo "class = '$satir_renk'"; ?>>
 							<td><?php echo $sayi++; ?></td>
 							<td><?php echo $is[ 'sayac_mac' ]; ?></td>
-							<td><?php echo $is[ 'sayac_no' ]; ?></td>
 							<td><?php echo $is[ 'ip_adresi' ]; ?></td>
+							<td><?php echo $is[ 'sayac_no' ]; ?></td>
 							<td align = "center">
 								<a modul = 'sayacCihazlari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=sayacCihazlari&islem=guncelle&sayacCihaz_id=<?php echo $is[ 'id' ]; ?>" >
 									Düzenle

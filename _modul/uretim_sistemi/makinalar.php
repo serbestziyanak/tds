@@ -34,13 +34,13 @@ SELECT
 FROM 
 	sayac_sayac_cihazlari
 WHERE
-	firma_id = 2 AND
+	firma_id = ? AND
 	id NOT IN (
 				SELECT 
 					sayac_cihaz_id
 				FROM sayac_makina 
 				WHERE 
-					firma_id = sayac_sayac_cihazlari.firma_id AND 
+					firma_id = sayac_makina.firma_id AND 
 					aktif = 1 
 			) AND
 	aktif 	 = 1
@@ -76,6 +76,25 @@ WHERE
 	firma_id 	= ?
 SQL;
 
+$SQL_personeller = <<< SQL
+SELECT
+	id,
+	CONCAT(adi," " ,soyadi) AS adisoyadi
+FROM 
+	tb_personel
+WHERE
+	firma_id = ? AND
+	id NOT IN (
+				SELECT 
+					personel_id
+				FROM sayac_makina 
+				WHERE 
+					firma_id = sayac_makina.firma_id AND 
+					aktif = 1 
+			) AND
+	aktif 	 = 1
+SQL;
+
 
 $sayacCihaz_id	= array_key_exists( 'sayacCihaz_id', $_REQUEST ) ? $_REQUEST[ 'sayacCihaz_id' ] : 0;
 $islem			= array_key_exists( 'islem', $_REQUEST ) 		 ? $_REQUEST[ 'islem' ] 		: 'ekle';
@@ -85,9 +104,11 @@ $isParcalari	= $vt->select( $SQL_is_parcalari, array( $_SESSION[ "firma_id" ] ) 
 $cihazlar		= $vt->select( $SQL_sayac_cihazlari, array( $_SESSION[ "firma_id" ] ) )[2];
 $makinalar		= $vt->select( $SQL_oku, array( $_SESSION[ "firma_id" ] ) );
 $tekMakina		= $vt->select( $SQL_tekMakina_oku, array( $sayacCihaz_id, $_SESSION[ "firma_id" ] ) );
+$personeller	= $vt->select( $SQL_personeller, array( $_SESSION[ "firma_id" ] ) )[2];
 
 $cihazBilgisi = array(
 	 'id'						=> $sayacCihaz_id > 0 ? $sayacCihaz_id : 0
+	,'personel_id'				=> $sayacCihaz_id > 0 ? $tekMakina[ 2 ][ 0 ][ 'personel_id' ] : ''
 	,'makina_id'				=> $sayacCihaz_id > 0 ? $tekMakina[ 2 ][ 0 ][ 'makina_id' ] : ''
 	,'makina_turu_id'			=> $sayacCihaz_id > 0 ? $tekMakina[ 2 ][ 0 ][ 'makina_turu_id' ] : ''
 	,'makina_seri_no'			=> $sayacCihaz_id > 0 ? $tekMakina[ 2 ][ 0 ][ 'makina_seri_no' ] : ''
@@ -186,6 +207,17 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 			<div class="card-body">
 			<input type = "hidden" name = "sayacCihaz_id" value = "<?php echo $cihazBilgisi[ 'id' ]; ?>">
 			<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
+			
+			<div class="form-group">
+				<label  class="control-label">Personel</label>
+				<select  class="form-control select2"  name = "personel_id" required>
+					<option value=''>Personel Seçiniz</option>
+					<?php foreach( $personeller as $personel ) { ?>
+						<option value = "<?php echo $personel[ 'id' ]; ?>" <?php echo $cihazBilgisi[ 'personel_id' ] == $personel[ 'id' ] ? 'selected' : ''; ?>><?php echo $personel['adisoyadi']; ?></option>
+					<?php } ?>
+				</select>
+			</div>
+
 			<div class="form-group">
 				<label  class="control-label">Makina İd</label>
 				<input autocomplete="off" type="text" class="form-control" name ="makina_id" value = "<?php echo $cihazBilgisi[ 'makina_id' ]; ?>" required placeholder="">
@@ -226,7 +258,7 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 				<select  class="form-control select2"  name = "sayac_cihaz_id" required>
 					<option value=''>Cihaz Numarası Seçiniz</option>
 					<?php foreach( $cihazlar as $cihaz ) { ?>
-						<option value = "<?php echo $cihaz[ 'id' ]; ?>" <?php echo $cihazBilgisi[ 'sayac_cihaz_id' ] == $cihaz[ 'id' ] ? 'selected' : ''; ?>><?php echo $cihaz['ip_adresi']; ?></option>
+						<option value = "<?php echo $cihaz[ 'id' ]; ?>" <?php echo $cihazBilgisi[ 'sayac_cihaz_id' ] == $cihaz[ 'id' ] ? 'selected' : ''; ?>><?php echo $cihaz['sayac_no']; ?></option>
 					<?php } ?>
 				</select>
 			</div>
