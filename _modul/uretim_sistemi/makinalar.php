@@ -217,11 +217,6 @@ $kaydet_buton_cls		= $sayacCihaz_id > 0	? 'btn btn-warning btn-sm pull-right'	: 
 					<?php } ?>
 				</select>
 			</div>
-
-			<div class="form-group">
-				<label  class="control-label">Makina İd</label>
-				<input autocomplete="off" type="text" class="form-control" name ="makina_id" value = "<?php echo $cihazBilgisi[ 'makina_id' ]; ?>" required placeholder="">
-			</div>
 			
 			<div class="form-group">
 				<label  class="control-label">Makina Turu İd</label>
