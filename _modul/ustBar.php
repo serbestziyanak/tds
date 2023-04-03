@@ -5,11 +5,7 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">AnaSayfa</a>
-      </li>
-
-      <li class="nav-item d-sm-inline-block">
+      <!--<li class="nav-item d-sm-inline-block">
         <div class="btn-group">
           <button type="button" class="btn btn-default"><?php echo $_SESSION['firma_adi']; ?></button>
           <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
@@ -26,12 +22,12 @@
         </div>
       </li>
       
-      <!--li class="nav-item d-none d-sm-inline-block">
+      li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">Contact</a>
       </li-->
     </ul>
-    <span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
-    <!--Dönem KAPAT-->
+    <!--<span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
+    Dönem KAPAT
     <form class="form-inline" action = "_modul/puantaj/donemKapat.php" method = "POST">
       <div class="input-group input-group-sm">
         <span class="nav-link">Dönem Kapat</span>
@@ -57,7 +53,7 @@
         </select>&nbsp;
         <button type="submit" class="form-control btn btn-info">Kapat</button>
       </div>
-    </form>
+    </form>-->
     
 
     <!-- Right navbar links -->
@@ -141,6 +137,11 @@
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li-->
+      <li class="nav-item">
+        <a class="nav-link" href="#" role="button">
+        <i class="fa-solid fa-hotel"></i>
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
