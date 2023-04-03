@@ -81,7 +81,8 @@ $siparis_adet	= $aktif_is[ 2 ][ 0 ][ "siparis_adet" ];
 /* Aktif iş için belirlenen günlük hedefi bul*/
 $gunluk_hedef	= $vt->select( $SQL_gunluk_hedef );
 $gunluk_hedef	= $gunluk_hedef[ "2" ][ 0 ][ "gunluk_hedef" ];
-$gecerlilik		= $gunluk_hedef[ "2" ][ 0 ][ "gecerlilik" ];
+$gunluk_hedef	=  number_format( $gunluk_hedef, 0, '', ',' );
+
 
 
 /* Tüm makinaların bilgilerini oku */
@@ -98,12 +99,19 @@ $makinalar = $vt->select( $SQL_makinalar );
 	font-family:'digital-clock-font';
 }
 
+.badge-time{
+	font-size: 1.1em;
+	letter-spacing: .2rem;
+	font-family:'digital-clock-font';
+}
+
 .badge-number-detail{
 	font-size: 1.6em;
 	margin-bottom:5px;
 	letter-spacing: .2rem;
 	font-family:'digital-clock-font';
 }
+
 
 .badge-number-sum{
 	font-size: 2em;
@@ -184,12 +192,13 @@ $makinalar = $vt->select( $SQL_makinalar );
 						$son_kesim_saati_id	= "son_kesim_saati_" . $makina[ "id" ];
 					?>
 						<div class="time-label">
-							<span class="bg-default"><a href = "#" onclick = "istasyonGoster('<?php echo "#" . $div_id; ?>')"> <?php echo $makina[ "personel_adi_soyadi" ]; ?></a></span>
+							<span class="bg-default border"><a href = "#" onclick = "istasyonGoster('<?php echo "#" . $div_id; ?>')"> <?php echo $makina[ "personel_adi_soyadi" ]; ?></a></span>
 						</div>
 						<div>
 							<div>
-								<img class=" img-circle elevation-2" style="height:35px;" src="<?php echo $personel_resim; ?>">&nbsp;
-								<span class = "pt-3">
+								<img class=" img-circle elevation-2" style="height:40px;" src="<?php echo $personel_resim; ?>">&nbsp;
+								<span>
+								
 									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
 									<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span>
 								</span>
