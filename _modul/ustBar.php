@@ -178,7 +178,7 @@
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="true">
-          <i class="fa-solid fa-hotel"></i>
+          <i class="fas fa-hotel"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-1" >
           <span class="dropdown-item dropdown-header">Firma Değiştir</span>
