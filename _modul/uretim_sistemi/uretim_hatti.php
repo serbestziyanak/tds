@@ -11,7 +11,7 @@ Hedef geçerliliği:
 1: İş bitinceye kadar geçerli
 2: Seçilen gün geçerli
 */
-$SQL_gunnluk_hedef = <<<SQL
+$SQL_gunluk_hedef = <<<SQL
 SELECT
 	 sig.gunluk_hedef
 	,sig.gecerlilik
@@ -79,7 +79,7 @@ $siparis_adet	= $aktif_is[ 2 ][ 0 ][ "siparis_adet" ];
 
 
 /* Aktif iş için belirlenen günlük hedefi bul*/
-$gunluk_hedef	= $vt->select( $SQL_gunnluk_hedef );
+$gunluk_hedef	= $vt->select( $SQL_gunluk_hedef );
 $gunluk_hedef	= $gunluk_hedef[ "2" ][ 0 ][ "gunluk_hedef" ];
 $gecerlilik		= $gunluk_hedef[ "2" ][ 0 ][ "gecerlilik" ];
 
@@ -191,7 +191,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 								<img class=" img-circle elevation-2" style="height:35px;" src="<?php echo $personel_resim; ?>">&nbsp;
 								<span class = "pt-3">
 									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
-									<span class="badge bg-secondary badge-number " id = "<?php echo $hedef_id; ?>"><?php echo $gunluk_hedef; ?></span>
+									<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span>
 								</span>
 							</div>
 							<div class="timeline-item" id = "<?php echo $div_id; ?>" style = "display:none;">
@@ -220,7 +220,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 												</li>
 												<li class="nav-item">
 													<a href="#" class="nav-link">
-													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail" id = "<?php echo $hedef_buyuk_id; ?>"><?php echo $gunluk_hedef; ?></span>
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail"><?php echo $gunluk_hedef; ?></span>
 													</a>
 												</li>
 											</ul>
@@ -263,7 +263,7 @@ $( document ).ready( function() {
 				$( "#toplam" ).text( data.toplam );
 				$( "#tamamlanan_yuzde" ).text( "Tamamlanan :  %" + data.tamamlanan_yuzde );
 				let style = "width: " + data.tamamlanan_yuzde + "%";
-				$( ".progress-bar" ).prop( 'style', style );				
+				$( ".progress-bar" ).prop( 'style', style );
 				
 			}
 			,error: function( xhr, status, error ) {

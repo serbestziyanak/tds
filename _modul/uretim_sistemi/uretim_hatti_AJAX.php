@@ -22,24 +22,27 @@ GROUP BY
 	slg.makina_id
 SQL;
 
-$kayitlar	= array();
-$kayit		= array();
 
 $sonuclar = $vt->select( $SQL_is_loglari )[ 2 ];
-$toplam_tamamlanan = 0;
+
+$tamamlananlar = [];
 $siparis_adet = $sonuclar[ 0 ][ "siparis_adet" ];
 
-foreach( $sonuclar as $sonuc ) $toplam_tamamlanan += $sonuc[ "tamamlanan" ];
+foreach( $sonuclar as $sonuc ) {
+	if( $sonuc[ "tamamlanan" ] * 1 > 0 )
+		$tamamlananlar[] = $sonuc[ "tamamlanan" ];
+};
 
-$tamamlanan_yuzde = floor( ( $toplam_tamamlanan * 100 ) / $siparis_adet );
+$tamamlanan = min( $tamamlananlar );
+
+$tamamlanan_yuzde = floor( ( $tamamlanan * 100 ) / $siparis_adet );
 
 
-if ( $toplam_tamamlanan > 1000) {
-	$toplam_tamamlanan = number_format($toplam_tamamlanan, 0, '', ',');
+if( $tamamlanan > 1000 ) {
+	$tamamlanan = number_format( $tamamlanan, 0, '', ',' );
 }
 
 
-
-echo json_encode( array( "sonuclar" => $sonuclar, "toplam" => $toplam_tamamlanan, "tamamlanan_yuzde" => $tamamlanan_yuzde ) );
+echo json_encode( array( "sonuclar" => $sonuclar, "toplam" => $tamamlanan, "tamamlanan_yuzde" => $tamamlanan_yuzde ) );
 
 ?>
