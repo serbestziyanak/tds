@@ -198,7 +198,6 @@ $makinalar = $vt->select( $SQL_makinalar );
 							<div>
 								<img class=" img-circle elevation-2" style="height:40px;" src="<?php echo $personel_resim; ?>">&nbsp;
 								<span>
-								
 									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
 									<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span>
 								</span>
@@ -208,7 +207,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 									<i class="fas fa-clock"></i> <span id = "<?php echo $son_kesim_saati_id; ?>">00:00</span>
 									<button type="button" class="btn btn-tool"><i class="fas fa-times fa-lg" onclick = "istasyonGizle('<?php echo "#" . $div_id; ?>')"></i></button>
 								</span>
-								<h3 class="timeline-header"><a href="#"><?php echo $makina[ "is_parca_adi" ]; ?></a> <?php echo $is_adi; ?></h3>
+								<h3 class="timeline-header"><?php echo $is_adi; ?> - <?php echo $makina[ "is_parca_adi" ]; ?></h3>
 								<div class="timeline-body">
 									<div class="card card-widget widget-user-2">
 										<!-- Add the bg color to the header using any of the bg-* classes -->
@@ -250,6 +249,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 <script>
 
 $( document ).ready( function() {
+	
 	setInterval( function() {
 		$.ajax( {
 			 url		: "_modul/uretim_sistemi/uretim_hatti_AJAX.php"

@@ -12,9 +12,9 @@ SELECT
 	,si.siparis_adet
 FROM
 	sayac_isler AS si
-LEFT JOIN
+JOIN
 	sayac_is_loglari_gunluk AS slg ON si.id = slg.is_id
-LEFT JOIN
+JOIN
 	sayac_makina AS sm ON slg.makina_id = sm.id
 WHERE
 	si.aktif = 1 AND si.bitis_tarihi IS NULL
@@ -25,22 +25,20 @@ SQL;
 
 $sonuclar = $vt->select( $SQL_is_loglari )[ 2 ];
 
-$tamamlananlar = [];
 $siparis_adet = $sonuclar[ 0 ][ "siparis_adet" ];
 
-foreach( $sonuclar as $sonuc ) {
-	if( $sonuc[ "tamamlanan" ] * 1 > 0 )
-		$tamamlananlar[] = $sonuc[ "tamamlanan" ];
-};
 
-$tamamlanan = min( $tamamlananlar );
+$tamamlanan = min( array_column( $sonuclar, "tamamlanan" ) );
 
 $tamamlanan_yuzde = floor( ( $tamamlanan * 100 ) / $siparis_adet );
 
+$tamamlanan = number_format( $tamamlanan, 0, '', ',' );
 
-if( $tamamlanan > 1000 ) {
-	$tamamlanan = number_format( $tamamlanan, 0, '', ',' );
-}
+
+$sonuclar = array_map( function( $dizi ) {
+	$dizi[ "tamamlanan" ] = number_format( $dizi[ "tamamlanan" ], 0, '', ',' );
+	return $dizi;
+}, $sonuclar );
 
 
 echo json_encode( array( "sonuclar" => $sonuclar, "toplam" => $tamamlanan, "tamamlanan_yuzde" => $tamamlanan_yuzde ) );
