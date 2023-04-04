@@ -212,12 +212,9 @@ $makinalar = $vt->select( $SQL_makinalar );
 									<div class="card card-widget widget-user-2">
 										<!-- Add the bg color to the header using any of the bg-* classes -->
 										<div class="widget-user-header bg-success">
-											<div class="widget-user-image">
-												<img class="img-circle elevation-2" src="<?php echo $personel_resim; ?>" alt="User Avatar">
-											</div>
-											<!-- /.widget-user-image -->
-											<h3 class="widget-user-username"><?php echo $makina[ "personel_adi_soyadi" ]; ?></h3>
-											<h5 class="widget-user-desc"><?php echo "#" . $makina[ "sayac_no" ]; ?></h5>
+										
+											<h3><?php echo "#" . $makina[ "sayac_no" ]; ?> <?php echo $makina[ "personel_adi_soyadi" ]; ?></h3>
+										
 										</div>
 										<div class="card-footer p-0">
 											<ul class="nav flex-column">
