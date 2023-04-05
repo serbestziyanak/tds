@@ -77,5 +77,5 @@ if( $kesim * 1 && $sayac_mac ) {
 			,$is_parca_id
 		) );
 }
-echo time();
+echo date('Y-m-d H:i:s');
 ?>
