@@ -129,26 +129,30 @@ $makinalar = $vt->select( $SQL_makinalar );
 <script>
 	$(document).keyup(function(e) {
 		if (e.key === "Escape") {
-			$(".timeline-item").hide(100);
+			$(".timeline-item").hide(50);
 		}
 	});
 
 	$(document).keyup(function(e) {
 		if (e.ctrlKey && e.keyCode == 13) {
-			$(".timeline-item").show(100);
+			if ( $(".timeline-item").is(':visible') ) {
+				$(".timeline-item").hide(50);
+			} else {
+				$(".timeline-item").show(50);
+			}
 		}
 	});
 
 	function istasyonGoster(id){
 		if ( $(id).is(':visible') ) {
-			$(id).hide(100);
+			$(id).hide(50);
 		} else {
-			$(id).show(100);
+			$(id).show(50);
 		}
 	}
 
 	function istasyonGizle(id){
-		$(id).hide(100);
+		$(id).hide(50);
 	}
 </script>
 
@@ -192,14 +196,15 @@ $makinalar = $vt->select( $SQL_makinalar );
 						$son_kesim_saati_id	= "son_kesim_saati_" . $makina[ "id" ];
 					?>
 						<div class="time-label">
-							<span class="bg-default border"><a href = "#" onclick = "istasyonGoster('<?php echo "#" . $div_id; ?>')"> <?php echo $makina[ "personel_adi_soyadi" ]; ?></a></span>
+							<span class="bg-default border" ><a style = "cursor: pointer;" class = "wait" onclick = "istasyonGoster('<?php echo "#" . $div_id; ?>')"> <?php echo $makina[ "personel_adi_soyadi" ]; ?></a></span>
 						</div>
 						<div>
 							<div>
-								<img class=" img-circle elevation-2" style="height:40px;" src="<?php echo $personel_resim; ?>">&nbsp;
+								<img class=" img-circle elevation-2" style="height:40px; height:40px;margin-bottom: px;margin-left: -13px;" src="<?php echo $personel_resim; ?>">&nbsp;&nbsp;&nbsp;
 								<span>
 									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
-									<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span>
+								<!--	<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span> -->
+									<span class="badge bg-warning badge-number">13:45</span>
 								</span>
 							</div>
 							<div class="timeline-item" id = "<?php echo $div_id; ?>" style = "display:none;">
@@ -212,9 +217,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 									<div class="card card-widget widget-user-2">
 										<!-- Add the bg color to the header using any of the bg-* classes -->
 										<div class="widget-user-header bg-success">
-										
-											<h3><?php echo "#" . $makina[ "sayac_no" ]; ?> <?php echo $makina[ "personel_adi_soyadi" ]; ?></h3>
-										
+											<h6><?php echo "#" . $makina[ "sayac_no" ]; ?> <?php echo $makina[ "personel_adi_soyadi" ]; ?></h6>
 										</div>
 										<div class="card-footer p-0">
 											<ul class="nav flex-column">
@@ -234,10 +237,132 @@ $makinalar = $vt->select( $SQL_makinalar );
 								</div>
 							</div>
 						</div>
-						<br/>
 					<?php } ?>
 					</div>
 				</div>
+			
+				<div class="col-md-4"> 
+					<div class="timeline">
+
+					<?php
+						foreach( $makinalar[ 2 ] as $makina ) {
+						$personel_resim		= !is_null( $makina[ "personel_resim" ] ) ? "resimler/" .  $makina[ "personel_resim" ] : "resimler/resim_yok.jpg";
+						$div_id				= "istasyon_" . $makina[ "id" ];
+						$hedef_id			= "hedef_" . $makina[ "id" ];
+						$tamamlanan_id		= "tamamlanan_" . $makina[ "id" ];
+
+						$hedef_buyuk_id			= "hedef_buyuk_" . $makina[ "id" ];
+						$tamamlanan_buyuk_id	= "tamamlanan_buyuk_" . $makina[ "id" ];
+
+						$son_kesim_saati_id	= "son_kesim_saati_" . $makina[ "id" ];
+					?>
+						<div class="time-label">
+							<span class="bg-default border" ><a style = "cursor: pointer;" class = "wait" onclick = "istasyonGoster('<?php echo "#" . $div_id; ?>')"> <?php echo $makina[ "personel_adi_soyadi" ]; ?></a></span>
+						</div>
+						<div>
+							<div>
+								<img class=" img-circle elevation-2" style="height:40px; height:40px;margin-bottom: px;margin-left: -13px;" src="<?php echo $personel_resim; ?>">&nbsp;&nbsp;&nbsp;
+								<span>
+									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
+								<!--	<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span> -->
+									<span class="badge bg-warning badge-number">13:45</span>
+								</span>
+							</div>
+							<div class="timeline-item" id = "<?php echo $div_id; ?>" style = "display:none;">
+								<span class="time">
+									<i class="fas fa-clock"></i> <span id = "<?php echo $son_kesim_saati_id; ?>">00:00</span>
+									<button type="button" class="btn btn-tool"><i class="fas fa-times fa-lg" onclick = "istasyonGizle('<?php echo "#" . $div_id; ?>')"></i></button>
+								</span>
+								<h3 class="timeline-header"><?php echo $is_adi; ?> - <?php echo $makina[ "is_parca_adi" ]; ?></h3>
+								<div class="timeline-body">
+									<div class="card card-widget widget-user-2">
+										<!-- Add the bg color to the header using any of the bg-* classes -->
+										<div class="widget-user-header bg-success">
+											<h6><?php echo "#" . $makina[ "sayac_no" ]; ?> <?php echo $makina[ "personel_adi_soyadi" ]; ?></h6>
+										</div>
+										<div class="card-footer p-0">
+											<ul class="nav flex-column">
+												<li class="nav-item">
+													<a href="#" class="nav-link">
+													Tamamlanan <span class="float-right badge bg-danger badge-number-detail" id = "<?php echo $tamamlanan_buyuk_id; ?>">0</span>
+													</a>
+												</li>
+												<li class="nav-item">
+													<a href="#" class="nav-link">
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail"><?php echo $gunluk_hedef; ?></span>
+													</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					<?php } ?>
+					</div>
+				</div>
+			
+				<div class="col-md-4"> 
+					<div class="timeline">
+
+					<?php
+						foreach( $makinalar[ 2 ] as $makina ) {
+						$personel_resim		= !is_null( $makina[ "personel_resim" ] ) ? "resimler/" .  $makina[ "personel_resim" ] : "resimler/resim_yok.jpg";
+						$div_id				= "istasyon_" . $makina[ "id" ];
+						$hedef_id			= "hedef_" . $makina[ "id" ];
+						$tamamlanan_id		= "tamamlanan_" . $makina[ "id" ];
+
+						$hedef_buyuk_id			= "hedef_buyuk_" . $makina[ "id" ];
+						$tamamlanan_buyuk_id	= "tamamlanan_buyuk_" . $makina[ "id" ];
+
+						$son_kesim_saati_id	= "son_kesim_saati_" . $makina[ "id" ];
+					?>
+						<div class="time-label">
+							<span class="bg-default border" ><a style = "cursor: pointer;" class = "wait" onclick = "istasyonGoster('<?php echo "#" . $div_id; ?>')"> <?php echo $makina[ "personel_adi_soyadi" ]; ?></a></span>
+						</div>
+						<div>
+							<div>
+								<img class=" img-circle elevation-2" style="height:40px; height:40px;margin-bottom: px;margin-left: -13px;" src="<?php echo $personel_resim; ?>">&nbsp;&nbsp;&nbsp;
+								<span>
+									<span class="badge bg-danger badge-number" id = "<?php echo $tamamlanan_id; ?>">0</span>
+								<!--	<span class="badge bg-secondary badge-number"><?php echo $gunluk_hedef; ?></span> -->
+									<span class="badge bg-warning badge-number">13:45</span>
+								</span>
+							</div>
+							<div class="timeline-item" id = "<?php echo $div_id; ?>" style = "display:none;">
+								<span class="time">
+									<i class="fas fa-clock"></i> <span id = "<?php echo $son_kesim_saati_id; ?>">00:00</span>
+									<button type="button" class="btn btn-tool"><i class="fas fa-times fa-lg" onclick = "istasyonGizle('<?php echo "#" . $div_id; ?>')"></i></button>
+								</span>
+								<h3 class="timeline-header"><?php echo $is_adi; ?> - <?php echo $makina[ "is_parca_adi" ]; ?></h3>
+								<div class="timeline-body">
+									<div class="card card-widget widget-user-2">
+										<!-- Add the bg color to the header using any of the bg-* classes -->
+										<div class="widget-user-header bg-success">
+											<h6><?php echo "#" . $makina[ "sayac_no" ]; ?> <?php echo $makina[ "personel_adi_soyadi" ]; ?></h6>
+										</div>
+										<div class="card-footer p-0">
+											<ul class="nav flex-column">
+												<li class="nav-item">
+													<a href="#" class="nav-link">
+													Tamamlanan <span class="float-right badge bg-danger badge-number-detail" id = "<?php echo $tamamlanan_buyuk_id; ?>">0</span>
+													</a>
+												</li>
+												<li class="nav-item">
+													<a href="#" class="nav-link">
+													Hedef(Günlük) <span class="float-right badge bg-secondary badge-number-detail"><?php echo $gunluk_hedef; ?></span>
+													</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					<?php } ?>
+					</div>
+				</div>
+			
 			</div>
 		</div>
 	</section>
@@ -246,7 +371,6 @@ $makinalar = $vt->select( $SQL_makinalar );
 <script>
 
 $( document ).ready( function() {
-	
 	setInterval( function() {
 		$.ajax( {
 			 url		: "_modul/uretim_sistemi/uretim_hatti_AJAX.php"
@@ -270,7 +394,6 @@ $( document ).ready( function() {
 				$( "#tamamlanan_yuzde" ).text( "Tamamlanan :  %" + data.tamamlanan_yuzde );
 				let style = "width: " + data.tamamlanan_yuzde + "%";
 				$( ".progress-bar" ).prop( 'style', style );
-				
 			}
 			,error: function( xhr, status, error ) {
 				console.log( xhr, status, error );
