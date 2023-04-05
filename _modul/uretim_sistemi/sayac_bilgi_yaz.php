@@ -1,4 +1,6 @@
 <?php
+echo date('Y-m-d H:i:s');
+exit;
 include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
@@ -76,5 +78,5 @@ if( $kesim * 1 && $sayac_mac ) {
 			,$is_parca_id
 		) );
 }
-echo date('Y-m-d H:i:s');
+
 ?>
