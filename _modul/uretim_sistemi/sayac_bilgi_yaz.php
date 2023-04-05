@@ -68,7 +68,6 @@ if( $kesim * 1 && $sayac_mac ) {
 	$personel_id	= $makina[ 2 ][ 0 ][ "personel_id" ]; 
 	$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ];
 
-	for( $i = 1; $i <= 50; $i++  )
 		/* İş parçasını günlük iş loglarına ekle */
 		$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
 			 $is_id
