@@ -53,7 +53,7 @@ $MAC_regx = '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/';
 
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
-if ( preg_match( $MAC_regx, $sayac_mac ) ) {
+if ( 1 ) {
 
 	/* Anlık bilgi gönderen cihazın idsini bul */
 	$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
