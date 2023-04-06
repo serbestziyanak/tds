@@ -280,7 +280,7 @@ $( document ).ready( function() {
 				console.log( xhr, status, error );
 			}
 		} );
-	}, 5000 );
+	}, 3000 );
 } );
 
 </script>

@@ -75,6 +75,6 @@ if ( strlen( $sayac_mac ) > 0 ) {
 		,$makina_id
 		,$is_parca_id
 	) );
-echo  $sayac_mac;
+	echo  $sayac_mac;
 }
 ?>
