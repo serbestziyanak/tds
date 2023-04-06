@@ -53,7 +53,7 @@ $MAC_regx = '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/';
 
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
-if ( 1 ) {
+if ( strlen( $sayac_mac ) > 0 ) {
 
 	/* Anlık bilgi gönderen cihazın idsini bul */
 	$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
@@ -75,6 +75,6 @@ if ( 1 ) {
 		,$makina_id
 		,$is_parca_id
 	) );
-	echo date( "H:i:s", time() );
+echo time();
 }
 ?>
