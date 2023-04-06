@@ -76,5 +76,5 @@ if ( preg_match( $MAC_regx, $sayac_mac ) ) {
 		,$is_parca_id
 	) );
 }
-echo time();
+echo date( "H:i:s", time() );
 ?>
