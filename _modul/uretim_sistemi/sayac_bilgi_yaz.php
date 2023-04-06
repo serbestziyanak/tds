@@ -49,7 +49,7 @@ SQL;
 
 
 $sayac_mac	= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : 0;
-$MAC_regx = '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/';
+//$MAC_regx = '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/';
 
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
@@ -75,6 +75,6 @@ if ( strlen( $sayac_mac ) > 0 ) {
 		,$makina_id
 		,$is_parca_id
 	) );
-echo time();
+echo  $sayac_mac;
 }
 ?>
