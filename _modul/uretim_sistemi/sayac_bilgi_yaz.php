@@ -75,6 +75,7 @@ if ( strlen( $sayac_mac ) > 0 ) {
 		,$makina_id
 		,$is_parca_id
 	) );
-	echo date("H:i:s", time());
+	//echo date("H:i:s", time());
+	echo $sayac_mac;
 }
 ?>
