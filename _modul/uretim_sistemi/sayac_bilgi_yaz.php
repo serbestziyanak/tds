@@ -48,8 +48,9 @@ SET
 SQL;
 
 
-$sayac_mac	= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : "";
-//$MAC_regx = '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/';
+$sayac_mac			= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : "";
+$ilk_defa_calisma	= array_key_exists( 'ilk_defa_calisma', $_REQUEST ) ? $_REQUEST[ 'ilk_defa_calisma' ] : "";
+
 
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
@@ -76,6 +77,6 @@ if ( strlen( $sayac_mac ) > 0 ) {
 		,$is_parca_id
 	) );
 	//echo date("H:i:s", time());
-	echo $sayac_mac;
 }
+echo $sayac_mac;
 ?>
