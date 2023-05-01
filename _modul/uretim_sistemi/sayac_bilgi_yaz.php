@@ -72,7 +72,7 @@ if ( strlen( $sayac_mac ) > 0 ) {
 	if( $ilk_defa_calisma == 1 ) {
 		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
 		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
-		echo $kesim_sayisi;
+		echo 33; //$kesim_sayisi;
 	} else {
 		/* Anlık bilgi gönderen cihazın idsini bul */
 		$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
