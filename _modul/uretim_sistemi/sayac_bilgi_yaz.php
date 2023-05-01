@@ -65,41 +65,38 @@ SQL;
 $sayac_mac			= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : "";
 $ilk_defa_calisma	= array_key_exists( 'ilk_defa_calisma', $_REQUEST ) ? $_REQUEST[ 'ilk_defa_calisma' ] * 1 : 0;
 
-if( $ilk_defa_calisma == 1 ) {
-	$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
-	$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ "tamamlanan" ];
-}
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
 if ( strlen( $sayac_mac ) > 0 ) {
+	
+	if( $ilk_defa_calisma == 1 ) {
+		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
+		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ "tamamlanan" ];
+		echo $kesim_sayisi;
+	} else {
+		/* Anlık bilgi gönderen cihazın idsini bul */
+		$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
+		$sayac_cihaz_id	= $cihaz[ 2 ][ 0 ][ "id" ];
 
-	/* Anlık bilgi gönderen cihazın idsini bul */
-	$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
-	$sayac_cihaz_id	= $cihaz[ 2 ][ 0 ][ "id" ];
+		/* Aktif olan işin bilgileri */
+		$aktif_is	= $vt->select( $SQL_aktif_is );
+		$is_id		= $aktif_is[ 2 ][ 0 ][ "id" ];
 
-	/* Aktif olan işin bilgileri */
-	$aktif_is	= $vt->select( $SQL_aktif_is );
-	$is_id		= $aktif_is[ 2 ][ 0 ][ "id" ];
+		/* Makina bilgileri */
+		$makina			= $vt->select( $SQL_makina, array( $sayac_cihaz_id ) );
+		$makina_id		= $makina[ 2 ][ 0 ][ "id" ]; 
+		$personel_id	= $makina[ 2 ][ 0 ][ "personel_id" ]; 
+		$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ];
 
-	/* Makina bilgileri */
-	$makina			= $vt->select( $SQL_makina, array( $sayac_cihaz_id ) );
-	$makina_id		= $makina[ 2 ][ 0 ][ "id" ]; 
-	$personel_id	= $makina[ 2 ][ 0 ][ "personel_id" ]; 
-	$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ];
-
-	$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
-		 $is_id
-		,$personel_id
-		,$makina_id
-		,$is_parca_id
-	) );
-	//echo date("H:i:s", time());
-}
-
-if( $ilk_defa_calisma == 1 ) {
-	echo $kesim_sayisi + 1;
-} else {
-	echo $sayac_mac;
+		$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
+			 $is_id
+			,$personel_id
+			,$makina_id
+			,$is_parca_id
+		) );
+		//echo date("H:i:s", time());
+		echo $sayac_mac;
+	}
 }
 
 ?>
