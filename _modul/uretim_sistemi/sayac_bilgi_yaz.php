@@ -58,7 +58,7 @@ LEFT JOIN
 LEFT JOIN
 	sayac_sayac_cihazlari AS sc ON m.sayac_cihaz_id = sc.id
 WHERE
-	sc.sayac_mac = $1
+	sc.sayac_mac = ?
 SQL;
 
 
@@ -72,7 +72,7 @@ if ( strlen( $sayac_mac ) > 0 ) {
 	if( $ilk_defa_calisma == 1 ) {
 		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
 		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
-		echo 33; //$kesim_sayisi;
+		echo $kesim_sayisi;
 	} else {
 		/* Anlık bilgi gönderen cihazın idsini bul */
 		$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
