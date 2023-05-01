@@ -48,10 +48,27 @@ SET
 SQL;
 
 
+$SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi = <<<SQL
+SELECT
+	FLOOR( COUNT(sc.id) / m.is_basina_sayac_sayisi ) AS tamamlanan
+FROM
+	sayac_is_loglari_gunluk AS ilg
+LEFT JOIN
+	sayac_makina AS m ON ilg.makina_id = m.id
+LEFT JOIN
+	sayac_sayac_cihazlari AS sc ON m.sayac_cihaz_id = sc.id
+WHERE
+	sc.sayac_mac = $1
+SQL;
+
+
 $sayac_mac			= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : "";
-$ilk_defa_calisma	= array_key_exists( 'ilk_defa_calisma', $_REQUEST ) ? $_REQUEST[ 'ilk_defa_calisma' ] : "";
+$ilk_defa_calisma	= array_key_exists( 'ilk_defa_calisma', $_REQUEST ) ? $_REQUEST[ 'ilk_defa_calisma' ] * 1 : 0;
 
-
+if( $ilk_defa_calisma == 1 ) {
+	$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
+	$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ "tamamlanan" ];
+}
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
 if ( strlen( $sayac_mac ) > 0 ) {
@@ -78,5 +95,11 @@ if ( strlen( $sayac_mac ) > 0 ) {
 	) );
 	//echo date("H:i:s", time());
 }
-echo $sayac_mac;
+
+if( $ilk_defa_calisma == 1 ) {
+	echo $kesim_sayisi + 1;
+} else {
+	echo $sayac_mac;
+}
+
 ?>
