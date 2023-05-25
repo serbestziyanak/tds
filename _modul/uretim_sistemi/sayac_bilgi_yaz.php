@@ -72,7 +72,7 @@ if ( strlen( $sayac_mac ) > 0 ) {
 	
 	if( $ilk_defa_calisma == 1 ) {
 		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
-		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
+		$toplam_kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
 		echo $toplam_kesim_sayisi;
 	} else {
 		/* Anlık bilgi gönderen cihazın idsini bul */
@@ -99,7 +99,7 @@ if ( strlen( $sayac_mac ) > 0 ) {
 		}
 		//echo date("H:i:s", time());
 		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
-		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
+		$toplam_kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
 		echo $toplam_kesim_sayisi;
 	}
 }
