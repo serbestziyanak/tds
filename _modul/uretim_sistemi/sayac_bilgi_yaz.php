@@ -62,8 +62,9 @@ WHERE
 SQL;
 
 
-$sayac_mac			= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : "";
-$ilk_defa_calisma	= array_key_exists( 'ilk_defa_calisma', $_REQUEST ) ? $_REQUEST[ 'ilk_defa_calisma' ] * 1 : 0;
+$sayac_mac				= array_key_exists( 'sayac_mac', $_REQUEST ) ? $_REQUEST[ 'sayac_mac' ] : "";
+$kesim_sayisi			= array_key_exists( 'kesim_sayisi', $_REQUEST ) ? $_REQUEST[ 'kesim_sayisi' ] : 0;
+$ilk_defa_calisma		= array_key_exists( 'ilk_defa_calisma', $_REQUEST ) ? $_REQUEST[ 'ilk_defa_calisma' ] * 1 : 0;
 
 
 /* Geçerli bir mac adresi geldiyse işlem yap*/
@@ -72,7 +73,7 @@ if ( strlen( $sayac_mac ) > 0 ) {
 	if( $ilk_defa_calisma == 1 ) {
 		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
 		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
-		echo $kesim_sayisi;
+		echo $toplam_kesim_sayisi;
 	} else {
 		/* Anlık bilgi gönderen cihazın idsini bul */
 		$cihaz			= $vt->select( $SQL_sayac_cihaz, array( $sayac_mac ) );
@@ -88,14 +89,18 @@ if ( strlen( $sayac_mac ) > 0 ) {
 		$personel_id	= $makina[ 2 ][ 0 ][ "personel_id" ]; 
 		$is_parca_id	= $makina[ 2 ][ 0 ][ "is_parca_id" ];
 
-		$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
-			 $is_id
-			,$personel_id
-			,$makina_id
-			,$is_parca_id
-		) );
+		for($i=0;$i<$kesim_sayisi;$i++){
+			$sorgu_sonuc = $vt->insert( $SQL_log_ekle, array(
+				$is_id
+				,$personel_id
+				,$makina_id
+				,$is_parca_id
+			) );
+		}
 		//echo date("H:i:s", time());
-		echo $sayac_mac;
+		$kesim_sayisi_sonuc = $vt->select( $SQL_sayac_cihaz_en_son_tamamlanan_kesim_sayisi, array( $sayac_mac ) );
+		$kesim_sayisi = $kesim_sayisi_sonuc[ 2 ][ 0 ][ "tamamlanan" ]; 
+		echo $toplam_kesim_sayisi;
 	}
 }
 
