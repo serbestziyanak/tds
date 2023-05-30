@@ -17,7 +17,7 @@ JOIN
 JOIN
 	sayac_makina AS sm ON slg.makina_id = sm.id
 WHERE
-	si.aktif = 1 AND si.bitis_tarihi IS NULL
+	sm.aktif = 1 AND si.aktif = 1 AND si.bitis_tarihi IS NULL
 GROUP BY
 	slg.makina_id
 SQL;
