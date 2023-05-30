@@ -251,8 +251,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 
 <script>
 
-$( document ).ready( function() {
-	setInterval( function() {
+function veri_getir() {
 		$.ajax( {
 			 url		: "_modul/uretim_sistemi/uretim_hatti_AJAX.php"
 			,type		: "GET"
@@ -281,7 +280,10 @@ $( document ).ready( function() {
 				console.log( xhr, status, error );
 			}
 		} );
-	}, 3000 );
+	}
+
+$( document ).ready( function() {
+	setInterval( veri_getir, 3000 );
 } );
 
 </script>
