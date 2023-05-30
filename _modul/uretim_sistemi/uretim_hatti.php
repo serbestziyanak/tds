@@ -68,6 +68,7 @@ LEFT JOIN
 	sayac_sayac_cihazlari AS sc ON sm.sayac_cihaz_id = sc.id
 LEFT JOIN
 	sayac_is_parcalari AS ip ON sm.is_parca_id = ip.id
+WHERE sm.aktif = 1
 SQL;
 
 
