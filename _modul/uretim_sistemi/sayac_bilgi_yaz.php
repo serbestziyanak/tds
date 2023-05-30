@@ -57,8 +57,10 @@ LEFT JOIN
 	sayac_makina AS m ON ilg.makina_id = m.id
 LEFT JOIN
 	sayac_sayac_cihazlari AS sc ON m.sayac_cihaz_id = sc.id
+LEFT JOIN
+	sayac_isler AS si ON ilg.is_id = si.id
 WHERE
-	sc.sayac_mac = ?
+	sc.sayac_mac = ? AND si.aktif = 1
 SQL;
 
 
