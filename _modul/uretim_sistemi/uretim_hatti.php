@@ -171,7 +171,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 							<span class="info-box-text">Günlük Hedef : <?php echo $gunluk_hedef; ?></span>
 
 							<div class="progress">
-								<div class="progress-bar" style="width: 1%"></div>
+								<div class="progress-bar" style="width: 50%"></div>
 							</div>
 							<span class="progress-description">
 								<span id = "tamamlanan_yuzde">Tamamlanan : %0</span>
