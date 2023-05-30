@@ -224,14 +224,14 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 																<b><?php echo  $dosya[ "tarih" ] != null ? $fn->tarihFormatiDuzelt( $dosya[ "tarih" ] ) : null; ?></b>
 															</td>
 															<td align = "right" width = "5%">
-																<a href = "personel_ozluk_dosyalari/<?php echo $dosya[ 'dosya' ]; ?>"
+																<button "
 																	modul = 'personelOzlukDosyalari' yetki_islem="goruntule"
 																	data-toggle="tooltip"
 																	data-placement="left"
-																	title="Dosyayı İndir" target="_blank">
-																	<i class = "fa fa-download"></i>
-																	
-																</a>
+																	title="Dosyayı İndir"
+																	onclick="dosyaAc('personel_ozluk_dosyalari','<?php echo $dosya[ 'dosya' ]; ?>',<?php echo $personel_id; ?>)">
+																	<i class = "fa fa-download"></i>	
+																</button>
 															</td>
 															<td align = "right" width = "5%">
 																<a href = "" 
@@ -300,14 +300,15 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
 														</td>
 
 														<td align = "right" width = "5%">
-															<a href = "tutanak/<?php echo $personel_id; ?>/<?php echo $tutanak[ 'dosya' ]; ?>"
+															<button 
 																modul = 'personelOzlukDosyalari' yetki_islem="dosya_indir"
 																data-toggle="tooltip"
 																data-placement="top"
-																title="Dosyayı İndir" target="_blank">
+																title="Dosyayı İndir"
+																onclick="dosyaAc('tutanak','<?php echo $tutanak[ 'dosya' ]; ?>',<?php echo $personel_id; ?>)">
 																<i class = "fa fa-download"></i>
 
-															</a>
+															</button>
 														</td>
 														<td align = "right" width = "5%">
 															<a href = "" 
@@ -450,6 +451,39 @@ foreach( $personel_ozluk_dosyalari as $dosya ) $personel_ozluk_dosyalari_idleri[
             }
 
         })
+	}
+
+	function dosyaAc(tur, dosya_adi, id){
+
+		var  url 		= window.location;
+		var origin		= url.origin;
+		var path		= url.pathname;
+		var yol 		= "";
+
+		path 			= path.split("/");
+		path.pop()
+		birlestir 		= path.filter(kontrol).join("/");
+
+		if (tur == "tutanak"){
+			yol = "tutanak/"+id+"/"+dosya_adi;
+		}else if(tur == "personel_ozluk_dosyalari"){
+			yol = "personel_ozluk_dosyalari/"+dosya_adi;
+		}
+		
+		fileURL = origin+"/"+birlestir+"/"+yol;
+
+		const pdfUrl = fileURL;
+
+		fetch(pdfUrl)
+		.then(response => response.blob())
+		.then(blob => {
+			const pdfUrl = URL.createObjectURL(blob);
+			window.open(pdfUrl, '_blank');
+		});
+	}
+
+	function kontrol( deger ) {
+		return deger != "";
 	}
     
 

@@ -219,7 +219,6 @@ SQL;
 
 $genel_ayarlar                          = $vt->select( $SQL_genel_ayarlar, array( $_SESSION[ "firma_id" ] ) ) [ 2 ][ 0 ];
 
-
 //Yazdırma İşlemi Yapılan Tutanaklar Listesi
 $yazdirilan_gelmeyen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gunluk" ) ) [2];
 $yazdirilan_gecgelen_tutanak_listesi    = $vt->select( $SQL_yazdirilan_tutanak_oku,array( $_SESSION[ "firma_id" ], "gecgelme" ) ) [2];
@@ -238,6 +237,9 @@ $gelmeyenler_listesi                    = $fn->gelmeyenlerListesi( date("Y-m-d")
 $gelenler                               = $fn->gelenler( date("Y-m-d") );
 $mesai_cikmayan                         = $fn->mesaiCikmayan( date("Y-m-d") );
 $izinli_personel                        = $fn->izinliPersonel( date("Y-m-d") );
+
+$suresi_dolmus_kategori                 = $fn->suresiDolmusKategori();
+$suresi_dolmus_dosya                    = $fn->suresiDolmusDosya();
 
 $gelmeyenler_sayisi                     = count( $gelmeyenler );
 $gelenler_sayisi                        = count( $gelenler );
@@ -807,6 +809,113 @@ $toplam_personel_sayisi                 = $gelmeyenler_sayisi + $mesai_cikmayan_
     </div>
 </div>
 <?php } ?>
+
+<!--Süresi Doalcak Firma Dosyaları Başlangıc Kodları-->
+<div class="row">
+    <div class="col-12 col-sm-6">
+        <div class="card  card-tabs">
+            <div class="card-header p-0 pt-1">
+                <ul class="nav nav-pills nav-tabs tab-container" id="custom-tabs-two-tab" role="tablist" style="padding: 10px 0px 15px 0px;">
+                    <li class="pt-2 text-left"><h3 class="card-title"><b>Süresi Dolacak Evraklar</b></h3></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" id="kategori" data-toggle="pill" href="#kategori-tab" role="tab" aria-controls="kategori-tab" aria-selected="false">Kategoriler <b class=" badge bg-warning"><?php echo count( $suresi_dolmus_kategori ); ?></b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="dosya" data-toggle="pill" href="#dosya-tab" role="tab" aria-controls="dosya-tab" aria-selected="false">Dosyalar <b class="badge bg-warning"><?php echo count( $suresi_dolmus_dosya ); ?></b></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body direct-chat-messages" style="height:auto; min-height: 333px; max-height: 530px; ">
+                <div class="tab-content" id="custom-tabs-two-tabContent">
+                    <div class="tab-pane fade active show" id="kategori-tab" role="tabpanel" aria-labelledby="kategori">
+                        <table class="table table-bordered table-hover table-sm dataTable no-footer dtr-inline" id="tbl_gelmeyenler" style="width: 100%;">
+                            <thead>
+                                <th>#</th>
+                                <th>Adı</th>
+                                <th>Konum</th>
+                                <th width="80">Tarih</th>
+                                <th>İşlem</th>
+                            </thead>
+                            <tbody>
+                                <?php $sayi = 1; foreach ($suresi_dolmus_kategori as $evrak) { ?>
+                                    <tr>
+                                        <td width="20"><?php echo $sayi; ?></td>
+                                        <td><?php echo $evrak["adi"]; ?></td>
+                                        <td>
+                                            <?php
+                                                $konum = $fn->kategoriHiyerarsiAdi( $evrak[ "kategori" ] );
+                                                echo $konum == "" ? "Kategori Yok": $konum;
+                                            ?>
+                                        </td>
+                                        <td width="80" class="text-center">
+                                            <?php
+                                                $suanki_tarih 		= date_create(date('Y-m-d'));
+                                                $hatirlanacak_tarih = date_create($evrak[ 'tarih' ]);
+                                                
+                                                    $kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
+                                                    $isaret = $kalan_gun->format("%R") == "+" ? 'Kaldı' : 'Geçti';
+                                                    $renk = $kalan_gun->format("%R") == "+" ? 'success' : 'danger';
+                                                    echo "<span class='text-$renk'>".$kalan_gun->format("%a Gün ").$isaret."</span>";
+                                            ?>
+                                        </td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a modul="firmaDosyalari" yetki_islem="evraklar"  href="?modul=firmaDosyalari&islem=evraklar&ust_id=<?php echo $evrak[ "kategori" ]; ?>&kategori_id=<?php echo $evrak[ "id" ]; ?>&dosyaTuru_id=<?php echo $evrak[ "id" ]; ?>&alt-liste=<?php echo $fn->kategoriHiyerarsiId( $evrak[ "id" ] ); ?>" class="btn btn-warning btn-xs">Evraklar</a>
+                                            <?php } ?>
+                                        </td>
+                                    </tr>
+                                <?php $sayi++; } ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="dosya-tab" role="tabpanel" aria-labelledby="dosya">
+                        <table class="table table-bordered table-hover table-sm dataTable no-footer dtr-inline" id="tbl_gec_gelenler" style="width: 100%;">
+                            <thead>
+                                <th>#</th>
+                                <th>Adı</th>
+                                <th>Konum</th>
+                                <th width="80">Tarih</th>
+                                <th>İşlem</th>
+                            </thead>
+                            <tbody>
+                                <?php $sayi = 1; foreach ($suresi_dolmus_dosya as $evrak) { ?>
+                                    <tr>
+                                        <td width="20"><?php echo $sayi; ?></td>
+                                        <td><?php echo $evrak["adi"]; ?></td>
+                                        <td>
+                                            <?php
+                                                $konum = $fn->kategoriHiyerarsiAdi( $evrak[ "kategori" ] );
+                                                echo $konum == "" ? "Kategori Yok": $konum;
+                                            ?>
+                                        </td>
+                                        <td width="80" class="text-center">
+                                            <?php
+                                                $suanki_tarih 		= date_create(date('Y-m-d'));
+                                                $hatirlanacak_tarih = date_create($evrak[ 'tarih' ]);
+                                                
+                                                    $kalan_gun 			= date_diff($suanki_tarih,$hatirlanacak_tarih);
+                                                    $isaret = $kalan_gun->format("%R") == "+" ? 'Kaldı' : 'Geçti';
+                                                    $renk = $kalan_gun->format("%R") == "+" ? 'success' : 'danger';
+                                                    echo "<span class='text-$renk'>".$kalan_gun->format("%a Gün ").$isaret."</span>";
+                                            ?>
+                                        </td>
+                                        <td width="80">
+                                            <?php if ( $genel_ayarlar[ 'tutanak_olustur' ] == 1 ) { ?>
+                                                <a modul="firmaDosyalari" yetki_islem="evraklar"  href="?modul=firmaDosyalari&islem=evraklar&kategori_id=<?php echo $evrak[ "kategori" ]; ?>&dosyaTuru_id=<?php echo $evrak[ "kategori" ]; ?>&alt-liste=<?php echo $fn->kategoriHiyerarsiId( $evrak[ "kategori" ] ); ?>" class="btn btn-warning btn-xs">Evraklar</a>
+                                            <?php } ?>
+                                        </td>
+                                    </tr>
+                                <?php $sayi++; } ?>                              
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
 <div class="overflow-hidden" id="listeKapsa"></div>
 <style type="text/css">
     .tab-container .nav-link.active{

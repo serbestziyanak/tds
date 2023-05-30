@@ -61,7 +61,7 @@ $moduller = $vt->select( $SQL_modul );
 		</div>
 	</div>
 	<!-- Sidebar Menu -->
-	<nav class="mt-2">
+	<nav class="mt-2" style="padding-bottom: 64px;">
 		<ul class="nav nav-pills nav-sidebar flex-column nav-child-indent nav-flat" data-widget="treeview" role="menu" data-accordion="false">
 		<!-- Add icons to the links using the .nav-icon class
 			   with font-awesome or any other icon font library -->
@@ -132,8 +132,7 @@ $moduller = $vt->select( $SQL_modul );
 		</ul>
 	</nav>
 	</div>
-	<div class="sidebar-custom" style="margin-top: -64px;">
-	<a href="#" class="btn btn-link"><i class="fas fa-cogs"></i></a>
+	<div class="sidebar-custom" style="margin-top: -64px;background-color: #3e444a; position: relative;">
 	<a href="_modul/cikis.php" class="btn btn-danger hide-on-collapse pos-right">Çıkış</a>
 	</div>
 </aside>
