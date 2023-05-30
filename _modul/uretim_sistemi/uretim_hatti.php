@@ -283,6 +283,7 @@ function veri_getir() {
 	}
 
 $( document ).ready( function() {
+	veri_getir();
 	setInterval( veri_getir, 3000 );
 } );
 
