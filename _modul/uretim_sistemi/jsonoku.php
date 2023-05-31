@@ -7,10 +7,10 @@
 
     // Print array
     print_r($json_arr);
-    
-    file_put_contents('mydata.txt', $json_str);
 
-    $file_contents = file_get_contents('mydata.txt');
+    file_put_contents('jsonverisi.txt', $json_str);
+
+    $file_contents = file_get_contents('jsonverisi.txt');
 
     // Print the contents
     echo $file_contents;
