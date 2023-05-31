@@ -7,4 +7,11 @@
 
     // Print array
     print_r($json_arr);
+    
+    file_put_contents('mydata.txt', $json_str);
+
+    $file_contents = file_get_contents('mydata.txt');
+
+    // Print the contents
+    echo $file_contents;
 ?>
