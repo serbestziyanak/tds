@@ -187,7 +187,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 
 					<?php
 						foreach( $makinalar[ 2 ] as $makina ) {
-						$personel_resim		= !is_null( $makina[ "personel_resim" ] ) ? "resimler/" .  $makina[ "personel_resim" ] : "resimler/resim_yok.jpg";
+						$personel_resim		= !is_null( $makina[ "personel_resim" ] ) ? "personel_resimler/" .  $makina[ "personel_resim" ] : "resimler/resim_yok.jpg";
 						$div_id				= "istasyon_" . $makina[ "id" ];
 						$hedef_id			= "hedef_" . $makina[ "id" ];
 						$tamamlanan_id		= "tamamlanan_" . $makina[ "id" ];
