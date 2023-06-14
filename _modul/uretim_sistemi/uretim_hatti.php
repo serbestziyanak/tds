@@ -166,7 +166,7 @@ $makinalar = $vt->select( $SQL_makinalar );
 						<span class="badge bg-secondary badge-number-sum"><br><span id = "toplam">0</span></span>
 
 						<div class="info-box-content">
-							<span class="info-box-number"><h6><?php echo $is_adi; ?></h6></span>
+							<span class="info-box-number"><h6>İş Tanımı : <?php echo $is_adi; ?></h6></span>
 							<span class="info-box-text">Sipariş Adet : <?php echo number_format( $siparis_adet, 0, '', ',' ); ?></span>
 							<span class="info-box-text">Günlük Hedef : <?php echo $gunluk_hedef; ?></span>
 
