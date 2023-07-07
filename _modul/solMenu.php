@@ -4,10 +4,6 @@ $parametreler = parse_url( $URL );
 parse_str( $parametreler[ 'query' ], $parametre );
 $url_modul = $parametre[ 'modul' ];
 
-include "_cekirdek/fonksiyonlar.php";
-$vt = new VeriTabani();
-$fn = new Fonksiyonlar();
-
 
 $SQL_modul = <<<SQL
 SELECT * FROM tb_modul  WHERE menude_goster = 1 AND ust_id = 0  ORDER BY sira

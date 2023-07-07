@@ -21,7 +21,8 @@ $SQL_guncelle 	= "UPDATE tb_giris_cikis SET ";
 
 $SQL_tum_personel_oku = <<< SQL
 SELECT
-	p.*
+	p.id,
+	p.grup_id
 FROM
 	tb_personel AS p
 WHERE
@@ -191,8 +192,8 @@ $genel_ayarlar 			= $vt->select( $SQL_genel_ayarlar, array($_SESSION['firma_id']
 $normal_carpan_id		= $genel_ayarlar[ "normal_carpan_id" ];
 $tatil_mesai_carpan_id	= $genel_ayarlar[ "tatil_mesai_carpan_id" ];
 
-$personel_id 			= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $personeller 			= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'] ) )[ 2 ];
+$personel_id 			= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 $tek_personel 			= $vt->select($SQL_tek_personel_oku, array( $personel_id, $_SESSION['firma_id'] ) )[ 2 ];
 
 $___islem_sonuc  		= array( 'hata' => false, 'mesaj' => 'İşlem Başarılı');
@@ -207,6 +208,7 @@ if ( count( $tek_personel )   < 1  ) {
 }
 
 $SQL_ekle				.= implode( ' = ?, ', $alanlar ) . ' = ?';
+$SQL_ekle				.= ", grup_id = ? ";
 
 $SQL_guncelle 			.= implode( ' = ?, ', $alanlar ) . ' = ?';
 $SQL_guncelle			.= " WHERE aktif = 1 AND id = ?";
@@ -225,26 +227,39 @@ switch( $islem ) {
 			foreach ($personeller as $personel) {
 				$i = 1;
 				$tarih 					= $baslangicSaat[0];
-				$degerler[] 			= $tarih;
 				$degerler[] 			= $personel["id"];
+				$degerler[] 			= $tarih;
+				$degerler[] 			= $personel["grup_id"];
 				while ($i <= $ikiTarihArasindakFark) {
 					$sonuc 				= $vt->insert( $SQL_ekle, $degerler );
-					$tarih				= date('Y-m-d', strtotime($tarih . ' +1 day'));
+					
+					$tarihAl 	= date( "Y-m", strtotime( $tarih ) );
+					$sayiAl 	= intval(date( "d", strtotime( $tarih ) ));
+
+					$hesapla 	= $fn->puantajHesapla(  $personel["id"], $tarihAl, $sayiAl, $personel["grup_id"], array(), $tatil_mesai_carpan_id, $normal_carpan_id );
+
+					/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
+					$fn->puantajKaydet( $personel["id"],$tarihAl, $sayiAl, $hesapla);
+					
+					$tarih				= date( 'Y-m-d', strtotime($tarih . ' +1 day') );
 					array_pop($degerler);
 					array_pop($degerler);
-					$degerler[] 		= $tarih;
+					array_pop($degerler);
 					$degerler[] 		= $personel["id"];
+					$degerler[] 		= $tarih;
+					$degerler[] 		= $personel["grup_id"];
 					$i++;
+
 				}
 				array_pop($degerler);
 				array_pop($degerler);
+				array_pop($degerler);
 			}
-
-			$_SESSION['anasayfa_durum'] = 'guncelle';
-
+			$gelenTarih = $baslangicSaat[0];
 		}else{
 			$i = 1;
 			$degerler[] 		= $baslangicSaat[0]; // Tarih Alanına Deger Atıyoruz
+			$degerler[] 		= $tek_personel[ 0 ][ 'grup_id' ];
 
 			while ($i <= $ikiTarihArasindakFark) {
 				$sonuc 			= $vt->insert( $SQL_ekle, $degerler );
@@ -253,19 +268,23 @@ switch( $islem ) {
 				$tarihAl 	= date( "Y-m", strtotime( $gelenTarih ) );
 				$sayi 		= date( "d", strtotime( $gelenTarih ) );
 
-				$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarihAl, $sayi, $tek_personel[ 0 ][ 'grup_id' ], array(), $tatil_mesaisi_carpan_id, $normal_carpan_id );
+				$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarihAl, $sayi, $tek_personel[ 0 ][ 'grup_id' ], array(), $tatil_mesai_carpan_id, $normal_carpan_id );
 
 				/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
 				$fn->puantajKaydet( $personel_id, $tarih ,$sayi, $hesapla);
-
+				
 				$baslangicSaat[0] 	= date('Y-m-d', strtotime($baslangicSaat[0] . ' +1 day'));
+
+				array_pop($degerler);
 				array_pop($degerler);
 				$degerler[] 		= $baslangicSaat[0];
+				$degerler[] 		= $tek_personel[ 0 ][ 'grup_id' ];
 				$i++;
 			}
-			$_SESSION['anasayfa_durum'] = 'guncelle';
-		}
+			$gelenTarih = "$tarihAl-$sayi";
 
+		}
+		
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
 	break;
@@ -361,17 +380,31 @@ switch( $islem ) {
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 	break;
 	case 'sil':
-		$giris_cikis_varmi = $vt->select( $SQL_giris_cikis_oku, array( $giriscikis_id, $personel_id ) );
+		$giris_cikis_varmi = $vt->select( $SQL_giris_cikis_oku, array( $giriscikis_id, $personel_id ) )[2];
+
 		if ( count( $giris_cikis_varmi ) > 0 ) {
 			$sonuc = $vt->delete( $SQL_sil, array( $_SESSION['kullanici_id'], $giriscikis_id ) );
-			$_SESSION['anasayfa_durum'] = 'guncelle';
+			
+			$gelenTarih = $giris_cikis_varmi[0][ 'tarih' ];
+
+			/*Puantaj Tekrar Hesaplanacak*/
+			$tarih 	= date('Y-m', strtotime( $giris_cikis_varmi[0][ 'tarih' ] ) );
+			$sayi 	= date('d', strtotime( $giris_cikis_varmi[0][ 'tarih' ] ) );
+			
+			$hesapla 	= $fn->puantajHesapla(  $personel_id, $tarih, $sayi, $tek_personel[0][ 'grup_id' ],array(),$tatil_mesai_carpan_id,$normal_carpan_id);
+			/*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
+			$fn->puantajKaydet( $personel_id, $tarih ,$sayi, $hesapla);
 		}
 		
 	break;
 }
 $vt->islemBitir();
+
+
+$tarih = "&tarih=".date('Y-m',strtotime($gelenTarih)); 
+
 $_SESSION[ 'anasayfa_durum' ] = 'guncelle';
 $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $personel_id;
-header( "Location:../../index.php?modul=giriscikis&personel_id=".$personel_id );
+header( "Location:../../index.php?modul=giriscikis&personel_id=".$personel_id.$tarih );
 ?>

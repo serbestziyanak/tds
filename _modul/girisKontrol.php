@@ -40,6 +40,24 @@ if( !$sorguSonuc[ 0 ] ) {
 		$_SESSION[ 'yil' ]				= date('Y');
 		$_SESSION[ 'super' ]			= $kullaniciBilgileri[ 'super' ];
 		$_SESSION[ 'firmalar' ]			= explode(",",$kullaniciBilgileri[ "firmalar" ]);
+
+		// "Beni Hatırla" seçeneği işaretlenmiş mi?
+		if (isset($_POST['benihatirla'])) {
+
+			$expire = time() + (180 * 24 * 60 * 60); // 30 günün saniye cinsinden değeri
+
+			// Beni Hatırla çerezi oluştur
+			setcookie('benihatirla', '1', $expire,"/","",false,true);
+
+			//Kullanıcı Bilgilerini Saklama
+			setcookie('kullanici_id', 	$kullaniciBilgileri[ 'id' ], $expire,"/","",false,true);
+
+		} else {
+			// Beni Hatırla çerezi işaretlenmemişse, çerezi sil
+			setcookie('benihatirla', '', time() - 3600); // Geçmiş bir tarih vererek çerezi hemen sileriz
+			setcookie('kullanici_id', '', time() - 3600); // Geçmiş bir tarih vererek çerezi hemen sileriz
+		}
+		
 	} else {
 		$_SESSION[ 'giris_var' ] = 'hayir';
 	}

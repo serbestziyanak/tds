@@ -143,7 +143,7 @@
           <i class="fas fa-calendar-check"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-2" >
-          <span class="dropdown-item dropdown-header">Dönem Kapat</span>
+          <span class="dropdown-item dropdown-header">Dönem Kapat<br><code>(Kapatılan döneme ait, Giriş Çıkış, <br>Tarife ve Avans düzenlenemez.)</code></span>
           <form class="" action = "_modul/puantaj/donemKapat.php" method = "POST">
             <div class="form-group">
               <label class="control-label">Yıl</label>

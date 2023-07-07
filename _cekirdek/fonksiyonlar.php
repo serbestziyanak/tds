@@ -577,7 +577,12 @@ WHERE
 			aktif 			= 1
 	)AND 
 	p.grup_id != ga.beyaz_yakali_personel AND
-	p.aktif = 1 
+	p.aktif = 1 AND
+	p.grup_id IN (
+					SELECT 
+						TRIM(BOTH ',' FROM REPLACE(REGEXP_REPLACE(giris_cikis_denetimi_grubu, ',[[:space:]]+', ','), ',,', ',')) AS denetim_gruplari
+					FROM tb_genel_ayarlar AS ga WHERE ga.firma_id = p.firma_id
+				 )
 
 SQL;
 
@@ -607,7 +612,12 @@ WHERE
 			tip 				= ? 
 	) AND
 	p.grup_id != ga.beyaz_yakali_personel AND
-	p.aktif = 1 
+	p.aktif = 1 AND
+	p.grup_id IN (
+					SELECT 
+						TRIM(BOTH ',' FROM REPLACE(REGEXP_REPLACE(giris_cikis_denetimi_grubu, ',[[:space:]]+', ','), ',,', ',')) AS denetim_gruplari
+					FROM tb_genel_ayarlar AS ga WHERE ga.firma_id = p.firma_id
+				)
 
 SQL;
 
@@ -633,7 +643,12 @@ WHERE
 		ORDER BY gc.id DESC
 	)AND 
 	p.grup_id != ga.beyaz_yakali_personel AND
-	p.aktif = 1 
+	p.aktif = 1 AND
+	p.grup_id IN (
+					SELECT 
+						TRIM(BOTH ',' FROM REPLACE(REGEXP_REPLACE(giris_cikis_denetimi_grubu, ',[[:space:]]+', ','), ',,', ',')) AS denetim_gruplari
+					FROM tb_genel_ayarlar AS ga WHERE ga.firma_id = p.firma_id
+				)
 SQL;
 
 /*Gelenler*/
@@ -659,7 +674,12 @@ WHERE
 		ORDER BY gc.id DESC
 	)AND 
 	p.grup_id != ga.beyaz_yakali_personel AND
-	p.aktif = 1 
+	p.aktif = 1 AND
+	p.grup_id IN (
+					SELECT 
+						TRIM(BOTH ',' FROM REPLACE(REGEXP_REPLACE(giris_cikis_denetimi_grubu, ',[[:space:]]+', ','), ',,', ',')) AS denetim_gruplari
+					FROM tb_genel_ayarlar AS ga WHERE ga.firma_id = p.firma_id
+				)
 SQL;
 
 /**/
@@ -754,6 +774,19 @@ WHERE
 	dt.firma_id 		= ? AND 
 	d.evrakTarihi 		<= DATE_ADD(CURDATE(), INTERVAL 10 DAY) AND
 	d.evrakTarihi 		!= "0000-00-00"
+SQL;
+
+const SQL_kontrol = <<< SQL
+SELECT
+	 k.*
+	,CASE k.super WHEN 1 THEN "Süper" ELSE r.adi END AS rol_adi
+FROM
+	tb_sistem_kullanici AS k
+JOIN
+	tb_roller AS r ON k.rol_id = r.id
+WHERE
+	k.id = ?
+LIMIT 1
 SQL;
 
 	/* Kurucu metod  */
@@ -1184,18 +1217,18 @@ SQL;
 	/* Rakam olarak verilne ayın adını ver*/
 	public function ayAdiVer( $kacinci_ay, $ad_uzunlugu = 0 ) {
 		$aylar = array(
-			 1 =>	array( 'Ocak'		,'Oc.'		)
-			,2 =>	array( 'Şubat'		,'Şub.'		)
-			,3 =>	array( 'Mart'		,'Mar.'		)
-			,4 =>	array( 'Nisan'		,'Nis.'		)
-			,5 =>	array( 'Mayıs'		,'May.'		)
-			,6 =>	array( 'Haziran'	,'Haz.'		)
-			,7 =>	array( 'Temmuz'		,'Tem.'		)
-			,8 =>	array( 'Ağustos'	,'Ağus.'	)
-			,9 =>	array( 'Eylül'		,'Eyl.'		)
-			,10 =>	array( 'Ekim'		,'Ek.'		)
-			,11 =>	array( 'Kasım'		,'Kas.'		)
-			,12 =>	array( 'Aralık'		,'Ara.'		)
+			 1 =>	array( 'Ocak'		,'Oc.'		,"ocak")
+			,2 =>	array( 'Şubat'		,'Şub.'		,"subat")
+			,3 =>	array( 'Mart'		,'Mar.'		,"mart")
+			,4 =>	array( 'Nisan'		,'Nis.'		,"nisan")
+			,5 =>	array( 'Mayıs'		,'May.'		,"mayis")
+			,6 =>	array( 'Haziran'	,'Haz.'		,"haziran")
+			,7 =>	array( 'Temmuz'		,'Tem.'		,"temmuz")
+			,8 =>	array( 'Ağustos'	,'Ağus.'	,"agustos")
+			,9 =>	array( 'Eylül'		,'Eyl.'		,"eylul")
+			,10 =>	array( 'Ekim'		,'Ek.'		,"ekim")
+			,11 =>	array( 'Kasım'		,'Kas.'		,"kasim")
+			,12 =>	array( 'Aralık'		,'Ara.'		,"aralik")
 		);
 		return $aylar[ $kacinci_ay ][ $ad_uzunlugu ];
 	}
@@ -1385,7 +1418,6 @@ SQL;
 
 		/*Tairhin hangi güne denk oldugunu getirdik*/
 		$gun = $this->gunVer($tarih."-".$sayi);
-
 		if( $kapatilmis == 0){
 			/*Belirtilen Tarihe uyan tarifeyi getirdik*/
 			$giris_cikis_saat_getir = $this->vt->select( self::SQL_giris_cikis_saat, array( $tarih."-".$sayi, $tarih."-".$sayi, '%,'.$gun.',%', '%,'.$grup_id.',%' ) ) [ 2 ];
@@ -1890,6 +1922,61 @@ SQL;
 		}
 
 		return $birlestir;
+	}
+
+	public function oturumOlustur( $id ){
+
+		$sorguSonuc = $this->vt->selectSingle( self::SQL_kontrol, array( $id ) );
+		if( !$sorguSonuc[ 0 ] ) {
+			$kullaniciBilgileri	= $sorguSonuc[ 2 ];
+
+			if( $kullaniciBilgileri[ 'id' ] * 1 > 0 ) {
+				$_SESSION[ 'kullanici_id' ]		= $kullaniciBilgileri[ 'id' ];
+				$_SESSION[ 'adi' ]				= $kullaniciBilgileri[ 'adi' ];
+				$_SESSION[ 'soyadi' ]			= $kullaniciBilgileri[ 'soyadi' ];
+				$_SESSION[ 'ad_soyad' ]			= $kullaniciBilgileri[ 'adi' ] . ' ' . $kullaniciBilgileri[ 'soyadi' ];
+				$_SESSION[ 'kullanici_resim' ]	= $kullaniciBilgileri[ 'resim' ];
+				$_SESSION[ 'rol_id' ]			= $kullaniciBilgileri[ 'rol_id' ];
+				$_SESSION[ 'rol_adi' ]			= $kullaniciBilgileri[ 'rol_adi' ];
+				$_SESSION[ 'sube_id' ]			= $kullaniciBilgileri[ 'sube_id' ];
+				$_SESSION[ 'subeler' ]			= $kullaniciBilgileri[ 'subeler' ];
+				$_SESSION[ 'giris' ]			= true;
+				$_SESSION[ 'giris_var' ]		= 'evet';
+				$_SESSION[ 'yil' ]				= date('Y');
+				$_SESSION[ 'super' ]			= $kullaniciBilgileri[ 'super' ];
+				$_SESSION[ 'firmalar' ]			= explode(",",$kullaniciBilgileri[ "firmalar" ]);
+				
+				if( $_COOKIE[ 'firma_id' ] > 0 && $_COOKIE[ 'firma_adi' ] > 0 && array_key_exists($_COOKIE[ 'firma_id' ], $_SESSION[ 'firmalar' ] ) ){
+					$_SESSION[ 'firma_id'] = $_COOKIE[ 'firma_id' ];
+					$_SESSION[ 'firma_adi' ] = $_COOKIE[ 'firma_adi' ];
+				}
+			}
+		}
+
+
+	}
+
+	public function gunSayisi ($istenCikisTarihi, $listelenecekAy, $yil, $ay  ){
+		if( $istenCikisTarihi != "" AND date("Y-m",strtotime($istenCikisTarihi)) == $listelenecekAy  ){
+			/*Personel Çıkış yapmış ve çıkış ayı listelecenek olan aya esit ise çıkış yapmış güne kadar dönder*/
+			$gunSayisi = date("d", strtotime($istenCikisTarihi));	
+		}else if( $istenCikisTarihi != "" AND date( "Y-m", strtotime( $istenCikisTarihi ) ) <= $listelenecekAy ){
+			/*Personel Çıkış Yapmış ve listelecek tarih personelin çıkış tarihinden büyük ise */
+			$gunSayisi =  0;
+		}else if( $istenCikisTarihi != "" AND date( "Y-m",strtotime( $istenCikisTarihi ) ) <= $listelenecekAy ){
+			/*Personel Çıkış Yapmış ve listelecek tarih personelin çıkış tarihinden büyük ise */
+			$gunSayisi = 0;	
+		}else if( $listelenecekAy > date( "Y-m" ) ){
+			/*Suanki tarih listelecen aydan daha */
+			$gunSayisi = 0;	
+		}else if( $listelenecekAy == date( "Y-m" ) ){
+			/*Suanki tarih listelecen aydan daha */
+			$gunSayisi = date( "d" );	
+		}else{
+			$gunSayisi = date("t",mktime(0,0,0,$ay,01,$yil));	
+		}
+
+		return intval($gunSayisi);
 	}
 
 }

@@ -12,6 +12,9 @@ if ( session_status() == PHP_SESSION_NONE ) {
 		$_SESSION['yil'] = $_REQUEST['sistem_yil'];
 	}
 
+	include "_cekirdek/fonksiyonlar.php";
+	$vt = new VeriTabani();
+	$fn = new Fonksiyonlar();
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -152,66 +155,74 @@ WHERE
 	modul = ?
 SQL;
 
+
+	if( $_COOKIE[ 'benihatirla' ] == 1 && $_COOKIE[ 'kullanici_id' ] > 0 ){
+
+		$fn->oturumOlustur( $_COOKIE[ 'kullanici_id' ] );
+		
+	}
+
 	if( array_key_exists( 'giris_var', $_SESSION ) && $_SESSION[ 'giris_var' ] == 'evet' ) { ?>
-		<body class="hold-transition sidebar-mini layout-fixed text-sm">
-			<div class="wrapper">
-				<?php include "_modul/ustBar.php"; ?>
-				<?php include "_modul/solMenu.php"; ?>
+				<body class="hold-transition sidebar-mini layout-fixed text-sm">
+					<div class="wrapper">
+						<?php include "_modul/ustBar.php"; ?>
+						<?php include "_modul/solMenu.php"; ?>
 
-				<?php
+						<?php
 
-					if (array_key_exists( 'firma_id', $_SESSION ) ) {
-						if( array_key_exists( 'modul', $_REQUEST ) && isset( $_REQUEST[ 'modul'  ]  ) ) {
-							if( !$fn->yetkiKontrol( $_SESSION[ 'kullanici_id' ], $_REQUEST[ 'modul' ], 'goruntule' ) ) {
-								$modul = 'yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
-							} else {
-								/* Modüllerin bulunduğu klasörler modul ismi ile aynı olmayabileceği için klasor/modul_ismi şeklinde dosyalar include ediliyor.*/
-								$modul_klasor = $vt->select( $SQL_modul_klasor, array( $_REQUEST[ 'modul' ] ) );
-								$modul_klasor = $modul_klasor[ 2 ][ 0 ][ 'klasor' ];
-								$modul  = "_modul/" . $modul_klasor  . "/" . $_REQUEST[ 'modul' ] . ".php";
+							if (array_key_exists( 'firma_id', $_SESSION ) ) {
+								if( array_key_exists( 'modul', $_REQUEST ) && isset( $_REQUEST[ 'modul'  ]  ) ) {
+									if( !$fn->yetkiKontrol( $_SESSION[ 'kullanici_id' ], $_REQUEST[ 'modul' ], 'goruntule' ) ) {
+										$modul = 'yetki_yok_sayfasi/sayfaya_yetkiniz_yok.php';
+									} else {
+										/* Modüllerin bulunduğu klasörler modul ismi ile aynı olmayabileceği için klasor/modul_ismi şeklinde dosyalar include ediliyor.*/
+										$modul_klasor = $vt->select( $SQL_modul_klasor, array( $_REQUEST[ 'modul' ] ) );
+										$modul_klasor = $modul_klasor[ 2 ][ 0 ][ 'klasor' ];
+										$modul  = "_modul/" . $modul_klasor  . "/" . $_REQUEST[ 'modul' ] . ".php";
+									}
+								} else {
+									$modul	= "_modul/anasayfa/anasayfa.php";
+								}						
+							}else{
+								$modul	= "_modul/firmaSec.php";
 							}
-						} else {
-							$modul	= "_modul/anasayfa/anasayfa.php";
-						}						
-					}else{
-						$modul	= "_modul/firmaSec.php";
-					}
 
-					
-				?>
+							
+						?>
 
-			<div class="content-wrapper">
-				<!-- Content Header (Page header) -->
-				<div class="content-header">
-				<div class="container-fluid">
-					<!--div class="row mb-2">
-					<div class="col-sm-6">
-						<h1 class="m-0">Modül Adı</h1>
+					<div class="content-wrapper">
+						<!-- Content Header (Page header) -->
+						<div class="content-header">
+						<div class="container-fluid">
+							<!--div class="row mb-2">
+							<div class="col-sm-6">
+								<h1 class="m-0">Modül Adı</h1>
+							</div>
+							<div class="col-sm-6">
+								<ol class="breadcrumb float-sm-right">
+								<li class="breadcrumb-item"><a href="#">Home</a></li>
+								<li class="breadcrumb-item active">modul_adi</li>
+								</ol>
+							</div>
+							</div-->
+						</div>
+						</div>
+						<!-- /.content-header -->
+
+						<!-- Main content -->
+						<section class="content">
+						<div class="container-fluid">
+							<?php include $modul; ?>
+						</div><!-- /.container-fluid -->
+						</section>
+						<!-- /.content -->
 					</div>
-					<div class="col-sm-6">
-						<ol class="breadcrumb float-sm-right">
-						<li class="breadcrumb-item"><a href="#">Home</a></li>
-						<li class="breadcrumb-item active">modul_adi</li>
-						</ol>
+					<!-- /.content-wrapper -->
+						<?php include "_modul/footer.php" ?>
 					</div>
-					</div-->
-				</div>
-				</div>
-				<!-- /.content-header -->
-
-				<!-- Main content -->
-				<section class="content">
-				<div class="container-fluid">
-					<?php include $modul; ?>
-				</div><!-- /.container-fluid -->
-				</section>
-				<!-- /.content -->
-			</div>
-			<!-- /.content-wrapper -->
-				<?php include "_modul/footer.php" ?>
-			</div>
-		</body>
-	<?PHP } else { include "_modul/giris.php"; } ?>
+				</body>
+	<?php } else { include "_modul/giris.php"; } ?>
+			
 <script>
 $(function () {
 	$(":input").inputmask();

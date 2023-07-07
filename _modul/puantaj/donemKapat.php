@@ -28,7 +28,6 @@ INNER JOIN tb_personel AS p ON p.id = g.personel_id
 WHERE 
     g.tarih     = ? AND 
     p.firma_id  = ?  AND 
-    g.grup_id  IS NOT NULL AND  
     g.aktif     = 1
 GROUP BY g.grup_id
 SQL;
@@ -396,5 +395,5 @@ $vt->islemBaslat();
         $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'Belirtmiş Oldugunuz ay kapatıldı.' ); 
 
         $_SESSION[ 'sonuclar' ] = $___islem_sonuc;
-        //header( "Location:../../index.php?modul=anasayfa");
+        header( "Location:../../index.php?modul=anasayfa");
     }

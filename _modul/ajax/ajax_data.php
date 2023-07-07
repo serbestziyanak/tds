@@ -134,6 +134,12 @@ WHERE
 	il_id = ?
 SQL;
 
+$SQL_tutanak_sil = <<< SQL
+DELETE FROM tb_tutanak
+WHERE 
+	firma_id 	= ? AND 
+	id 			= ? 
+SQL;
 
 $vt = new VeriTabani();
 
@@ -329,6 +335,26 @@ switch( $_POST[ 'islem' ] ) {
 		
 		echo $sonuc;
 	break;
+
+	case "tutanakSil":
+		
+		if($_POST){
+			$id = array_key_exists( 'id', $_REQUEST ) ?  $_REQUEST[ 'id' ] : '';
+			
+			$yetiKontrol = $fn->yetkiKontrol( $_SESSION[ "kullanici_id" ], "anasayfa", "tutanakSil" );
+			if ( $yetiKontrol == 0 ) {
+				echo "0";
+				die;
+			}else{
+				$tutanakSilinenSayi = $vt->delete( $SQL_tutanak_sil, array( $_SESSION["firma_id"], $id ) )[2];
+				echo $tutanakSilinenSayi > 0 ? "1" : "0";
+			}
+		}else{
+			echo "0";
+		}
+
+	break;
+
 	
 
 }

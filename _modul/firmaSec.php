@@ -22,6 +22,10 @@ if (in_array(  $_REQUEST["firma_id"], $firmaListesi)) {
 	$_SESSION[ 'firma_id' ]			= $_REQUEST["firma_id"];
 	$_SESSION[ 'firma_adi' ]		= $_REQUEST["firma_adi"];
 
+	/*Son işlem Yaptığı Firmayı Cerezde Tutma*/
+	setcookie('firma_id', 		$_REQUEST["firma_id"], $expire,"/","",false,true);
+	setcookie('firma_adi', 		$_REQUEST["firma_adi"], $expire,"/","",false,true);
+
 	header( "Location: ../index.php" );
 }?> 
 

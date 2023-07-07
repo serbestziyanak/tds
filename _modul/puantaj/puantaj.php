@@ -33,7 +33,9 @@ SELECT
 FROM
 	tb_personel AS p
 WHERE
-	firma_id = ? AND p.aktif = 1
+	firma_id 	= ? AND 
+	p.aktif 	= 1 AND
+	(isten_cikis_tarihi IS NULL OR DATE_FORMAT(isten_cikis_tarihi,"%Y-%m") >= ?) 
 SQL;
 
 
@@ -47,6 +49,21 @@ SELECT
 	,ok2.adi AS ozel_kod2
 	,u.adi AS uyruk_adi
 	,od.adi AS ogrenim_duzeyi_adi
+	,(SELECT COUNT(id) FROM tb_donem WHERE firma_id = p.firma_id AND aktif = 1 AND ay = ? AND yil = ? ) AS donem
+	,(
+		SELECT 
+			tb_kapatilan_maas.maas
+		FROM 
+			tb_giris_cikis 
+		RIGHT JOIN 
+			tb_kapatilan_maas ON tb_kapatilan_maas.id = tb_giris_cikis.maas
+		WHERE 
+			tb_giris_cikis.personel_id = p.id AND 
+			DATE_FORMAT(tb_giris_cikis.tarih,'%Y-%m') = ?
+		GROUP BY tb_giris_cikis.personel_id
+		ORDER BY tb_giris_cikis.tarih ASC
+		LIMIT 1
+	) AS kapali_maas
 FROM
 	tb_personel AS p
 LEFT JOIN tb_gruplar AS g ON p.grup_id = g.id
@@ -186,8 +203,8 @@ FROM
 WHERE 
 	firma_id 	= ?  AND 
 	yil 		= ? AND
-	ay 		= ? AND 
-	aktif 	= 1 
+	ay 			= ? AND 
+	aktif 		= 1 
 SQL;
 
 /*Genel Ayarlar*/
@@ -200,25 +217,75 @@ WHERE
 	firma_id 	= ?
 SQL;
 
-$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
+//TÜM KAPATILAN ÇARPANLARIN LİSTESİ
+$SQL_kapatilan_carpan_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_kapatilan_carpanlar
+WHERE 
+	firma_id  	= ? AND
+	yil 		= ? AND 
+	ay 			= ? 
+SQL;
+
+/*Personel Grup İdsini Öğrenme*/
+$SQL_personel_grup_id = <<< SQL
+SELECT
+	grup_id
+FROM
+	tb_giris_cikis
+WHERE
+	personel_id = ? AND
+	tarih  		= ? AND
+	aktif 		= 1
+SQL;
+
+$ay 						= $fn->ikiHaneliVer($ay);
+
+$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id'],"$yil-$ay") )[2];
 $personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
 
 $donem						= $vt->select( $SQL_donum_oku, array( $_SESSION["firma_id"], $yil,$ay ) )[ 3 ];
-if ( $donem > 0 AND $detay == null ) {
-	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=kapatilmisDonem&personel_id='.$personel_id.'&tarih='.$tarih.'">';
-	die();
-}
+
 if ( $detay == "tumPersonel" ) {
 	echo '<meta http-equiv="refresh" content="0; url=index.php?modul=tumPersonel&tarih='.$tarih.'">';
 	die();
 }
+$guncel_carpan_listesi = array();
+if ($donem > 0) {
 
+	$carpan_listesi			= $vt->select($SQL_kapatilan_carpan_oku, array($_SESSION["firma_id"], $yil, $ay))[2];
+	foreach ($carpan_listesi as $carpan) {
+		$sorgu .= 'sum(JSON_EXTRACT(calisma, \'$."' . $carpan["eski_id"] . '"\')) AS "' . $carpan["eski_id"] . '",';
+	}
 
-$personeller				= $vt->select( $SQL_tum_personel_oku, array($_SESSION['firma_id']) )[2];
-$personel_id				= array_key_exists( 'personel_id', $_REQUEST ) ? $_REQUEST[ 'personel_id' ] : $personeller[ 0 ][ 'id' ];
+	foreach ($carpan_listesi as $key => $carpan) {
+		$guncel_carpan_listesi[$key]["id"] 		= $carpan["eski_id"];
+		$guncel_carpan_listesi[$key]["adi"] 	= $carpan["adi"];
+		$guncel_carpan_listesi[$key]["carpan"] 	= $carpan["carpan"];
+	}
+	$genel_ayarlar = $donem[2];
+	$genel_ayarlar[0]["normal_carpan_id"] = $donem[2][0]["eski_id"];
+} else {
+
+	/*Firmaya Ait Kullanılan Çarpan Listelerini Cektik*/
+	$carpan_listesi = $vt->select($SQL_carpan_oku, array($_SESSION["firma_id"]))[2];
+	foreach ($carpan_listesi as $carpan) {
+		$sorgu .= 'sum(JSON_EXTRACT(calisma, \'$."' . $carpan["id"] . '"\')) AS "' . $carpan["id"] . '",';
+	}
+
+	foreach ($carpan_listesi as $key => $carpan) {
+		$guncel_carpan_listesi[$key]["id"] 		= $carpan["id"];
+		$guncel_carpan_listesi[$key]["adi"] 	= $carpan["adi"];
+		$guncel_carpan_listesi[$key]["carpan"] 	= $carpan["carpan"];
+	}
+	$genel_ayarlar 	= $vt->select($SQL_genel_ayarlar, array($_SESSION["firma_id"]))[2];
+}
+
 $firma_giris_cikis_tipleri	= $vt->select( $SQL_firma_giris_cikis_tipi,array($_SESSION["firma_id"]))[2];
 $giris_cikislar				= $vt->select( $SQL_tum_giris_cikis, array($personel_id,$listelenecekAy) )[2];
-$tek_personel				= $vt->select( $SQL_tek_personel_oku, array($personel_id) )[ 2 ][ 0 ];
+$tek_personel				= $vt->select( $SQL_tek_personel_oku, array($ay,$yil,$tarih, $personel_id) )[ 2 ][ 0 ];
 $carpan_listesi				= $vt->select( $SQL_carpan_oku, array($_SESSION["firma_id"]) )[ 2 ];
 $genel_ayarlar				= $vt->select( $SQL_genel_ayarlar, array( $_SESSION["firma_id"] ) )[ 2 ];
 
@@ -237,16 +304,23 @@ foreach($giris_cikislar AS $giriscikis){
 
 @$tarihSayisi = max($tarihSayisi) == 0 ? 1: max($tarihSayisi); 
 
+$personel_maas 				= $tek_personel[ 'donem' ] > 0 ? $tek_personel[ 'kapali_maas' ]: $tek_personel[ 'ucret' ];
 
-$aylik_calisma_saati		= $genel_ayarlar[ 0 ][ 'aylik_calisma_saati' ];
-$pazar_kesinti_sayisi		= $genel_ayarlar[ 0 ][ 'pazar_kesinti_sayisi' ];
-$personel_maas 				= $tek_personel[ 'ucret' ];
-$beyaz_yakali_personel 		= $genel_ayarlar[ 0 ][ "beyaz_yakali_personel" ];
-$tatil_mesai_carpan_id 		= $genel_ayarlar[ 0 ][ "tatil_mesai_carpan_id" ];
-$normal_carpan_id 			= $genel_ayarlar[ 0 ][ "normal_carpan_id" ];
+$aylik_calisma_saati 		= $genel_ayarlar[0]["aylik_calisma_saati"];
+$haftalik_calisma_saati 	= $genel_ayarlar[0]["haftalik_calisma_saati"];
+$giris_cikis_denetimi_grubu = $genel_ayarlar[0]["giris_cikis_denetimi_grubu"];
+$pazar_kesinti_sayisi 		= $genel_ayarlar[0]["pazar_kesinti_sayisi"];
+$puantaj_hesaplama_grubu 	= $genel_ayarlar[0]["puantaj_hesaplama_grubu"];
+$beyaz_yakali_personel 		= $genel_ayarlar[0]["beyaz_yakali_personel"];
+$giris_cikis_liste_goster 	= $genel_ayarlar[0]["giris_cikis_liste_goster"];
+$giris_cikis_tutanak_kaydet = $genel_ayarlar[0]["giris_cikis_tutanak_kaydet"];
+$normal_carpan_id 			= $genel_ayarlar[0]["normal_carpan_id"];
+$tatil_mesai_carpan_id 		= $genel_ayarlar[0]["tatil_mesai_carpan_id"];
+$gunluk_calisma_suresi 		= $genel_ayarlar[0]["gunluk_calisma_suresi"];
+$yarim_gun_tatil_suresi 	= $genel_ayarlar[0]["yarim_gun_tatil_suresi"];
 
-$gunluk_calisma_suresi 		= $genel_ayarlar[ 0 ][ "gunluk_calisma_suresi" ];
-$yarim_gun_tatil_suresi 	= $genel_ayarlar[ 0 ][ "yarim_gun_tatil_suresi" ];
+
+
 if ( $beyaz_yakali_personel == $tek_personel[ 'grup_id' ] ) {
 	$beyaz_yakali = "evet";
 }
@@ -382,7 +456,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 									?>
 									<th>İzin</th>
 									<?php 
-										foreach ( $carpan_listesi as $carpan ) {
+										foreach ( $guncel_carpan_listesi as $carpan ) {
 											echo '<th>'.$carpan[ "adi" ].'</th>';
 										}
 									?>
@@ -396,8 +470,9 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 							<tbody>
 								<?php 
 
-									$gunSayisi = $fn->ikiHaneliVer($ay) == date("m") ? date("d") : date("t",mktime(0,0,0,$ay,01,$yil));	
-
+									$gunSayisi = $fn->gunSayisi($tek_personel[ "isten_cikis_tarihi" ], $listelenecekAy, $yil, $ay);
+									
+									
 									/*Günlerin Saymak için*/
 									$sayi = 1; 
 									$genelCalismaSuresiToplami 	= array();
@@ -409,6 +484,8 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 									$ucretsizIzinGun		  	= 0;
 									$mazeretsizGelmeme 	       	= 0;
 									$eksikGun					= 0;
+									$beyazYakaliTatil           = 0;
+
 									while( $sayi <= $gunSayisi ) { 
 										
 										/*Personel Hesaplaması yapılan gün personel işe alınmamış ise hesaplama yapılmayacak*/
@@ -421,8 +498,12 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 											echo "</tr>";
 										}else{
 											$aciklama = '';
+											
+											$grup_id				= $vt->select( $SQL_personel_grup_id, array($personel_id,$listelenecekAy."-".$sayi) )[2][ 0 ]["grup_id"];
 
-											$gunHesapla = $fn->puantajHesapla($personel_id,$tarih,$sayi,$tek_personel["grup_id"],$genelCalismaSuresiToplami,$tatil_mesai_carpan_id,$normal_carpan_id);
+											$grup_id = $grup_id == "" ? $tek_personel[ "grup_id" ] : $grup_id;
+
+											$gunHesapla = $fn->puantajHesapla($personel_id,$tarih,$sayi,$grup_id,$genelCalismaSuresiToplami,$tatil_mesai_carpan_id,$normal_carpan_id, $donem);
 
 											$KullanilanSaatler 			 	= $gunHesapla["KullanilanSaatler"];
 											$kullanilacakMolalar 		 	= $gunHesapla["kullanilacakMolalar"];
@@ -600,7 +681,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 											</td>
 											<?php 
 												//Hangi Carpan Üzerinde Kaç Saat Çalıştığını YAzdırıyoruz
-												foreach ( $carpan_listesi as $carpan ) {
+												foreach ( $guncel_carpan_listesi as $carpan ) {
 													if ( $calisilanToplamDakika[ $carpan[ "id" ] ] > 0 )
 														echo '<td>'.gmdate("H:i", ( $calisilanToplamDakika[ $carpan[ "id" ] ] * 60 ) ).'</td>';
 													else
@@ -622,7 +703,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 																$genelTatil++;
 														}else{
 															echo '-';
-															if ($fn->gunVer($tarih."-".$sayi) == 'Pazar')
+															if ($fn->gunVer($tarih."-".$sayi) == 'Pazar' AND $beyaz_yakali != "evet")
 																$aciklama = 'Ht. Doldrulmadı.';
 														}
 														
@@ -672,12 +753,18 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 													$ToplamKesintiSaati = $calismasiGerekenToplamDakika[$ilkUygulanacakSaat] - $calisilanToplamDakika[$ilkUygulanacakSaat] - $toplamIzin  - $cikarilacakMola;
 													if($tatil == 'evet'){
 														if ( $fn->gunVer( $tarih."-".$sayi ) == 'Pazar' ){
-															if( $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] >= $pazar_kesinti_sayisi  ){
-																$gunlukCalismaSaatiDakikaOlarak = 450;
-																$genelToplamKesintiSuresi += $gunlukCalismaSaatiDakikaOlarak ;
-																echo gmdate("H:i", ( $gunlukCalismaSaatiDakikaOlarak * 60 ) );
+															if( $beyaz_yakali != "evet" ){
+																
+																if( $haftalikGelmeme[ $fn->kacinciHafta( $tarih."-".$sayi ) ] >= $pazar_kesinti_sayisi  ){
+																	$gunlukCalismaSaatiDakikaOlarak = 450;
+																	$genelToplamKesintiSuresi += $gunlukCalismaSaatiDakikaOlarak ;
+																	echo gmdate("H:i", ( $gunlukCalismaSaatiDakikaOlarak * 60 ) );
+																}else{
+																	echo '-';
+																}
 															}else{
 																echo '-';
+																$beyazYakaliTatil++;
 															}
 														}
 													}else{
@@ -696,37 +783,57 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 											<td><?php echo $aciklama; ?></td>
 											
 										</tr>
-									<?php 
-										
-										}
-										$sayi++;
+										<?php 
+											$toplam_normal_calisma_suresi += $calisilanToplamDakika[ $normal_carpan_id ];
+											}
+											$sayi++;
 									} 
-									
-									if( $gunSayisi == 31 AND $saatlikHesapla == 1){
-										$eksikGun 	-= 1;
-									}
+										
+										if( $gunSayisi == 31 AND $saatlikHesapla == 1){
+											$eksikGun 	-= 1;
+										}
+										//Normal Çalışma Suresini Ayarladık
+										if ( intval( $gunSayisi ) < 30 ){
+											$normalCalismaSuresi 							= $toplam_normal_calisma_suresi;
+										}else if( intval( $gunSayisi ) < 30 AND date("Y-m") == $listelenecekAy   ){
+											$normalCalismaSuresi 							= $toplam_normal_calisma_suresi;
+										}else{
+											$normalCalismaSuresi 							= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi )-( $eksikGun * $gunluk_calisma_suresi );
+										}
+										$genelCalismaSuresiToplami[ $normal_carpan_id ] 	= $normalCalismaSuresi;
 
-									//Normal Çalışma Suresini Ayarladık
-									$normalCalismaSuresi 								= (($aylik_calisma_saati * 60) - $tatilGunleriToplamDakika - $genelToplamKesintiSuresi )-( $eksikGun * $gunluk_calisma_suresi );
-									$genelCalismaSuresiToplami[ $normal_carpan_id ] 	= $normalCalismaSuresi;
-									
-								?>
+										if( $tek_personel[ "isten_cikis_tarihi" ] != "" ){
+											$saatlikHesapla = 1;
+										}
+										
+									?>
 							</tbody>
 							<tfoot>
 								<?php 
 									/*Giriş Çıkış Sayısının 2 katı kadar sütun oluşşturuyoruz ve sabit 3 tane sutun ile birleştiriyoruz */
 									$tarihSayisi = $tarihSayisi == 0 ? 1 : $tarihSayisi; 
 									$birlestirilecekSutunSayisi = 3 + ( $tarihSayisi  * 2 );
+
+									if ( $beyaz_yakali == "evet" ){
+
+										$normalGun 		  	=  $gunSayisi - $beyazYakaliTatil;
+										$haftaTatili	 	= $beyazYakaliTatil;
+										$mazeretsizGelmeme	= 0;
+
+
+									}
+
+
+
 								?>
 
 								<th colspan=" <?php echo $birlestirilecekSutunSayisi; ?> "> Toplam:</th>
 
 								<?php
 									/*Hangi Çarpanda Ne kadar Çalıştığını Hesaplıyoruz*/
-									foreach ( $carpan_listesi as $carpan ) {
+									foreach ( $guncel_carpan_listesi as $carpan ) {	
 										echo '<th>'.$fn->dakikaSaatCevirString( $genelCalismaSuresiToplami[ $carpan[ "id" ] ] ).'</th>';
 									}
-
 									/*Genel ve Hafta Tatili Toplam Saat Hesaplama*/
 									echo '<th>'.$fn->dakikaSaatCevirString( $tatilGunleriToplamDakika ).'</th>';
 
@@ -743,6 +850,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 								<th></th>
 							</tfoot>
 						</table>
+						
 					</div>
 				</div>
 			</div>	
@@ -752,140 +860,159 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 <div >
 	<div id="ciktiAlt">
 		<hr>
-		<div class="col-sm-3 float-left bilgiTablosu" modul="puantaj" yetki_islem="goruntule">
-			<table class="table">
+		<div class="col-sm-3 float-left " modul="puantaj" yetki_islem="goruntule">
+			<table class="table table-bordered puantajDetay ">
 				<tr>
-					<th width="80%">Açıklama</th>
-					<th>Gün</th>
+					<th width="66%">Açıklama</th>
+					<th class="text-right">Gün</th>
 				</tr>
 				<tr>
 					<td>Normal Gün</td>
-					<td><?php echo $normalGun; ?></td>
+					<td class="text-right"><?php echo $normalGun; ?></td>
 				</tr>
 				<tr>
 					<td>Hafta Tatili</td>
-					<td><?php echo $haftaTatili ?></td>
+					<td class="text-right"><?php echo $haftaTatili ?></td>
 				</tr>
 				<tr>
 					<td>Genel Tatil</td>
-					<td><?php echo $genelTatil; ?></td>
+					<td class="text-right"><?php echo $genelTatil; ?></td>
 				</tr>
 				<tr>
 					<td>Ücretli İzin</td>
-					<td><?php echo $ucretliIzinGun; ?></td>
+					<td class="text-right"><?php echo $ucretliIzinGun; ?></td>
 				</tr>
 				<tr>
 					<td>Ücretsiz İzin</td>
-					<td><?php echo $ucretsizIzinGun; ?></td>
+					<td class="text-right"><?php echo $ucretsizIzinGun; ?></td>
 				</tr>
 				<tr>
 					<td>M.siz Gelmeme</td>
-					<td><?php echo $mazeretsizGelmeme; ?></td>
+					<td class="text-right"><?php echo $mazeretsizGelmeme; ?></td>
 				</tr>
 				<tr>
 					<td>Hak Ediş Günü</td>
-					<td><?php echo ( $normalGun + $haftaTatili + $genelTatil + $ucretliIzinGun ); ?></td>
+					<td class="text-right"><?php echo ( $normalGun + $haftaTatili + $genelTatil + $ucretliIzinGun ); ?></td>
 				</tr>
 				
 			</table>
 		</div>
-		<div class="col-sm-3 float-left bilgiTablosu">
-			<table class="table">
+		<div class="col-sm-3 float-left ">
+			<table class="table table-bordered puantajDetay">
 				<tr>
-					<th width="70%">Açıklama</th>
-					<th>Saat</th>
+					<th width="66%">Açıklama</th>
+					<th class="text-right">Saat</th>
 				</tr>
 
 				<?php 
 					foreach ( $carpan_listesi as $carpan ) {
 						echo "<tr>
 							<td>$carpan[adi]</td>
-							<td>".($fn->dakikaSaatCevir( $genelCalismaSuresiToplami[$carpan['id']]))."</td>
+							<td class='text-right'>".($fn->dakikaSaatCevir( $genelCalismaSuresiToplami[$carpan['id']]))."</td>
 						</tr>";
 					}
 				?>
 				<tr>
 					<td>Ücretli İzin</td>
-					<td><?php echo $fn->dakikaSaatCevir( $izin[ 'ucretli' ] ); ?></td>
+					<td class="text-right"><?php echo $fn->dakikaSaatCevir( $izin[ 'ucretli' ] ); ?></td>
 				</tr>
 				<tr>
 					<td>Ücretsiz İzin</td>
-					<td><?php echo $fn->dakikaSaatCevir( $izin[ 'ucretsiz' ] ) ?></td>
+					<td class="text-right"><?php echo $fn->dakikaSaatCevir( $izin[ 'ucretsiz' ] ) ?></td>
 				</tr>
 				<tr>
 					<td>Toplam Kesinti</td>
-					<td><?php echo $fn->dakikaSaatCevir( $genelToplamKesintiSuresi ); ?></td>
+					<td class="text-right"><?php echo $fn->dakikaSaatCevir( $genelToplamKesintiSuresi ); ?></td>
 				</tr>
 				<tr>
 					<td>Hakediş</td>
-					<td><?php echo $fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ $ilkUygulanacakSaat ] + $izin[ 'ucretli' ] + $tatilGunleriToplamDakika ); ?></td>
+					<td class="text-right"><?php echo $fn->dakikaSaatCevir( $genelCalismaSuresiToplami[ $ilkUygulanacakSaat ] + $izin[ 'ucretli' ] + $tatilGunleriToplamDakika ); ?></td>
 				</tr>
-				
-				
 			</table>
 		</div>
-		<div class="col-sm-3 float-left bilgiTablosu">
-			<table class="table">
+		<div class="col-sm-3 float-left ">
+			<table class="table table-bordered puantajDetay">
 				<tr>
-					<th width="70%">Açıklama</th>
-					<th>Birim (TL)</th>
+					<th width="66%">Açıklama</th>
+					<th class="text-right">Birim (TL)</th>
 				</tr>
 				<tr>
 					<td>Bordro</td>
-					<td><?php  echo $fn->parabirimi( $personel_maas ); ?></td>
+					<td class="text-right"><?php  echo $fn->parabirimi( $personel_maas ); ?></td>
 				</tr>
 				<tr>
 					<td>Günlük</td>
-					<td><?php echo  $fn->parabirimi( $personel_maas / 30 );  ?></td>
+					<td class="text-right"><?php echo  $fn->parabirimi( $personel_maas / 30 );  ?></td>
 				</tr>
 				<tr>
 					<td>Saat</td>
-					<td><?php echo  $fn->parabirimi( $personel_maas / $aylik_calisma_saati );  ?></td>
+					<td class="text-right"><?php echo  $fn->parabirimi( $personel_maas / $aylik_calisma_saati );  ?></td>
 				</tr>
 				<tr>
 					<td>%50</td>
-					<td><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 );  ?></td>
+					<td class="text-right"><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 );  ?></td>
 				</tr>
 				<tr>
 					<td>%100</td>
-					<td><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 2.0 );  ?></td>
+					<td class="text-right"><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 2.0 );  ?></td>
 				</tr>
 				<tr>
 					<td>T. Mesai</td>
-					<td><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 );  ?></td>
+					<td class="text-right"><?php echo  $fn->parabirimi( ( $personel_maas / $aylik_calisma_saati ) * 1.5 );  ?></td>
 				</tr>
 			</table>
 		</div>
-		<div class="col-sm-3 float-left bilgiTablosu">
-			<table class="table">
+		<div class="col-sm-3 float-left ">
+			<table class="table table-bordered puantajDetay">
 				<tr>
-					<th width="70%">Açıklama</th>
-					<th>Ücret (TL)</th>
+					<th width="66%">Açıklama</th>
+					<th class="text-right">Ücret (TL)</th>
 				</tr>
 				<tr>
 					<td>Normal Çalışma</td>
-					<td>
+					<td class="text-right">
 						<?php
-							if( $saatlikHesapla == 1 ){
-								$normalCalismaUcret = ($personel_maas / $aylik_calisma_saati / 60 ) * ( $normalCalismaSuresi + $tatilGunleriToplamDakika + $ucretliIzinGenelToplam ) * 1 ;	
-						
+	
+							if( $saatlikHesapla == 1 OR ( intval( date( "d" ) ) < 30 AND date("Y-m") == $listelenecekAy )){
+
+								if ($tek_personel[ 'grup_id' ] == $beyaz_yakali_personel){
+
+									$normalCalismaUcret = ( $personel_maas / 30 ) * ( $normalGun + $haftaTatili + $ucretliIzinGun );
+								}else{
+									$normalCalismaUcret = ($personel_maas / $aylik_calisma_saati / 60 ) * ( $normalCalismaSuresi + $tatilGunleriToplamDakika + $ucretliIzinGenelToplam ) * 1 ;	
+								}
 							}else{
 								$normalCalismaUcret = $personel_maas;
 							}
 							echo $fn->parabirimi( $normalCalismaUcret ); 
 							
-							?>
+						?>
 					</td>
 				</tr>
 				<tr>
 					<td>Gelmeme Kesintisi</td>
-					<td><?php echo  $gelmeme_kesintisi = $fn->parabirimi( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );  ?></td>
+					<td class="text-right">
+						<?php 
+							if ($tek_personel[ 'grup_id' ] == $beyaz_yakali_personel){
+								echo $gelmeme_kesintisi = $fn->parabirimi(0);
+							}else{
+								echo  $gelmeme_kesintisi = $fn->parabirimi( ( ( $personel_maas / $aylik_calisma_saati) / 60 ) * $genelToplamKesintiSuresi );  
+							}
+						?>
+					</td>
 				</tr>
 				<tr>
 					<td>Normal Hakediş</td>
-					<td>	
+					<td class="text-right">	
 						<?php
-							$normalHakedis = ($personel_maas / $aylik_calisma_saati / 60 ) * ( $normalCalismaSuresi + $tatilGunleriToplamDakika + $ucretliIzinGenelToplam ) * 1;
+
+							if( $saatlikHesapla == 1 OR ( intval( date( "d" ) ) < 30 AND date("Y-m") == $listelenecekAy )){
+								
+								$normalHakedis = $normalCalismaUcret;
+								
+							}else{
+								$normalHakedis = $normalCalismaUcret -  $gelmeme_kesintisi > 0 ? $normalCalismaUcret -  $gelmeme_kesintisi: 0;
+							}
 						 	echo $fn->parabirimi( $normalHakedis ); 
 						 ?>
 						 
@@ -893,7 +1020,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 				</tr>
 				<tr>
 					<td>Mesai Kazancı</td>
-					<td>
+					<td class="text-right">
 						<?php
 							
 							$mesaiKazanci = 0;
@@ -908,19 +1035,19 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 				</tr>
 				<tr>
 					<td>Ek Ödeme Toplamı</td>
-					<td><?php echo $fn->parabirimi( $kazanilan[ "toplamTutar" ] ); ?></td>
+					<td class="text-right"><?php echo $fn->parabirimi( $kazanilan[ "toplamTutar" ] ); ?></td>
 				</tr>
 				<tr>
 					<td>Ek Kesinti Toplamı</td>
-					<td><?php echo $fn->parabirimi( $kesinti[ "toplamTutar" ] ); ?></td>
+					<td class="text-right"><?php echo $fn->parabirimi( $kesinti[ "toplamTutar" ] ); ?></td>
 				</tr>
 				<tr>
 					<td>Avans Toplamı</td>
-					<td></td>
+					<td class="text-right"></td>
 				</tr>
 				<tr>
 					<td>Borç Tutarı</td>
-					<td>
+					<td class="text-right">
 						<?php
 							$sonuc = $normalHakedis + $mesaiKazanci +$kazanilan[ "toplamTutar" ] - $kesinti[ "toplamTutar" ];
 							echo  $fn->parabirimi($sonuc < 0 ? $sonuc : 0);
@@ -929,7 +1056,7 @@ $sutunSayisi 	= $carpanSayisi + ( 2 * $tarihSayisi ) + 6;
 				</tr>
 				<tr>
 					<td>Ödeme Tutarı</td>
-					<td id="odemeTutari"><?php echo  $fn->parabirimi($sonuc > 0 ? $sonuc : 0); ?></td>
+					<td id="odemeTutari" class="text-right"><?php echo  $fn->parabirimi($sonuc > 0 ? $sonuc : 0); ?></td>
 				</tr>
 			</table>
 		</div>

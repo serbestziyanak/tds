@@ -30,7 +30,6 @@ foreach( $_REQUEST as $alan => $deger ) {
 	$tarih_alani = explode( '-', $alan );
 	if( $tarih_alani[ 0 ] == 'tarihalani' ) {
 		$alan 	= $tarih_alani[ 1 ];
-		$deger	= date( 'Y-m-d', strtotime( $deger ) );
 		$alan = $tarih_alani[ 1 ];
 		if( $deger == '' ) $deger = NULL;
 		else $deger	= date( 'Y-m-d', strtotime( $deger ) );

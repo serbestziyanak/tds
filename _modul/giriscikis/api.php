@@ -10,7 +10,8 @@ INSERT INTO
 	tb_giris_cikis
 SET
 	personel_id		= ?,
-	tarih			= ?,
+	grup_id         = ?,
+    tarih			= ?,
 	baslangic_saat	= ?
 SQL;
 
@@ -163,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     /*Hesaplanan Degerleri Veri Tabanına Kaydetme İşlemi*/
                     $sonuc = $fn->puantajKaydet( $personel_varmi[ 0 ][ 'id' ], $tarihAl ,$sayi, $hesapla);
                 }else{
-                    $ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $tarih, $saat ) );
+                    $ekle = $vt->insert( $SQL_giris_cikis_kaydet, array( $personel_varmi[ 0 ][ 'id' ], $personel_varmi[ 0 ][ 'grup_id' ], $tarih, $saat ) );
                 }
             }else{
                 $sonuc = "error"; 
