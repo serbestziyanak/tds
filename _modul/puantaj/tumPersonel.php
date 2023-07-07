@@ -354,7 +354,7 @@ $yarim_gun_tatil_suresi 	= $genel_ayarlar[0]["yarim_gun_tatil_suresi"];
 			<div class="container col-sm-12 card" style="display: block; padding: 15px 10px;">
 				<a class="btn btn-outline-warning btn-lg col-xs-6 col-sm-2 float-left" href="?modul=puantaj&amp;tarih=<?php echo $tarih; ?>">Tek Personele Ait Veriler</a>
 
-				<!--<a class="btn btn-outline-info btn-lg col-xs-6 col-sm-2 float-left ml-1" id="aylıkPuantajGuncelle" data-islem='puantajGuncelle' data-url='./_modul/giriscikis/puantajGuncelle.php'>Aylık Puantajı Güncelle</a>-->
+				<a class="btn btn-outline-info btn-lg col-xs-6 col-sm-2 float-left ml-1" id="aylıkPuantajGuncelle" data-islem='puantajGuncelle' data-url='./_modul/giriscikis/puantajGuncelle.php'>Aylık Puantajı Güncelle</a>
 
 				<div class="btn-group col-sm-2 rounded">
 					<button type="button" class="btn btn-info btn-lg rounded " data-toggle="dropdown" aria-expanded="false">Banka Dökümü Al</button>
