@@ -54,6 +54,13 @@ WHERE
 	id = ?
 SQL;
 
+
+
+echo "<pre>";
+print_r($_REQUEST);
+die;
+
+
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 $vt->islemBaslat();
 switch( $islem ) {
