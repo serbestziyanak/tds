@@ -47,10 +47,10 @@ if( !$sorguSonuc[ 0 ] ) {
 			$expire = time() + (180 * 24 * 60 * 60); // 30 günün saniye cinsinden değeri
 
 			// Beni Hatırla çerezi oluştur
-			setcookie('benihatirla', '1', $expire,"/","",false,true);
+			setcookie('benihatirla', '1', $expire,"/","",false,false);
 
 			//Kullanıcı Bilgilerini Saklama
-			setcookie('kullanici_id', 	$kullaniciBilgileri[ 'id' ], $expire,"/","",false,true);
+			setcookie('kullanici_id', 	$kullaniciBilgileri[ 'id' ], $expire,"/","",false,false);
 
 		} else {
 			// Beni Hatırla çerezi işaretlenmemişse, çerezi sil

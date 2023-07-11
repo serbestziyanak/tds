@@ -156,10 +156,13 @@ WHERE
 SQL;
 
 
-	if( $_COOKIE[ 'benihatirla' ] == 1 && $_COOKIE[ 'kullanici_id' ] > 0 ){
-
-		$fn->oturumOlustur( $_COOKIE[ 'kullanici_id' ] );
+	if ( $_SESSION[ 'kullanici_id' ] < 1 ){
 		
+		if( $_COOKIE[ 'benihatirla' ] == 1 && $_COOKIE[ 'kullanici_id' ] > 0 ){
+	
+			$fn->oturumOlustur( $_COOKIE[ 'kullanici_id' ] );
+			
+		}
 	}
 
 	if( array_key_exists( 'giris_var', $_SESSION ) && $_SESSION[ 'giris_var' ] == 'evet' ) { ?>
