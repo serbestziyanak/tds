@@ -342,7 +342,8 @@ $dizi = ["002-?-2023.07.12 18:33:22-001",
 
 $i = 0;
 foreach ($eksik_hareket_olan_personel as $personel) {
-    echo str_replace($personel["kayit_no"], "?",$dizi[$i]);
+    echo str_replace( "?",$personel["kayit_no"],$dizi[$i])."<br>";
+    $i++;
 }
 
 
