@@ -82,6 +82,7 @@ SET
 SQL;
 
 $tarih  = array_key_exists("tarih", $_REQUEST) ? $_REQUEST["tarih"] : date("Y-m-d");
+$gun    = $fn->gunVer( $tarih ); 
 
 $firmalar       = $vt->select( $SQL_tum_firmalar,array() ) [2];
 $vt->islemBaslat();
