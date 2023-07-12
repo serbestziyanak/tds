@@ -89,9 +89,9 @@ foreach ($firmalar as $firma) {
 
     $tum_personel                           = $vt->select( $SQL_tum_personel,array( $firma[ "id" ] ) ) [2];
 
-    $erken_cikanlar_listesi                 = $fn->erkenCikanlarListesi( date("Y-m-d"), '%,'.$gun.',%');
-    $gec_gelenler_listesi                   = $fn->gecGelenlerListesi( date("Y-m-d"), '%,'.$gun.',%');
-    $gelmeyenler_listesi                    = $fn->gelmeyenlerListesi( date("Y-m-d") );
+    $erken_cikanlar_listesi                 = $fn->erkenCikanlarListesi( $tarih, '%,'.$gun.',%');
+    $gec_gelenler_listesi                   = $fn->gecGelenlerListesi( $tarih, '%,'.$gun.',%');
+    $gelmeyenler_listesi                    = $fn->gelmeyenlerListesi( $tarih );
 
     foreach( $erken_cikanlar_listesi as $personel ){
         $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], $tarih ) ) [2];
