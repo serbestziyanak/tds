@@ -6,6 +6,7 @@ AYARLANACAK CRON JOP ZAAMANINA GÖRE FİRMANIN PERSONELİNİ KONTROL EDECEK VE O
 include "../../_cekirdek/fonksiyonlar.php";
 $fn = new Fonksiyonlar();
 $vt = new VeriTabani();
+error_reporting(0);
 
 $SQL_tum_personel = <<< SQL
 SELECT
@@ -168,6 +169,7 @@ SET
     ,yazdirma       = ?
 SQL;
 
+$tarih  = array_key_exists("tarih", $_REQUEST) ? $_REQUEST["tarih"] : date("Y-m-d");
 
 $firmalar       = $vt->select( $SQL_tum_firmalar,array() ) [2];
     $vt->islemBaslat();
@@ -178,9 +180,9 @@ foreach ($firmalar as $firma) {
 
     foreach ($tum_personel as $personel) {
 
-        $gun = $fn->gunVer( date("Y-m-d") );
+        $gun = $fn->gunVer( $tarih );
 
-        $giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', $personel["grup_id"], date("Y-m-d"), date("Y-m-d"), '%,'.$gun.',%', $_SESSION['firma_id'], $personel["grup_id"] ) ) [ 2 ][ 0 ];
+        $giris_cikis_saat_getir = $vt->select( $SQL_giris_cikis_saat, array( $tarih, $tarih, '%,'.$gun.',%', $personel["grup_id"], $tarih, $tarih, '%,'.$gun.',%', $firma[ "id" ], $personel["grup_id"] ) ) [ 2 ][ 0 ];
 
         //Mesaiye 10 DK gec Gelme olasıılıgını ekledik 10 dk ya kadaar gec gelebilir 
         $mesai_baslangic    = date("H:i", strtotime('+10 minutes', strtotime( $giris_cikis_saat_getir["mesai_baslangic"] ) ) );
@@ -191,15 +193,15 @@ foreach ($firmalar as $firma) {
 
 
         //Personel bugun giriş veya çıkış yapmış mı kontrolünü sağlıyoruz
-        $personel_giris_cikis_saatleri      = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],date("Y-m-d"),$_SESSION[ 'firma_id' ] ) )[2];
+        $personel_giris_cikis_saatleri      = $vt->select($SQL_belirli_tarihli_giris_cikis,array( $personel[ 'id' ],$tarih,$_SESSION[ 'firma_id' ] ) )[2];
 
         if ( count($personel_giris_cikis_saatleri) < 1 ) {
 
             /*Bugun Tatil Degilse personelli gelmeyenler listesine al*/
             if ( $tatil == 'hayir' ) {
                 //PErsonel Hiç Gelmemiş ise
-                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gunluk'  ) ) [2];
+                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], $tarih ) ) [2];
+                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $firma[ "id" ], $personel[ 'id' ],$tarih, 'gunluk'  ) ) [2];
                 //tutanak dosyaları eklenmisse 
                 if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
                     $degerler       = array(  $firma[ "id" ], $personel[ "id" ], date( "Y-m-d" ), "", "gunluk", date("Y-m-d H:i:s"), 0 );
@@ -220,8 +222,8 @@ foreach ($firmalar as $firma) {
             $SonCikisSaat                   = $fn->saatKarsilastir($personel_giris_cikis_saatleri[$son_cikis_index][ 'bitis_saat' ], $personel_giris_cikis_saatleri[$son_cikis_index]["bitis_saat_guncellenen"]);
 
             if ($ilkGirisSaat[0] > $mesai_baslangic AND ( $ilk_islemtipi == "" or $ilk_islemtipi == "0" )  ) {
-                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gecgelme", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'gecgelme' )  ) [2];
+                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gecgelme", $personel[ 'id' ], $tarih ) ) [2];
+                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $firma[ "id" ], $personel[ 'id' ],$tarih, 'gecgelme' )  ) [2];
                 if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0  ) {
                     $degerler       = array(  $firma[ "id" ], $personel[ "id" ], date( "Y-m-d" ), $ilkGirisSaat[ 0 ], "gecgelme", date("Y-m-d H:i:s"), 0 );
                     $tutanak_Ekle   = $vt->insert( $SQL_tutanak_kaydet, $degerler );
@@ -231,8 +233,8 @@ foreach ($firmalar as $firma) {
 
             if ($SonCikisSaat[0] < $mesai_bitis AND $SonCikisSaat[0] != " - " AND ( $son_islemtipi == "" or $son_islemtipi == "0" ) ) {
                 
-                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], date("Y-m-d") ) ) [2];
-                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $_SESSION['firma_id'], $personel[ 'id' ],date("Y-m-d"), 'erkencikma' )  ) [2];
+                $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "erkencikma", $personel[ 'id' ], $tarih ) ) [2];
+                $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $firma[ "id" ], $personel[ 'id' ],$tarih, 'erkencikma' )  ) [2];
                 if ( count( $personele_ait_tutanak_dosyasi_var_mi ) <= 0 AND count( $personel_tabloya_eklendi_mi ) <= 0 ) {
                     $degerler       = array(  $firma[ "id" ], $personel[ "id" ], date( "Y-m-d" ), $SonCikisSaat[ 0 ], "erkencikma", date("Y-m-d H:i:s"), 0 );
                     $tutanak_Ekle   = $vt->insert( $SQL_tutanak_kaydet, $degerler );
