@@ -18,7 +18,7 @@ class VeriTabani {
             else if( $_SERVER['SERVER_NAME'] == "tds.syntaxbilisim.com" ){
                 $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_tds", "syntaxbi_tds_usr", "6vH@+S9C" );
 			}
-            else if( $_SERVER['SERVER_NAME'] == "tds.syntaxbilisim.com" ){
+            else if( $_SERVER['SERVER_NAME'] == "benimfirmam.syntaxbilisim.com" ){
                 $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_benimfirmam", "syntaxbi_benimfirmam", "Aişs.12./+-." );
 			}
 
