@@ -112,7 +112,7 @@ foreach ($firmalar as $firma) {
         }
     }
 
-    foreach( $gec_gelenler_listesi as $personel ){
+    foreach( $gelmeyenler_listesi as $personel ){
         //PErsonel Hiç Gelmemiş ise
         $personele_ait_tutanak_dosyasi_var_mi   = $vt->select( $SQL_tek_tutanak_oku,array( "gunluk", $personel[ 'id' ], $tarih ) ) [2];
         $personel_tabloya_eklendi_mi            = $vt->select( $SQL_tutanak_varmi,array( $firma[ "id" ], $personel[ 'id' ],$tarih, 'gunluk'  ) ) [2];
