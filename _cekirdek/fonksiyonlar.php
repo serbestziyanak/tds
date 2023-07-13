@@ -448,6 +448,7 @@ WHERE
 		SELECT personel_id FROM tb_tutanak WHERE tb_tutanak.tarih = ? AND tip = "gecgelme"
 	) AND
 	gc.tarih =ilk_giris.tarih AND
+	gc.personel_id IN( SELECT p.id FROM tb_personel AS p LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id WHERE p.grup_id != ga.beyaz_yakali_personel ) AND
 	gc.aktif = 1
 SQL;
 
@@ -554,6 +555,7 @@ WHERE
 		SELECT personel_id FROM tb_tutanak WHERE tb_tutanak.tarih = ? AND tip = "erkencikma"
 	) AND
 	gc.tarih = son_cikis.tarih AND
+	gc.personel_id IN( SELECT p.id FROM tb_personel AS p LEFT JOIN tb_genel_ayarlar AS ga ON ga.firma_id = p.firma_id WHERE p.grup_id != ga.beyaz_yakali_personel ) AND
 	gc.aktif = 1
 LIMIT 1
 SQL;
